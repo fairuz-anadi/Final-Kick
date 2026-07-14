@@ -1,0 +1,7 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+/web-export/
+
+# Claude Code local settings (personal, not shared)
+.claude/settings.local.json
