@@ -1,10 +1,11 @@
-[gd_scene format=3 uid="uid://bup3xisrt7n75"]
+[gd_scene load_steps=21 format=3]
 
-[ext_resource type="Script" uid="uid://cf08dipgmtuhy" path="res://scripts/ball.gd" id="1"]
-[ext_resource type="Script" uid="uid://cvcsy7uwpvxkj" path="res://scripts/power_bar.gd" id="2"]
-[ext_resource type="Script" uid="uid://bdbpcmke58j3o" path="res://scripts/gear.gd" id="3"]
-[ext_resource type="Script" uid="uid://deirvrtwm5dg8" path="res://scripts/camera_director.gd" id="4"]
-[ext_resource type="Script" uid="uid://65ctskuu5di2" path="res://scripts/win_condition_detector.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/ball.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/power_bar.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/gear.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/camera_director.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/win_condition_detector.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/grid_node.gd" id="6"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(20, 0.5, 20)
@@ -28,106 +29,130 @@ size = Vector3(0.5, 3, 20)
 size = Vector3(0.5, 3, 20)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_gear"]
+top_radius = 0.5
+bottom_radius = 0.5
 height = 1.0
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_gear"]
+radius = 0.5
 height = 1.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_wire"]
+size = Vector3(1.2, 1.0, 0.05)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wire"]
+size = Vector3(1.2, 1.0, 0.05)
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ball"]
 friction = 0.3
 bounce = 0.2
 
 [sub_resource type="SphereMesh" id="SphereMesh_ball"]
+radius = 0.5
+height = 1.0
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ball"]
+radius = 0.5
 
-[node name="Level1" type="Node3D" unique_id=496622730]
+[node name="Level2" type="Node3D"]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=428675216]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8, -0.4, 0.4, 0, 0.7, 0.7, -0.6, -0.6, 0.6, 0, 5, 0)
 shadow_enabled = true
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1147241784]
+[node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.94, 0.34, 0, -0.34, 0.94, 0, 3, 9)
 current = true
 script = ExtResource("4")
 
-[node name="Floor" type="StaticBody3D" parent="." unique_id=1093075509]
+[node name="Floor" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=159997229]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
 mesh = SubResource("BoxMesh_floor")
 surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=2025564880]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
 shape = SubResource("BoxShape3D_floor")
 
-[node name="BackWall" type="StaticBody3D" parent="." unique_id=1189181574]
+[node name="BackWall" type="StaticBody3D" parent="."]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="BackWall" unique_id=1760718703]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="BackWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -10)
 mesh = SubResource("BoxMesh_backwall")
 surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="BackWall" unique_id=1059629933]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BackWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -10)
 shape = SubResource("BoxShape3D_backwall")
 
-[node name="LeftWall" type="StaticBody3D" parent="." unique_id=1999563220]
+[node name="LeftWall" type="StaticBody3D" parent="."]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="LeftWall" unique_id=767578700]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LeftWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.5, 0)
 mesh = SubResource("BoxMesh_wall")
 surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="LeftWall" unique_id=444874041]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LeftWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.5, 0)
 shape = SubResource("BoxShape3D_wall")
 
-[node name="RightWall" type="StaticBody3D" parent="." unique_id=730669056]
+[node name="RightWall" type="StaticBody3D" parent="."]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="RightWall" unique_id=381723200]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RightWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 0)
 mesh = SubResource("BoxMesh_wall")
 surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RightWall" unique_id=1459966276]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RightWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 0)
 shape = SubResource("BoxShape3D_wall")
 
-[node name="Gear" type="RigidBody3D" parent="." unique_id=616358792]
-editor_description = "Spins when kicked — sitting in the open lane straight ahead of the ball's start. One clean kick, one full spin, level complete."
+[node name="Gear" type="RigidBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+editor_description = "Spins when kicked — sits in the kick lane and hands its spin off to WireNode via the 'spun' signal, so this level teaches gear -> grid signal chaining."
 script = ExtResource("3")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Gear" unique_id=433324080]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Gear"]
 mesh = SubResource("CylinderMesh_gear")
 surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Gear" unique_id=137815097]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Gear"]
 shape = SubResource("CylinderShape3D_gear")
 
-[node name="Ball" type="RigidBody3D" parent="." unique_id=264352771]
+[node name="WireNode" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -1.5)
+editor_description = "Electric grid node — the second trigger type. Fires when it receives the Gear's 'spun' signal (or a direct hit)."
+script = ExtResource("6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WireNode"]
+mesh = SubResource("BoxMesh_wire")
+surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WireNode"]
+shape = SubResource("BoxShape3D_wire")
+
+[node name="Ball" type="RigidBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 4)
 mass = 0.45
 physics_material_override = SubResource("PhysicsMaterial_ball")
 script = ExtResource("1")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ball" unique_id=983623415]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ball"]
 mesh = SubResource("SphereMesh_ball")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ball" unique_id=469669709]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ball"]
 shape = SubResource("SphereShape3D_ball")
 
-[node name="WinConditionDetector" type="Node" parent="." unique_id=1269297758]
+[node name="WinConditionDetector" type="Node" parent="."]
 script = ExtResource("5")
-required_objects = Array[NodePath]([NodePath("../Gear")])
+required_objects = Array[NodePath]([NodePath("../Gear"), NodePath("../WireNode")])
 
-[node name="UI" type="CanvasLayer" parent="." unique_id=496658135]
+[node name="UI" type="CanvasLayer" parent="."]
 
-[node name="PowerBar" type="ProgressBar" parent="UI" unique_id=768695960]
+[node name="PowerBar" type="ProgressBar" parent="UI"]
 visible = false
-anchors_preset = 7
+anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
@@ -138,7 +163,9 @@ offset_right = 150.0
 offset_bottom = -30.0
 grow_horizontal = 2
 grow_vertical = 0
+max_value = 100.0
 show_percentage = false
 script = ExtResource("2")
 
+[connection signal="spun" from="Gear" to="WireNode" method="trigger"]
 [connection signal="level_complete" from="WinConditionDetector" to="Camera3D" method="_on_level_complete"]

@@ -43,7 +43,6 @@ physics_material_override = SubResource("PhysicsMaterial_ball")
 script = ExtResource("1")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Ball" unique_id=2041982391]
-transform = Transform3D(0.6174536, -0.35515678, -0.70186526, 0.36132738, 0.92062205, -0.14798035, 0.6987088, -0.16223218, 0.696769, 0, 0, 0)
 mesh = SubResource("SphereMesh_ball")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ball" unique_id=1796342376]
@@ -68,5 +67,6 @@ offset_right = 150.0
 offset_bottom = -30.0
 grow_horizontal = 2
 grow_vertical = 0
+max_value = 100.0
 show_percentage = false
 script = ExtResource("2")
