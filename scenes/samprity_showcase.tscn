@@ -1,0 +1,264 @@
+[gd_scene load_steps=33 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/gear.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://assets/models/vial.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://assets/models/wire_panel.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://assets/models/domino.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://assets/models/crate.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://assets/models/seesaw_lever.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://assets/models/pipe.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://assets/models/factory_wall.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://assets/models/kick_trail.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://scenes/ui/result_screen.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://assets/models/vent.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://assets/models/monitor.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://assets/models/warning_strip.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://assets/models/ceiling_light.tscn" id="22"]
+[ext_resource type="Material" path="res://assets/materials/dark_metal.tres" id="23"]
+[ext_resource type="Script" path="res://scripts/ball.gd" id="12"]
+[ext_resource type="Script" path="res://scripts/camera_director.gd" id="13"]
+[ext_resource type="Script" path="res://scripts/win_condition_detector.gd" id="14"]
+[ext_resource type="Material" path="res://assets/materials/concrete.tres" id="15"]
+[ext_resource type="Material" path="res://assets/materials/ball_device.tres" id="16"]
+[ext_resource type="Material" path="res://assets/materials/wire_glow.tres" id="17"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(14, 0.2, 14)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(14, 0.2, 14)
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_floor"]
+friction = 0.5
+bounce = 0.05
+
+[sub_resource type="SphereMesh" id="SphereMesh_ball"]
+radius = 0.5
+height = 1.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_ball"]
+radius = 0.5
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ball"]
+friction = 0.3
+bounce = 0.2
+
+[sub_resource type="TorusMesh" id="TorusMesh_strap"]
+inner_radius = 0.52
+outer_radius = 0.6
+
+[sub_resource type="BoxMesh" id="BoxMesh_gridline"]
+size = Vector3(14, 0.006, 0.05)
+
+[sub_resource type="Environment" id="Environment_factory"]
+background_mode = 1
+background_color = Color(0.059, 0.067, 0.082, 1)
+ambient_light_source = 1
+ambient_light_color = Color(0.35, 0.42, 0.55, 1)
+ambient_light_energy = 0.45
+tonemap_mode = 3
+ssao_enabled = true
+ssao_intensity = 2.0
+glow_enabled = true
+glow_intensity = 0.35
+glow_bloom = 0.05
+fog_enabled = true
+fog_light_color = Color(0.06, 0.07, 0.09, 1)
+fog_density = 0.006
+adjustment_enabled = true
+adjustment_contrast = 1.05
+
+[node name="SamprityShowcase" type="Node3D"]
+editor_description = "Samprity's integration showcase: every asset, material, shader and UI piece in one dressed room, wired to Anadi's systems. Full chain: kick -> dominoes -> gears -> wire surge -> vial explosion -> crates fly. Rabib: copy this dressing style into the real levels."
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_factory")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8, -0.4, 0.4, 0, 0.7, 0.7, -0.6, -0.6, 0.6, 0, 5, 0)
+light_color = Color(1, 0.95, 0.88, 1)
+light_energy = 0.65
+shadow_enabled = true
+
+[node name="WarmLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 2.5, 0)
+light_color = Color(1, 0.85, 0.65, 1)
+light_energy = 1.6
+omni_range = 9.0
+shadow_enabled = true
+
+[node name="FillLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2.5, -1)
+light_color = Color(0.55, 0.65, 0.8, 1)
+light_energy = 1.3
+omni_range = 9.0
+
+[node name="ReflectionProbe" type="ReflectionProbe" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+size = Vector3(14, 6, 14)
+box_projection = true
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.819, 0.574, 0, -0.574, 0.819, 0, 9, 12)
+current = true
+script = ExtResource("13")
+follow_target = NodePath("../Ball")
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+physics_material_override = SubResource("PhysicsMaterial_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_floor")
+surface_material_override/0 = ExtResource("15")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="WallNorth" parent="." instance=ExtResource("8")]
+transform = Transform3D(2.35, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -7)
+
+[node name="WallSouth" parent="." instance=ExtResource("8")]
+transform = Transform3D(2.35, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 7)
+
+[node name="WallEast" parent="." instance=ExtResource("8")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -2.35, 0, 0, 7, 1.5, 0)
+
+[node name="WallWest" parent="." instance=ExtResource("8")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -2.35, 0, 0, -7, 1.5, 0)
+
+[node name="GridLineZ1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.004, -2.33)
+mesh = SubResource("BoxMesh_gridline")
+surface_material_override/0 = ExtResource("23")
+
+[node name="GridLineZ2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.004, 2.33)
+mesh = SubResource("BoxMesh_gridline")
+surface_material_override/0 = ExtResource("23")
+
+[node name="GridLineX1" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2.33, 0.004, 0)
+mesh = SubResource("BoxMesh_gridline")
+surface_material_override/0 = ExtResource("23")
+
+[node name="GridLineX2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 2.33, 0.004, 0)
+mesh = SubResource("BoxMesh_gridline")
+surface_material_override/0 = ExtResource("23")
+
+[node name="Vent1" parent="." instance=ExtResource("19")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 2.2, -6.82)
+
+[node name="Vent2" parent="." instance=ExtResource("19")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.82, 2.2, 3)
+
+[node name="Monitor1" parent="." instance=ExtResource("20")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 1.1, 0, -3.2)
+
+[node name="WarningStrip1" parent="." instance=ExtResource("21")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 3.6, 0.012, -0.3)
+
+[node name="WarningStrip2" parent="." instance=ExtResource("21")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 3.6, 0.012, -2.1)
+
+[node name="CeilingLight1" parent="." instance=ExtResource("22")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2.9, 1)
+
+[node name="CeilingLight2" parent="." instance=ExtResource("22")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2.9, -2)
+
+[node name="PipeHigh" parent="." instance=ExtResource("7")]
+transform = Transform3D(1.6, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2.4, -6.7)
+
+[node name="PipeLow" parent="." instance=ExtResource("7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.9, -6.7)
+
+[node name="Ball" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1, 4.5)
+mass = 0.45
+physics_material_override = SubResource("PhysicsMaterial_ball")
+script = ExtResource("12")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ball"]
+mesh = SubResource("SphereMesh_ball")
+surface_material_override/0 = ExtResource("16")
+
+[node name="Strap" type="MeshInstance3D" parent="Ball"]
+mesh = SubResource("TorusMesh_strap")
+surface_material_override/0 = ExtResource("17")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ball"]
+shape = SubResource("SphereShape3D_ball")
+
+[node name="KickTrail" parent="Ball" instance=ExtResource("9")]
+
+[node name="Domino1" parent="." instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.56, 3.4)
+
+[node name="Domino2" parent="." instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.56, 2.6)
+
+[node name="Domino3" parent="." instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.56, 1.8)
+
+[node name="Domino4" parent="." instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.56, 1.0)
+
+[node name="Gear1" parent="." instance=ExtResource("1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.6, -0.2)
+rotations_to_activate = 0.25
+connected_gears = Array[NodePath]([NodePath("../Gear2")])
+
+[node name="Gear2" parent="." instance=ExtResource("1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 0.6, -0.2)
+rotations_to_activate = 0.25
+connected_gears = Array[NodePath]([NodePath("../Gear1")])
+
+[node name="WirePanel1" parent="." instance=ExtResource("3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.6, -1.2)
+connected_nodes = Array[NodePath]([NodePath("../WirePanel2")])
+
+[node name="WirePanel2" parent="." instance=ExtResource("3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.6, -1.2)
+
+[node name="Vial" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 0.3, -1.2)
+
+[node name="Crate1" parent="." instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3, 0.3, -0.6)
+
+[node name="Crate2" parent="." instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3, 0.3, -1.8)
+
+[node name="Crate3" parent="." instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 0.9, -1.2)
+
+[node name="Seesaw" parent="." instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, 2.5)
+
+[node name="SeesawCrate" parent="." instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25, 0.78, 2.5)
+
+[node name="WinConditionDetector" type="Node" parent="."]
+script = ExtResource("14")
+required_objects = Array[NodePath]([NodePath("../Gear2"), NodePath("../WirePanel2"), NodePath("../Vial")])
+
+[node name="HUD" parent="." instance=ExtResource("10")]
+level_name = "WORKSHOP 01"
+objective = "Wake every machine"
+ball_path = NodePath("../Ball")
+
+[node name="ResultScreen" parent="." instance=ExtResource("11")]
+hud_path = NodePath("../HUD")
+
+[node name="PauseMenu" parent="." instance=ExtResource("18")]
+
+[connection signal="big_impact" from="Ball" to="Camera" method="_on_big_impact"]
+[connection signal="spun" from="Gear2" to="WirePanel1" method="trigger"]
+[connection signal="surged" from="WirePanel2" to="Vial" method="trigger"]
+[connection signal="level_complete" from="WinConditionDetector" to="Camera" method="_on_level_complete"]
+[connection signal="level_complete" from="WinConditionDetector" to="ResultScreen" method="show_result"]
+[connection signal="progress_changed" from="WinConditionDetector" to="HUD" method="on_progress"]
