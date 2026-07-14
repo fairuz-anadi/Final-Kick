@@ -10,20 +10,29 @@ class_name Gear
 ## Emits `spun` whenever momentum is added (direct hit or via a connected
 ## gear), so something downstream (e.g. a GridNode) can react without this
 ## script needing to know what that is — connect the signal in the scene.
+##
+## Also emits `activated` once, the moment cumulative rotation crosses
+## `rotations_to_activate` — spin itself decays over time, so "has this gear
+## fully spun" needs its own persistent one-shot state (e.g. for a
+## win-condition detector), separate from the momentary `spun` event.
 
 signal spun(source: Node3D)
+signal activated
 
 @export var spin_axis: Vector3 = Vector3.UP  # local axis this gear spins around
 @export var moment_of_inertia: float = 0.5   # resistance to spin-up; higher = harder to start spinning
 @export var spin_damping: float = 0.6        # spin bleeds off at this rate (per second) so it settles
 @export var min_impact_impulse: float = 0.5  # impacts weaker than this are ignored (filters resting-contact noise)
 @export var external_trigger_spin: float = 3.0  # angular impulse used by trigger(), for non-physical activation
+@export var rotations_to_activate: float = 1.0  # cumulative full turns needed before `activated` fires
 
 # Other Gear nodes physically meshed with this one. On any impact (direct or
 # received), each connected gear gets driven the opposite way — like real teeth.
 @export var connected_gears: Array[NodePath] = []
 
 var _spin: float = 0.0  # current signed angular speed (rad/sec) around spin_axis
+var _total_rotation: float = 0.0  # cumulative |rotation| in radians, for the activation threshold
+var _is_activated: bool = false
 
 func _ready() -> void:
 	freeze = true
@@ -41,7 +50,12 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 
 func _physics_process(delta: float) -> void:
 	if absf(_spin) > 0.001:
-		rotate(spin_axis.normalized(), _spin * delta)
+		var step: float = _spin * delta
+		rotate(spin_axis.normalized(), step)
+		_total_rotation += absf(step)
+		if not _is_activated and _total_rotation >= rotations_to_activate * TAU:
+			_is_activated = true
+			activated.emit()
 	_spin = lerp(_spin, 0.0, clamp(spin_damping * delta, 0.0, 1.0))
 
 func _apply_impact(contact_offset: Vector3, impulse: Vector3) -> void:
