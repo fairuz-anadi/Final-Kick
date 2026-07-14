@@ -5,6 +5,8 @@
 [ext_resource type="Script" path="res://scripts/grid_node.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/ball.gd" id="4"]
 [ext_resource type="Script" path="res://scripts/power_bar.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/win_condition_detector.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/camera_director.gd" id="7"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_greybox"]
 albedo_color = Color(0.8, 0.8, 0.8, 1)
@@ -57,6 +59,7 @@ shadow_enabled = true
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.94, 0.34, 0, -0.34, 0.94, 1, 7, 12)
 current = true
+script = ExtResource("7")
 
 [node name="Ball" type="RigidBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1, 4)
@@ -69,6 +72,10 @@ mesh = SubResource("SphereMesh_ball")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ball"]
 shape = SubResource("SphereShape3D_ball")
+
+[node name="WinConditionDetector" type="Node" parent="."]
+script = ExtResource("6")
+required_objects = Array[NodePath]([NodePath("../Gear"), NodePath("../Gear2"), NodePath("../Vial"), NodePath("../WireNode"), NodePath("../WireNode2")])
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -164,3 +171,5 @@ shape = SubResource("BoxShape3D_wire")
 
 [connection signal="spun" from="Gear2" to="WireNode" method="trigger"]
 [connection signal="surged" from="WireNode2" to="Vial" method="trigger"]
+[connection signal="big_impact" from="Ball" to="Camera3D" method="_on_big_impact"]
+[connection signal="level_complete" from="WinConditionDetector" to="Camera3D" method="_on_level_complete"]
