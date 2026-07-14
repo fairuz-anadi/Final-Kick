@@ -1,67 +1,65 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene format=3 uid="uid://cfkha6ic0tn47"]
 
-[ext_resource type="Script" path="res://scripts/ball.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/power_bar.gd" id="2"]
-[ext_resource type="Script" path="res://scripts/camera_director.gd" id="3"]
+[ext_resource type="Script" uid="uid://cf08dipgmtuhy" path="res://scripts/ball.gd" id="1"]
+[ext_resource type="Script" uid="uid://cvcsy7uwpvxkj" path="res://scripts/power_bar.gd" id="2"]
+[ext_resource type="Script" uid="uid://deirvrtwm5dg8" path="res://scripts/camera_director.gd" id="3"]
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_ball"]
-radius = 0.5
-
-[sub_resource type="SphereMesh" id="SphereMesh_ball"]
-radius = 0.5
-height = 1.0
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
-size = Vector3(20, 0.2, 20)
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ground"]
+friction = 0.3
+bounce = 0.2
 
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
+size = Vector3(20, 0.2, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(20, 0.2, 20)
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ball"]
 friction = 0.3
 bounce = 0.2
 
-[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ground"]
-friction = 0.3
-bounce = 0.2
+[sub_resource type="SphereMesh" id="SphereMesh_ball"]
 
-[node name="Main" type="Node3D"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_ball"]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="Main" type="Node3D" unique_id=380492221]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1469950454]
 transform = Transform3D(0.8, -0.4, 0.4, 0, 0.7, 0.7, -0.6, -0.6, 0.6, 0, 5, 0)
 shadow_enabled = true
 
-[node name="Ground" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1676547162]
 physics_material_override = SubResource("PhysicsMaterial_ground")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=1197845762]
 mesh = SubResource("BoxMesh_ground")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=144885157]
 shape = SubResource("BoxShape3D_ground")
 
-[node name="Ball" type="RigidBody3D" parent="."]
+[node name="Ball" type="RigidBody3D" parent="." unique_id=1299458276]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mass = 0.45
 physics_material_override = SubResource("PhysicsMaterial_ball")
 script = ExtResource("1")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ball"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ball" unique_id=2041982391]
+transform = Transform3D(0.6174536, -0.35515678, -0.70186526, 0.36132738, 0.92062205, -0.14798035, 0.6987088, -0.16223218, 0.696769, 0, 0, 0)
 mesh = SubResource("SphereMesh_ball")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ball"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ball" unique_id=1796342376]
 shape = SubResource("SphereShape3D_ball")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=442848928]
 transform = Transform3D(1, 0, 0, 0, 0.94, 0.34, 0, -0.34, 0.94, 0, 3, 6)
 current = true
 script = ExtResource("3")
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=1688878390]
 
-[node name="PowerBar" type="ProgressBar" parent="UI"]
+[node name="PowerBar" type="ProgressBar" parent="UI" unique_id=1888342756]
 visible = false
-anchors_preset = 8
+anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
@@ -72,7 +70,6 @@ offset_right = 150.0
 offset_bottom = -30.0
 grow_horizontal = 2
 grow_vertical = 0
-max_value = 100.0
 show_percentage = false
 script = ExtResource("2")
 
