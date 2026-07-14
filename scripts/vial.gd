@@ -4,6 +4,8 @@ class_name Vial
 ## its own CollisionShape3D. Stays an Area3D (a trigger volume, not a solid
 ## body) so nothing gets stuck bouncing off it before it goes off.
 
+signal activated  # fires once, right when this vial explodes — for win-condition tracking etc.
+
 @export var force_threshold: float = 5.0    # min impact strength (mass * speed) needed to trigger
 @export var explosion_radius: float = 3.0   # rigid bodies within this radius feel the blast
 @export var explosion_impulse: float = 8.0  # impulse strength at the center; falls off linearly with distance
@@ -35,6 +37,7 @@ func _explode() -> void:
 	_exploded = true
 	_apply_explosion_impulse()
 	_spawn_placeholder_flash()
+	activated.emit()
 	# One-shot: hide/disable immediately so a lingering body can't retrigger
 	# it, then free once the flash (parented to the scene, not the vial) is done.
 	monitoring = false
