@@ -11,6 +11,7 @@ class_name GridNode
 ## That keeps this script from needing to know about any other object type.
 
 signal surged(source: Node3D)
+signal activated  # fires once, the first time this node's surge fires (e.g. for win-condition tracking)
 
 @export var connected_nodes: Array[NodePath] = []
 @export var flash_color: Color = Color(1.0, 0.95, 0.4)  # bright "electric" flash
@@ -19,6 +20,7 @@ signal surged(source: Node3D)
 
 var _base_material: StandardMaterial3D
 var _cooldown_remaining: float = 0.0
+var _is_activated: bool = false
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
@@ -61,6 +63,9 @@ func _fire(source: Node3D, visited: Array) -> void:
 	_cooldown_remaining = retrigger_cooldown
 	_flash()
 	surged.emit(source)
+	if not _is_activated:
+		_is_activated = true
+		activated.emit()
 	for path in connected_nodes:
 		var neighbor: Node = get_node_or_null(path)
 		if neighbor == null or neighbor in visited or not neighbor.has_method("receive_surge"):
