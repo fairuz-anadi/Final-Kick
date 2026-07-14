@@ -1,85 +1,100 @@
 extends RigidBody3D
 
+# --- Kick tuning ---
 @export var min_impulse: float = 4.0
 @export var max_impulse: float = 13.5
 @export var max_charge_time: float = 1.2
 @export var kick_height_ratio: float = 0.4
 
-@export var max_history_frames: int = 600
-@export var mouse_scrub_speed: float = 0.5
-@export var key_scrub_speed: float = 30.0
+# --- Rewind/scrub tuning ---
+@export var max_history_frames: int = 600  # ~10s of history at 60 physics fps
+@export var scrub_speed: float = 30.0      # history frames stepped per second while scrubbing
 
 var charging: bool = false
 var charge_time: float = 0.0
 var charge_ratio: float = 0.0
 
+# Recorded (position, rotation) pairs, oldest first, capped at max_history_frames.
+# This recording/scrub pattern is ball-specific for now but is written to be
+# straightforward to lift into a shared component if other objects need it too.
 var history: Array[Dictionary] = []
+
 var is_scrubbing: bool = false
-var scrub_index: float = 0.0
-var _mouse_scrub_delta: float = 0.0
+var scrub_index: float = 0.0  # float so scrub_speed can advance by fractional frames per tick
 
 @onready var camera: Camera3D = get_viewport().get_camera_3d()
 
+# Debug: confirms these key events are actually reaching Godot at all, since
+# nothing in the scrub system responds if they aren't. Fires once per key-down
+# (not every physics frame) so the console stays readable.
 func _input(event: InputEvent) -> void:
-	if is_scrubbing and event is InputEventMouseMotion and Input.is_action_pressed("rewind"):
-		_mouse_scrub_delta += event.relative.x
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.physical_keycode == KEY_R:
+			print("DEBUG input: R pressed")
+		elif event.physical_keycode == KEY_LEFT:
+			print("DEBUG input: Left arrow pressed")
+		elif event.physical_keycode == KEY_RIGHT:
+			print("DEBUG input: Right arrow pressed")
 
 func _physics_process(delta: float) -> void:
-	if is_scrubbing or _wants_to_scrub():
-		_update_scrub(delta)
+	# Raw keycodes instead of Input Map actions: the "rewind"/"scrub_*" actions
+	# are registered in InputMap but weren't responding to key presses in-game,
+	# so we read the keys directly — no Input Map entry required either way.
+	if Input.is_key_pressed(KEY_R):
+		_scrub(delta)
 		return
+
+	if is_scrubbing:
+		_exit_scrub()
 
 	_process_kick(delta)
 	_record_frame()
 
-func _wants_to_scrub() -> bool:
-	return not history.is_empty() and (
-		Input.is_action_pressed("rewind")
-		or Input.is_action_pressed("scrub_back")
-		or Input.is_action_pressed("scrub_forward")
-	)
-
-func _update_scrub(delta: float) -> void:
-	if not is_scrubbing:
-		# Freeze the body so gravity/velocity can't fight the scrubbed transform.
-		is_scrubbing = true
-		scrub_index = history.size() - 1
-		freeze = true
-		linear_velocity = Vector3.ZERO
-		angular_velocity = Vector3.ZERO
-
-	if Input.is_action_pressed("scrub_back"):
-		scrub_index -= key_scrub_speed * delta
-	if Input.is_action_pressed("scrub_forward"):
-		scrub_index += key_scrub_speed * delta
-	if Input.is_action_pressed("rewind"):
-		scrub_index += _mouse_scrub_delta * mouse_scrub_speed
-	_mouse_scrub_delta = 0.0
-
-	scrub_index = clamp(scrub_index, 0, history.size() - 1)
-	_apply_scrub_frame(int(round(scrub_index)))
-
-	if not _wants_to_scrub():
-		_exit_scrub()
-
-func _apply_scrub_frame(index: int) -> void:
-	var frame: Dictionary = history[index]
-	global_transform = Transform3D(frame["rotation"], frame["position"])
-
-func _exit_scrub() -> void:
-	# Resume live sim from the scrubbed frame; drop recorded frames after it
-	# so a later scrub can't replay a future that no longer happened.
-	var index := int(round(scrub_index))
-	history = history.slice(0, index + 1)
-	is_scrubbing = false
-	freeze = false
-	linear_velocity = Vector3.ZERO
-	angular_velocity = Vector3.ZERO
+# --- Recording (always running, even outside scrub mode) ---
 
 func _record_frame() -> void:
 	history.append({"position": global_position, "rotation": global_transform.basis})
 	if history.size() > max_history_frames:
-		history.pop_front()
+		history.pop_front()  # drop the oldest frame once the buffer is full
+
+# --- Scrub mode: held R pauses kicking; Left/Right arrows move through history ---
+
+func _scrub(delta: float) -> void:
+	if history.is_empty():
+		return
+
+	if not is_scrubbing:
+		_enter_scrub()
+
+	if Input.is_key_pressed(KEY_LEFT):
+		scrub_index -= scrub_speed * delta
+	if Input.is_key_pressed(KEY_RIGHT):
+		scrub_index += scrub_speed * delta
+	scrub_index = clamp(scrub_index, 0, history.size() - 1)
+
+	# Teleport directly to the recorded frame rather than nudging with forces,
+	# so scrubbing looks like true rewind/fast-forward rather than a shove.
+	var frame: Dictionary = history[int(round(scrub_index))]
+	global_transform = Transform3D(frame["rotation"], frame["position"])
+
+func _enter_scrub() -> void:
+	# Freeze physics so gravity/velocity can't fight the teleported transform.
+	is_scrubbing = true
+	scrub_index = history.size() - 1
+	freeze = true
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+
+func _exit_scrub() -> void:
+	# Resume live simulation from wherever the scrub was left — that point
+	# becomes the new "present," so any frames recorded after it are now a
+	# future that never happened and get dropped.
+	var index := int(round(scrub_index))
+	history = history.slice(0, index + 1)
+	is_scrubbing = false
+	freeze = false
+
+# --- Kick (paused entirely while scrub mode is active) ---
 
 func _process_kick(delta: float) -> void:
 	if Input.is_action_just_pressed("kick"):
