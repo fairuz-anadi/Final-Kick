@@ -1,0 +1,34 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Material" path="res://assets/materials/rust_metal.tres" id="1"]
+[ext_resource type="Material" path="res://assets/materials/wire_glow.tres" id="2"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_slab"]
+size = Vector3(0.45, 1.1, 0.16)
+
+[sub_resource type="BoxMesh" id="BoxMesh_stripe"]
+size = Vector3(0.46, 0.08, 0.17)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_slab"]
+size = Vector3(0.45, 1.1, 0.16)
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_domino"]
+friction = 0.5
+bounce = 0.05
+
+[node name="Domino" type="RigidBody3D"]
+editor_description = "Factory domino slab (Samprity asset batch 1). Pure physics — no script. Place standing on its 0.16 edge; origin is the slab center, so rest height is y = 0.55 on flat ground."
+mass = 0.8
+physics_material_override = SubResource("PhysicsMaterial_domino")
+
+[node name="Slab" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_slab")
+surface_material_override/0 = ExtResource("1")
+
+[node name="Stripe" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+mesh = SubResource("BoxMesh_stripe")
+surface_material_override/0 = ExtResource("2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_slab")
