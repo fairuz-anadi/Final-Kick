@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ball.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/power_bar.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/camera_director.gd" id="3"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ball"]
 radius = 0.5
@@ -54,6 +55,7 @@ shape = SubResource("SphereShape3D_ball")
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.94, 0.34, 0, -0.34, 0.94, 0, 3, 6)
 current = true
+script = ExtResource("3")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -73,3 +75,5 @@ grow_vertical = 0
 max_value = 100.0
 show_percentage = false
 script = ExtResource("2")
+
+[connection signal="big_impact" from="Ball" to="Camera3D" method="_on_big_impact"]
