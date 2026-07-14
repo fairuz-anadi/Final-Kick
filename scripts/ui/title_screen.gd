@@ -1,0 +1,16 @@
+extends Control
+## Title screen (Samprity). Entry point of the game — Start loads the current
+## playable level. Space (the "kick" action) also starts, so the first input
+## the game teaches is the same one the whole game runs on.
+
+@export var start_scene: String = "res://scenes/samprity_showcase.tscn"
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("kick"):
+		_on_start_pressed()
+
+func _on_start_pressed() -> void:
+	get_tree().change_scene_to_file(start_scene)
+
+func _on_quit_pressed() -> void:
+	get_tree().quit()
