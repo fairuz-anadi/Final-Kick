@@ -1,0 +1,48 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Material" path="res://assets/materials/dark_metal.tres" id="1"]
+[ext_resource type="Material" path="res://assets/materials/brass.tres" id="2"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_fulcrum"]
+top_radius = 0.18
+bottom_radius = 0.18
+height = 0.5
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_fulcrum"]
+radius = 0.18
+height = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_plank"]
+size = Vector3(1.8, 0.08, 0.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_plank"]
+size = Vector3(1.8, 0.08, 0.4)
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_plank"]
+friction = 0.7
+bounce = 0.05
+
+[node name="SeesawLever" type="Node3D"]
+editor_description = "Seesaw lever (Samprity asset batch 2). A brass plank balanced on a fixed cylinder — weight landing on one end flips the other end up. Pure physics, no joints, no script."
+
+[node name="Fulcrum" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.18, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Fulcrum"]
+mesh = SubResource("CylinderMesh_fulcrum")
+surface_material_override/0 = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fulcrum"]
+shape = SubResource("CylinderShape3D_fulcrum")
+
+[node name="Plank" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+mass = 0.6
+physics_material_override = SubResource("PhysicsMaterial_plank")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Plank"]
+mesh = SubResource("BoxMesh_plank")
+surface_material_override/0 = ExtResource("2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Plank"]
+shape = SubResource("BoxShape3D_plank")

@@ -1,0 +1,288 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1"]
+[ext_resource type="Material" path="res://assets/materials/ghost_material.tres" id="2"]
+[ext_resource type="Shader" path="res://assets/shaders/rewind_overlay.gdshader" id="3"]
+[ext_resource type="Script" path="res://scripts/ui/crosshair.gd" id="4"]
+[ext_resource type="Theme" path="res://assets/ui/theme.tres" id="5"]
+[ext_resource type="FontFile" path="res://assets/fonts/Orbitron.ttf" id="6"]
+[ext_resource type="Shader" path="res://assets/shaders/film_grain.gdshader" id="7"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rewind"]
+shader = ExtResource("3")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_grain"]
+shader = ExtResource("7")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.102, 0.114, 0.133, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.961, 0.651, 0.137, 0.4)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_plain"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.102, 0.114, 0.133, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.145, 0.165, 0.196, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_bg"]
+bg_color = Color(0.059, 0.067, 0.082, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.31, 0.34, 0.4, 0.7)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_charge_fill"]
+bg_color = Color(0.918, 0.918, 0.918, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_color = Color(0.918, 0.918, 0.918, 0)
+shadow_size = 0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rewind_fill"]
+bg_color = Color(0.416, 0.549, 0.686, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1")
+ghost_material = ExtResource("2")
+
+[node name="RewindOverlay" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+material = SubResource("ShaderMaterial_rewind")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="FilmGrain" type="ColorRect" parent="."]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_grain")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Crosshair" type="Control" parent="."]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4")
+
+[node name="TopLeftPanel" type="PanelContainer" parent="."]
+offset_left = 20.0
+offset_top = 18.0
+offset_right = 340.0
+theme = ExtResource("5")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="TopLeft" type="VBoxContainer" parent="TopLeftPanel"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="LevelName" type="Label" parent="TopLeftPanel/TopLeft"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
+theme_override_fonts/font = ExtResource("6")
+theme_override_font_sizes/font_size = 22
+text = "MACHINE HALL 01"
+
+[node name="UnitLabel" type="Label" parent="TopLeftPanel/TopLeft"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_font_sizes/font_size = 14
+text = "UNIT: LAST WORKER"
+
+[node name="ObjectiveHead" type="Label" parent="TopLeftPanel/TopLeft"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.961, 0.651, 0.137, 0.85)
+theme_override_fonts/font = ExtResource("6")
+theme_override_font_sizes/font_size = 11
+text = "OBJECTIVE"
+
+[node name="Objective" type="Label" parent="TopLeftPanel/TopLeft"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
+theme_override_font_sizes/font_size = 16
+text = "Wake every machine"
+
+[node name="Targets" type="Label" parent="TopLeftPanel/TopLeft"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_font_sizes/font_size = 15
+text = "TARGETS   0 / 0"
+
+[node name="TopRightPanel" type="PanelContainer" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 18.0
+offset_right = -20.0
+grow_horizontal = 0
+theme = ExtResource("5")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_plain")
+
+[node name="TopRight" type="VBoxContainer" parent="TopRightPanel"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="TimeLabel" type="Label" parent="TopRightPanel/TopRight"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
+theme_override_font_sizes/font_size = 18
+text = "TIME   00:00"
+horizontal_alignment = 2
+
+[node name="KicksLabel" type="Label" parent="TopRightPanel/TopRight"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_font_sizes/font_size = 15
+text = "KICKS   0"
+horizontal_alignment = 2
+
+[node name="RewindsLabel" type="Label" parent="TopRightPanel/TopRight"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_font_sizes/font_size = 15
+text = "REWINDS   0"
+horizontal_alignment = 2
+
+[node name="ChargeBox" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -190.0
+offset_top = -104.0
+offset_right = 190.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("5")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_plain")
+
+[node name="ChargeVBox" type="VBoxContainer" parent="ChargeBox"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="ChargeBar" type="ProgressBar" parent="ChargeBox/ChargeVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(340, 15)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_charge_fill")
+max_value = 100.0
+show_percentage = false
+
+[node name="PowerLabel" type="Label" parent="ChargeBox/ChargeVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6")
+theme_override_font_sizes/font_size = 13
+text = "KICK POWER   0%"
+horizontal_alignment = 1
+
+[node name="RewindBox" type="PanelContainer" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -304.0
+offset_top = -92.0
+offset_right = -20.0
+offset_bottom = -28.0
+grow_horizontal = 0
+grow_vertical = 0
+theme = ExtResource("5")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_plain")
+
+[node name="RewindVBox" type="VBoxContainer" parent="RewindBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RewindGaugeLabel" type="Label" parent="RewindBox/RewindVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_fonts/font = ExtResource("6")
+theme_override_font_sizes/font_size = 11
+text = "REWIND — HOLD R"
+horizontal_alignment = 2
+
+[node name="RewindGauge" type="ProgressBar" parent="RewindBox/RewindVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 9)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_rewind_fill")
+show_percentage = false
+
+[node name="TutorialHint" type="Label" parent="."]
+unique_name_in_owner = true
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -430.0
+offset_top = -26.0
+offset_right = 430.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("5")
+theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 0.85)
+theme_override_font_sizes/font_size = 14
+text = "HOLD SPACE — CHARGE   ·   RELEASE — KICK   ·   MOUSE — AIM   ·   R + LEFT / RIGHT — REWIND   ·   SCROLL — ZOOM   ·   ESC — PAUSE"
+horizontal_alignment = 1

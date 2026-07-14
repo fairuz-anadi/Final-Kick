@@ -27,6 +27,10 @@ var scrub_index: float = 0.0  # float so scrub_speed can advance by fractional f
 # --- Hard-impact reporting (screen shake / slow-mo hook, and CCD tunneling fix) ---
 signal big_impact(strength: float, impact_position: Vector3)
 
+# ANADI REVIEW (Samprity/UI): additive only — fires once per committed kick so
+# the HUD can count kicks and react to full-power ones. No behavior change.
+signal kicked(power_ratio: float)
+
 @export var big_impact_threshold: float = 4.0  # min contact impulse magnitude that counts as "big"
 @export var big_impact_cooldown: float = 0.3   # don't re-fire faster than this even during a hard multi-frame hit
 
@@ -129,6 +133,7 @@ func _process_kick(delta: float) -> void:
 	elif charging and Input.is_action_just_released("kick"):
 		var impulse_strength: float = lerp(min_impulse, max_impulse, charge_ratio)
 		apply_central_impulse(_get_aim_direction() * impulse_strength)
+		kicked.emit(charge_ratio)
 		charging = false
 		charge_time = 0.0
 		charge_ratio = 0.0
