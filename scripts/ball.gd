@@ -24,22 +24,36 @@ var scrub_index: float = 0.0  # float so scrub_speed can advance by fractional f
 
 @onready var camera: Camera3D = get_viewport().get_camera_3d()
 
-# Debug: confirms these key events are actually reaching Godot at all, since
-# nothing in the scrub system responds if they aren't. Fires once per key-down
-# (not every physics frame) so the console stays readable.
-func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.physical_keycode == KEY_R:
-			print("DEBUG input: R pressed")
-		elif event.physical_keycode == KEY_LEFT:
-			print("DEBUG input: Left arrow pressed")
-		elif event.physical_keycode == KEY_RIGHT:
-			print("DEBUG input: Right arrow pressed")
+# --- Hard-impact reporting (screen shake / slow-mo hook, and CCD tunneling fix) ---
+signal big_impact(strength: float, impact_position: Vector3)
+
+@export var big_impact_threshold: float = 4.0  # min contact impulse magnitude that counts as "big"
+@export var big_impact_cooldown: float = 0.3   # don't re-fire faster than this even during a hard multi-frame hit
+
+var _impact_cooldown_remaining: float = 0.0
+
+func _ready() -> void:
+	contact_monitor = true
+	max_contacts_reported = 4
+	# High kick speeds (up to ~30 m/s) can tunnel a small fast body through thin
+	# colliders (e.g. the 0.05m-thick wire-node panels) within one physics step.
+	continuous_cd = true
+
+func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	if _impact_cooldown_remaining > 0.0:
+		return
+	for i in state.get_contact_count():
+		var impulse: Vector3 = state.get_contact_impulse(i)
+		var strength: float = impulse.length()
+		if strength >= big_impact_threshold:
+			_impact_cooldown_remaining = big_impact_cooldown
+			big_impact.emit(strength, state.get_contact_local_position(i))
+			break
 
 func _physics_process(delta: float) -> void:
-	# Raw keycodes instead of Input Map actions: the "rewind"/"scrub_*" actions
-	# are registered in InputMap but weren't responding to key presses in-game,
-	# so we read the keys directly — no Input Map entry required either way.
+	if _impact_cooldown_remaining > 0.0:
+		_impact_cooldown_remaining -= delta
+
 	if Input.is_key_pressed(KEY_R):
 		_scrub(delta)
 		return
@@ -84,6 +98,14 @@ func _enter_scrub() -> void:
 	freeze = true
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
+	# Edge case: kick charging isn't paused via any input action, it's paused
+	# by _process_kick never running while scrubbing — so a release event
+	# that happens while R is held would never be seen, softlocking the charge
+	# forever. Cancel any in-progress charge outright instead; committing to
+	# rewind means abandoning the current charge, not banking it.
+	charging = false
+	charge_time = 0.0
+	charge_ratio = 0.0
 
 func _exit_scrub() -> void:
 	# Resume live simulation from wherever the scrub was left — that point
