@@ -195,4 +195,7 @@ func get_stats() -> Dictionary:
 func _fade_tutorial_hint() -> void:
 	await get_tree().create_timer(10.0).timeout
 	var tween := create_tween()
-	tween.tween_property(_tutorial_hint, "modulate:a", 0.0, 1.2)
+	# Dim, don't fully hide: this is the only on-screen mention that ESC
+	# pauses/restarts/quits. Fading it to nothing meant that reminder
+	# vanished completely a few seconds into every level.
+	tween.tween_property(_tutorial_hint, "modulate:a", 0.3, 1.2)
