@@ -24,6 +24,31 @@ const LEVEL_INFO := {
 		"title": "THE GAP",
 		"description": "The line breaks here — half the machinery is stranded on the far side. A normal kick won't reach it. Charge past full and hold.",
 	},
+	"res://scenes/levels/level_6.tscn": {
+		"eyebrow": "ENTERING — ROOM 06",
+		"title": "OVERCHARGE",
+		"description": "A gate seals the only way through, opening for a breath at a time. Charging past full buys range — but the longer you hold, the less you can trust your aim.",
+	},
+	"res://scenes/levels/level_7.tscn": {
+		"eyebrow": "ENTERING — ROOM 07",
+		"title": "THE LONG CHAIN",
+		"description": "The longest hallway in the building, lined end to end with machinery. Nothing new to learn here — just a long way to fall if you miss one near the end.",
+	},
+	"res://scenes/levels/level_8.tscn": {
+		"eyebrow": "ENTERING — ROOM 08",
+		"title": "LEAKING VIALS",
+		"description": "The chemical tanks here don't wait for anyone. Leave one too long and it goes off on its own terms — and it won't count for anything when it does.",
+	},
+	"res://scenes/levels/level_9.tscn": {
+		"eyebrow": "ENTERING — ROOM 09",
+		"title": "ECHO KICK",
+		"description": "This gate only answers to two hits landing as one. Record a run, then live one alongside it — press E to bank the echo, then kick for real.",
+	},
+	"res://scenes/levels/level_10.tscn": {
+		"eyebrow": "ENTERING — THE LAST ROOM",
+		"title": "EVERYTHING, ONCE MORE",
+		"description": "Gears, vials, wires, the gap, the gate — all of it, one last time, all in the same breath. This is the room the whole factory was leading to.",
+	},
 }
 
 @onready var _eyebrow: Label = %Eyebrow
