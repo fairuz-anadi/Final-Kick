@@ -1,4 +1,4 @@
-# Final Kick — itch.io page copy (Samprity)
+# Final Kick — itch.io page copy
 
 Paste-ready content for the itch.io project page. Fill the bracketed bits
 after the builds are exported.
@@ -37,7 +37,7 @@ ends on the one kick that finally works: the **final kick**.
 ## Details
 - Engine: Godot 4.7 · plays in browser, zero install (Windows build also available)
 - Made in 6 days for the IUT 12th ICT Fest GameJam 2026 — theme: **"Kickoff"**
-- Team: Anadi (systems) · Rabib (levels & sound) · Samprity (art & UI)
+- Team: Systems & Physics · Levels & Sound · Art & UI
 - Source: https://github.com/fairuz-anadi/Final-Kick
 - Pitch video: [YouTube link — TeamName_GameName]
 

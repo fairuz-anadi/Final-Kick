@@ -64,7 +64,7 @@ inner_radius = 0.52
 outer_radius = 0.6
 
 [node name="Level3" type="Node3D"]
-editor_description = "PLACEHOLDER layout, real assets — Rabib: the room shape/puzzle is still a stand-in for your real level design; only the dressing (models/materials/lighting) is final. Combines all three trigger types: Gear -> WireNode -> Vial, in a single straight lane."
+editor_description = "PLACEHOLDER layout, real assets — the room shape/puzzle is still a stand-in for a real level design; only the dressing (models/materials/lighting) is final. Combines all three trigger types: Gear -> WireNode -> Vial, in a single straight lane."
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_factory")

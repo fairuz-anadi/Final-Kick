@@ -21,7 +21,7 @@ class_name CameraDirector
 @export var spectacle_transition_time: float = 1.2
 @export var spectacle_hold_time: float = 2.5
 
-# ANADI REVIEW (Samprity/UI): additive player zoom — mouse wheel or +/- keys
+# CROSS-TEAM ADDITION (UI): additive player zoom — mouse wheel or +/- keys
 # dolly the camera along its own forward axis. Applied as an offset on top of
 # _cinematic_transform, so shake and the spectacle move are unaffected.
 @export var zoom_step: float = 0.7           # meters per wheel notch
@@ -33,7 +33,7 @@ class_name CameraDirector
 var _zoom_target: float = 0.0
 var _zoom_current: float = 0.0
 
-# ANADI REVIEW (Samprity/UI): additive presentation polish, both offset-based
+# CROSS-TEAM ADDITION (UI): additive presentation polish, both offset-based
 # on top of _cinematic_transform — the rest pose and spectacle tween are
 # untouched. Set follow_target (e.g. the Ball) for a subtle horizontal drift
 # toward the action; big impacts also punch the FOV out briefly.

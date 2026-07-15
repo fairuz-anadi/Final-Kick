@@ -1,4 +1,4 @@
-// Full-screen rewind overlay (Samprity). Shown while the player holds R and
+// Full-screen rewind overlay. Shown while the player holds R and
 // scrubs the timeline: desaturates toward a cold blue, adds faint scanlines
 // and a vignette — the "watching a replay on the busted leg-device" look.
 shader_type canvas_item;

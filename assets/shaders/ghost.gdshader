@@ -1,4 +1,4 @@
-// Ghost/rewind material (Samprity). Applied to the ball while scrubbing time
+// Ghost/rewind material. Applied to the ball while scrubbing time
 // so the "this is a replay, not the real attempt" state reads instantly —
 // translucent body with a bright fresnel rim, like a hologram of the past.
 shader_type spatial;

@@ -22,7 +22,7 @@ radius = 0.62
 height = 0.9
 
 [node name="Gear" type="RigidBody3D"]
-editor_description = "Brass factory gear (Samprity asset batch 1). Same scale as the greybox gear: swap in place, physics untouched. gear.gd attached — set connected_gears per level."
+editor_description = "Brass factory gear (asset batch 1). Same scale as the greybox gear: swap in place, physics untouched. gear.gd attached — set connected_gears per level."
 script = ExtResource("1")
 
 [node name="Body" type="MeshInstance3D" parent="."]

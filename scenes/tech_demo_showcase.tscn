@@ -70,8 +70,8 @@ fog_density = 0.006
 adjustment_enabled = true
 adjustment_contrast = 1.05
 
-[node name="SamprityShowcase" type="Node3D"]
-editor_description = "Samprity's integration showcase: every asset, material, shader and UI piece in one dressed room, wired to Anadi's systems. Full chain: kick -> dominoes -> gears -> wire surge -> vial explosion -> crates fly. Rabib: copy this dressing style into the real levels."
+[node name="TechDemoShowcase" type="Node3D"]
+editor_description = "Integration showcase: every asset, material, shader and UI piece in one dressed room, wired to the game's systems. Full chain: kick -> dominoes -> gears -> wire surge -> vial explosion -> crates fly. Copy this dressing style into the real levels."
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_factory")

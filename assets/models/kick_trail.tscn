@@ -36,7 +36,7 @@ material = SubResource("StandardMaterial3D_trail")
 size = Vector2(0.5, 0.5)
 
 [node name="KickTrail" type="GPUParticles3D"]
-editor_description = "Glow trail (Samprity signature visual). Drop as a child of the Ball — particles emit in world space, so the ball's motion paints a cyan-to-pink streak behind it. Works with the WorldEnvironment glow pass."
+editor_description = "Glow trail (signature visual). Drop as a child of the Ball — particles emit in world space, so the ball's motion paints a cyan-to-pink streak behind it. Works with the WorldEnvironment glow pass."
 amount = 64
 lifetime = 0.6
 local_coords = false

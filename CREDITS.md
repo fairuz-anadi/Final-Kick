@@ -22,6 +22,6 @@
   **placeholders** — synthesized procedurally at runtime in
   `scripts/placeholder_sfx.gd`, not recorded or sourced from anywhere, so no
   license entry is needed for them.
-- Rabib: replace each with real recorded/sourced SFX when ready (swap the
+- Replace each with real recorded/sourced SFX when ready (swap the
   `PlaceholderSFX.play_*()` call at each trigger site), and add the source +
   license here once you do — the submission form requires a complete credits list.

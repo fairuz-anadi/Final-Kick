@@ -12,7 +12,7 @@ radius = 0.15
 height = 3.0
 
 [node name="Pipe" type="StaticBody3D"]
-editor_description = "Wall pipe (Samprity asset batch 2). Static environment dressing, lies along the X axis. Safe to scale the root for longer/shorter runs."
+editor_description = "Wall pipe (asset batch 2). Static environment dressing, lies along the X axis. Safe to scale the root for longer/shorter runs."
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)

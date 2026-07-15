@@ -16,7 +16,7 @@ size = Vector3(0.05, 3.0, 0.24)
 size = Vector3(6.0, 3.0, 0.2)
 
 [node name="FactoryWall" type="StaticBody3D"]
-editor_description = "Factory wall section (Samprity asset batch 2). 6m wide, 3m tall, origin at the wall center. Duplicate/rotate around the level perimeter."
+editor_description = "Factory wall section (asset batch 2). 6m wide, 3m tall, origin at the wall center. Duplicate/rotate around the level perimeter."
 
 [node name="Wall" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_wall")

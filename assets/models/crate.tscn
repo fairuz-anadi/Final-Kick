@@ -13,7 +13,7 @@ friction = 0.6
 bounce = 0.05
 
 [node name="Crate" type="RigidBody3D"]
-editor_description = "Factory crate (Samprity asset batch 1). Pure physics prop for stacking/knocking. Origin is the center; rest height is y = 0.3 on flat ground."
+editor_description = "Factory crate (asset batch 1). Pure physics prop for stacking/knocking. Origin is the center; rest height is y = 0.3 on flat ground."
 mass = 1.2
 physics_material_override = SubResource("PhysicsMaterial_crate")
 

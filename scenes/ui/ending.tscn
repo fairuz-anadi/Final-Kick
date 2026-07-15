@@ -83,9 +83,9 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
 theme_override_font_sizes/font_size = 14
-text = "ANADI — systems & physics
-RABIB — levels & sound
-SAMPRITY — art, UI & shaders"
+text = "SYSTEMS & PHYSICS
+LEVEL DESIGN & SOUND
+ART, UI & SHADERS"
 horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="Center/VBox"]

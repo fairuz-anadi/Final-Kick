@@ -27,7 +27,7 @@ var scrub_index: float = 0.0  # float so scrub_speed can advance by fractional f
 # --- Hard-impact reporting (screen shake / slow-mo hook, and CCD tunneling fix) ---
 signal big_impact(strength: float, impact_position: Vector3)
 
-# ANADI REVIEW (Samprity/UI): additive only — fires once per committed kick so
+# CROSS-TEAM ADDITION (UI): additive only — fires once per committed kick so
 # the HUD can count kicks and react to full-power ones. No behavior change.
 signal kicked(power_ratio: float)
 

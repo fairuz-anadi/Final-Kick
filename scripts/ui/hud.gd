@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Gameplay HUD (Samprity) — "laboratory OS" pass. Reads live state off the
+## Gameplay HUD — "laboratory OS" pass. Reads live state off the
 ## Ball's public vars and two additive signals (ball.kicked,
 ## detector.progress_changed); no gameplay behavior is touched.
 ##
@@ -141,11 +141,13 @@ func _on_kicked(power_ratio: float) -> void:
 	if power_ratio >= 0.995:
 		notify("MAX POWER KICK", COLOR_WARNING)
 		_vignette_boost = 1.0
+		PlaceholderSFX.play_max_power()
 
 ## Connect WinConditionDetector.progress_changed here (done in the level scene).
 func on_progress(done: int, total: int) -> void:
 	if done > targets_done and done > 0:
 		notify("TARGET ACTIVATED   %d / %d" % [done, total], COLOR_SUCCESS)
+		PlaceholderSFX.play_target_ding()
 	targets_done = done
 	targets_total = total
 	_targets_label.text = "TARGETS   %d / %d" % [done, total]
