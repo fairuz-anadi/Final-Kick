@@ -169,6 +169,7 @@ hud_path = NodePath("../HUD")
 [node name="PauseMenu" parent="." instance=ExtResource("9")]
 
 [connection signal="spun" from="Gear" to="WireNode" method="trigger"]
+[connection signal="big_impact" from="Ball" to="Camera3D" method="_on_big_impact"]
 [connection signal="level_complete" from="WinConditionDetector" to="Camera3D" method="_on_level_complete"]
 [connection signal="level_complete" from="WinConditionDetector" to="ResultScreen" method="show_result"]
 [connection signal="progress_changed" from="WinConditionDetector" to="HUD" method="on_progress"]
