@@ -5,7 +5,16 @@ extends CanvasLayer
 
 @export var hud_path: NodePath
 @export var spectacle_delay: float = 4.6
-@export var next_scene: String = "res://scenes/ui/ending.tscn"
+@export var ending_scene: String = "res://scenes/ui/ending.tscn"
+
+## Single source of truth for level sequencing. NEXT LEVEL looks up the
+## scene that's currently running in this list and advances by one — add
+## new levels here and every result screen picks it up automatically,
+## instead of having to set a "next scene" override on every level.
+const LEVEL_ORDER: Array[String] = [
+	"res://scenes/levels/level_1.tscn",
+	"res://scenes/levels/level_2.tscn",
+]
 
 @onready var _panel: Control = %Panel
 @onready var _stats_label: Label = %Stats
@@ -62,7 +71,17 @@ func _on_retry_pressed() -> void:
 	get_tree().reload_current_scene()
 
 func _on_next_pressed() -> void:
-	get_tree().change_scene_to_file(next_scene)
+	get_tree().change_scene_to_file(_next_scene())
+
+## The level after whichever one is currently running, or the ending scene
+## if the current scene isn't in LEVEL_ORDER (shouldn't happen) or is the
+## last entry in it (the real "you beat the game" case).
+func _next_scene() -> String:
+	var current_path := get_tree().current_scene.scene_file_path
+	var index := LEVEL_ORDER.find(current_path)
+	if index == -1 or index + 1 >= LEVEL_ORDER.size():
+		return ending_scene
+	return LEVEL_ORDER[index + 1]
 
 func _on_menu_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/ui/title_screen.tscn")
