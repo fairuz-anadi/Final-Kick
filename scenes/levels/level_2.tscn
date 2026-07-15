@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/camera_director.gd" id="4"]
 [ext_resource type="Script" path="res://scripts/win_condition_detector.gd" id="5"]
 [ext_resource type="Script" path="res://scripts/grid_node.gd" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/ui/result_screen.tscn" id="7"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(20, 0.5, 20)
@@ -148,6 +149,8 @@ shape = SubResource("SphereShape3D_ball")
 script = ExtResource("5")
 required_objects = Array[NodePath]([NodePath("../Gear"), NodePath("../WireNode")])
 
+[node name="ResultScreen" parent="." instance=ExtResource("7")]
+
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="PowerBar" type="ProgressBar" parent="UI"]
@@ -169,3 +172,4 @@ script = ExtResource("2")
 
 [connection signal="spun" from="Gear" to="WireNode" method="trigger"]
 [connection signal="level_complete" from="WinConditionDetector" to="Camera3D" method="_on_level_complete"]
+[connection signal="level_complete" from="WinConditionDetector" to="ResultScreen" method="show_result"]
