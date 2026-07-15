@@ -16,11 +16,13 @@ const LEVEL_ORDER: Array[String] = [
 	"res://scenes/levels/level_2.tscn",
 	"res://scenes/levels/level_3.tscn",
 	"res://scenes/levels/level_4.tscn",
+	"res://scenes/levels/level_5.tscn",
 ]
 
 @onready var _panel: Control = %Panel
 @onready var _stats_label: Label = %Stats
 @onready var _rank_label: Label = %Rank
+@onready var _flawless_badge: Label = %FlawlessBadge
 
 func _ready() -> void:
 	_panel.visible = false
@@ -40,6 +42,7 @@ func show_result() -> void:
 		_efficiency(stats),
 	]
 	_rank_label.text = _rank(stats)
+	_flawless_badge.visible = stats["rewinds"] == 0
 
 	_panel.visible = true
 	_panel.modulate.a = 0.0
