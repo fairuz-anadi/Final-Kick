@@ -34,10 +34,10 @@ adjustment_enabled = true
 adjustment_contrast = 1.05
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
-size = Vector3(10, 0.5, 14)
+size = Vector3(10, 0.5, 17)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(10, 0.5, 14)
+size = Vector3(10, 0.5, 17)
 
 [sub_resource type="BoxMesh" id="BoxMesh_endwall"]
 size = Vector3(10, 3, 0.5)
@@ -46,10 +46,10 @@ size = Vector3(10, 3, 0.5)
 size = Vector3(10, 3, 0.5)
 
 [sub_resource type="BoxMesh" id="BoxMesh_sidewall"]
-size = Vector3(0.5, 3, 14)
+size = Vector3(0.5, 3, 17)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_sidewall"]
-size = Vector3(0.5, 3, 14)
+size = Vector3(0.5, 3, 17)
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ball"]
 friction = 0.3
@@ -88,7 +88,7 @@ script = ExtResource("2")
 follow_target = NodePath("../Ball")
 
 [node name="Floor" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, -0.5)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
 mesh = SubResource("BoxMesh_floor")
@@ -111,23 +111,23 @@ shape = SubResource("BoxShape3D_endwall")
 [node name="LeftWall" type="StaticBody3D" parent="."]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="LeftWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.5, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.5, -0.5)
 mesh = SubResource("BoxMesh_sidewall")
 surface_material_override/0 = ExtResource("10")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="LeftWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.5, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.5, -0.5)
 shape = SubResource("BoxShape3D_sidewall")
 
 [node name="RightWall" type="StaticBody3D" parent="."]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="RightWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, -0.5)
 mesh = SubResource("BoxMesh_sidewall")
 surface_material_override/0 = ExtResource("10")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RightWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, -0.5)
 shape = SubResource("BoxShape3D_sidewall")
 
 [node name="Gear1" parent="." instance=ExtResource("8")]

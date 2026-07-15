@@ -43,8 +43,10 @@ const COLOR_OVERCHARGE := Color(0.996, 0.541, 0.176)  # hot amber — between HI
 @onready var _energy_label: Label = %EnergyLabel
 
 const COLOR_ENERGY := Color(0.25, 0.85, 0.9)  # cyan — factory energy accent
-const COLOR_HEART := Color(1.0, 0.42, 0.45)
-const COLOR_HEART_LOST := Color(0.28, 0.32, 0.42, 0.55)
+const COLOR_CELL_FULL := Color(0.25, 0.85, 0.9)    # 5-4 lives: matches Factory Energy — plenty of charge
+const COLOR_CELL_LOW := Color(0.961, 0.651, 0.137)  # 3-2 lives: same amber as MAX/warning-adjacent states
+const COLOR_CELL_CRITICAL := Color(0.851, 0.325, 0.31)  # 1 life: matches the danger vignette
+const COLOR_CELL_SPENT := Color(0.16, 0.17, 0.2)   # dead casing, no glow
 
 ## Milestone flavor under the energy bar — sells "the factory is waking up".
 const ENERGY_MOODS := [
@@ -58,31 +60,56 @@ var _shown_energy: float = 0.0
 var _danger_vignette: TextureRect  # red edges at 1 heart, built lazily
 var _charge_stage: int = 0  # 0 none / 1 ≥40% / 2 ≥80% / 3 max-or-burst
 
-## Vector-drawn heart (two lobes + point). Drawn in code because the "♥"
-## glyph isn't guaranteed to exist in the project/default fonts — a tofu
-## box at the top of the screen would be worse than no heart at all.
+## Vector-drawn "power cell" — a fuse-shaped capsule with a metal casing and
+## a glowing charge fill, in keeping with the factory/machinery read of the
+## rest of the HUD (a heart glyph would read as a generic UI default here,
+## not like it belongs to this game). Spent cells go dark and crack.
 class HeartIcon extends Control:
 	var color := Color.WHITE:
 		set(value):
 			color = value
 			queue_redraw()
+	var charged := true:
+		set(value):
+			charged = value
+			queue_redraw()
+
+	const CASING := Color(0.1, 0.11, 0.14)
 
 	func _init() -> void:
-		custom_minimum_size = Vector2(22, 20)
+		custom_minimum_size = Vector2(16, 28)
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
 		var w := custom_minimum_size.x
-		var r := w * 0.25
-		var left_center := Vector2(r, r)
-		var right_center := Vector2(w - r, r)
-		draw_circle(left_center, r, color)
-		draw_circle(right_center, r, color)
-		draw_colored_polygon(PackedVector2Array([
-			Vector2(left_center.x - r, left_center.y + r * 0.35),
-			Vector2(right_center.x + r, right_center.y + r * 0.35),
-			Vector2(w * 0.5, w * 0.82),
-		]), color)
+		var h := custom_minimum_size.y
+		var cap_r := w * 0.5
+
+		# Casing: a capsule (rect + two end caps) plus a small contact prong
+		# on top, reading as a fuse/battery cell rather than a plain pill.
+		draw_rect(Rect2(0, cap_r, w, h - cap_r * 2.0), CASING, true)
+		draw_circle(Vector2(cap_r, cap_r), cap_r, CASING)
+		draw_circle(Vector2(cap_r, h - cap_r), cap_r, CASING)
+		draw_rect(Rect2(cap_r - 2.0, -3.0, 4.0, 4.0), CASING, true)
+
+		# Inner charge fill, inset from the casing so the metal rim always reads.
+		var inset := 2.6
+		var fill_r := cap_r - inset
+		draw_rect(Rect2(inset, cap_r, w - inset * 2.0, h - cap_r * 2.0), color, true)
+		draw_circle(Vector2(cap_r, cap_r), fill_r, color)
+		draw_circle(Vector2(cap_r, h - cap_r), fill_r, color)
+		# A thin bright core down the middle sells "glowing," not just "colored."
+		if charged:
+			var core := Color(color.lightened(0.55), 0.85)
+			draw_rect(Rect2(w * 0.5 - 1.0, cap_r * 0.7, 2.0, h - cap_r * 1.4), core, true)
+		else:
+			# Spent: a jagged fracture across the dead cell.
+			var crack := Color(0.02, 0.02, 0.03, 0.9)
+			var pts := PackedVector2Array([
+				Vector2(w * 0.25, h * 0.22), Vector2(w * 0.62, h * 0.42),
+				Vector2(w * 0.32, h * 0.5), Vector2(w * 0.7, h * 0.8),
+			])
+			draw_polyline(pts, crack, 1.6, true)
 
 var _ball_mesh: MeshInstance3D
 var _was_scrubbing := false
@@ -154,17 +181,28 @@ func _build_hearts() -> void:
 	_shown_lives = LifeManager.MAX_LIVES
 	for i in LifeManager.MAX_LIVES:
 		var heart := HeartIcon.new()
-		heart.color = COLOR_HEART
+		heart.color = _cell_color(LifeManager.MAX_LIVES)
 		_hearts_box.add_child(heart)
 		_heart_icons.append(heart)
 
+## Cyan while lives are plentiful, amber once down to 3-2, red at the last
+## one — the same escalation language the charge bar and vignette already use.
+func _cell_color(lives: int) -> Color:
+	if lives <= 1:
+		return COLOR_CELL_CRITICAL
+	if lives <= 3:
+		return COLOR_CELL_LOW
+	return COLOR_CELL_FULL
+
 func _on_lives_changed(lives: int, _max_lives: int) -> void:
+	var color := _cell_color(lives)
 	for i in _heart_icons.size():
 		if i < lives:
-			_heart_icons[i].color = COLOR_HEART
+			_heart_icons[i].color = color
+			_heart_icons[i].charged = true
 			_heart_icons[i].scale = Vector2.ONE
-	# Animate only on loss (not the initial refill): the dying heart pops,
-	# flashes hot, then settles into its hollow "spent" state.
+	# Animate only on loss (not the initial refill): the dying cell flashes
+	# white-hot, sparks, then settles dark and cracked.
 	if lives < _shown_lives:
 		for i in range(lives, mini(_shown_lives, _heart_icons.size())):
 			_break_heart(_heart_icons[i])
@@ -200,13 +238,39 @@ func _set_danger_vignette(active: bool) -> void:
 
 func _break_heart(heart: HeartIcon) -> void:
 	heart.pivot_offset = heart.custom_minimum_size / 2.0
+	_spawn_cell_spark(heart)
 	var tween := create_tween()
-	tween.tween_property(heart, "scale", Vector2(1.6, 1.6), 0.12) \
+	# Punch white-hot and oversized first — reads as an overload, not a fade.
+	tween.tween_property(heart, "scale", Vector2(1.7, 1.7), 0.1) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(heart, "color", Color(1.0, 0.15, 0.15), 0.12)
-	tween.tween_property(heart, "scale", Vector2.ONE, 0.3) \
+	tween.parallel().tween_property(heart, "color", Color(1.0, 1.0, 0.95), 0.1)
+	tween.tween_callback(func() -> void: heart.charged = false)
+	tween.tween_property(heart, "scale", Vector2.ONE, 0.35) \
 		.set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(heart, "color", COLOR_HEART_LOST, 0.3)
+	tween.parallel().tween_property(heart, "color", COLOR_CELL_SPENT, 0.35)
+
+## Small burst of sparks from a dying power cell — sells the "overloaded and
+## died" read that a plain color fade can't on its own.
+func _spawn_cell_spark(heart: HeartIcon) -> void:
+	var burst := CPUParticles2D.new()
+	add_child(burst)
+	burst.position = heart.global_position + heart.custom_minimum_size / 2.0
+	burst.z_index = 10
+	burst.emitting = false
+	burst.one_shot = true
+	burst.amount = 14
+	burst.lifetime = 0.35
+	burst.explosiveness = 1.0
+	burst.direction = Vector2.UP
+	burst.spread = 180.0
+	burst.gravity = Vector2(0, 260.0)
+	burst.initial_velocity_min = 60.0
+	burst.initial_velocity_max = 140.0
+	burst.scale_amount_min = 1.5
+	burst.scale_amount_max = 2.5
+	burst.color = Color(1.0, 0.85, 0.5)
+	burst.emitting = true
+	get_tree().create_timer(0.6).timeout.connect(burst.queue_free)
 
 # --- Factory energy ---
 

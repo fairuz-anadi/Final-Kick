@@ -66,11 +66,20 @@ category in the project — see **Sound effects** below for the license.
 | `target_ding.ogg` | target-activated notification | Kenney "Interface Sounds" |
 | `max_power.ogg` | max-power kick callout | Kenney "Interface Sounds" |
 | `level_complete.ogg` | level-complete chime | Kenney "Interface Sounds" |
+| `heart_loss.ogg` | life lost | Kenney "Interface Sounds" |
+| `shutdown.ogg` | factory shutdown | Kenney "Sci-fi Sounds" |
+| `machine_start.ogg` | machine startup | Kenney "Sci-fi Sounds" |
+| `narrator_blip.ogg` | narrator line cue (also the Worker's voice, pitched down) | Kenney "Interface Sounds" |
+| `spark.ogg` | ambient/activation spark | Kenney "Interface Sounds" |
+| `rewind.ogg` | rewind engage | Kenney "Interface Sounds" |
+| `charge_tick.ogg` | charge-stage tick (pitch varies per stage) | Kenney "Interface Sounds" |
 
 License: **CC0 1.0 Universal** (public domain, no attribution required) —
 https://kenney.nl/assets, license copy in `assets/audio/sfx/KENNEY_LICENSE.txt`.
-Loaded via `scripts/sfx.gd`; the ambient factory hum (`audio_director.gd`) stays
-synthesized procedurally since it's a seamless drone, not a one-shot effect.
+Loaded via `scripts/placeholder_sfx.gd`. The three looping ambient beds (wind,
+clock, heartbeat) plus the ambient factory hum and layered music stay
+synthesized procedurally — all seamless loops/beds, not one-shot effects, and
+Kenney's packs didn't have a loop-safe real substitute for the first three.
 
 ## Integration reference
 
