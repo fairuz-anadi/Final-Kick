@@ -62,6 +62,7 @@ func receive_surge(source: Node3D, visited: Array) -> void:
 func _fire(source: Node3D, visited: Array) -> void:
 	_cooldown_remaining = retrigger_cooldown
 	_flash()
+	PlaceholderSFX.play_zap(self)  # PLACEHOLDER SFX — see placeholder_sfx.gd
 	surged.emit(source)
 	if not _is_activated:
 		_is_activated = true

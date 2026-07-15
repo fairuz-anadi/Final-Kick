@@ -18,5 +18,10 @@
 - Rajdhani — Indian Type Foundry (via Google Fonts)
 
 ## Audio
-- (Rabib: add each SFX source + license here as you add sounds — the
-  submission form requires a complete credits list.)
+- Current SFX (kick thud, gear/grid clink, vial explosion, electric zap) are
+  **placeholders** — synthesized procedurally at runtime in
+  `scripts/placeholder_sfx.gd`, not recorded or sourced from anywhere, so no
+  license entry is needed for them.
+- Rabib: replace each with real recorded/sourced SFX when ready (swap the
+  `PlaceholderSFX.play_*()` call at each trigger site), and add the source +
+  license here once you do — the submission form requires a complete credits list.
