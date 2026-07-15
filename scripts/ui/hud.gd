@@ -19,6 +19,7 @@ const COLOR_HIGHLIGHT := Color(0.961, 0.651, 0.137)
 const COLOR_WARNING := Color(0.851, 0.325, 0.31)
 const COLOR_SUCCESS := Color(0.42, 0.749, 0.349)
 const COLOR_REWIND := Color(0.416, 0.549, 0.686)
+const COLOR_BURST := Color(0.545, 0.361, 0.965)  # violet — distinct from the red MAX POWER state
 
 @onready var _ball: RigidBody3D = get_node_or_null(ball_path)
 @onready var _level_label: Label = %LevelName
@@ -47,6 +48,7 @@ var kicks_used := 0
 var rewinds_used := 0
 var targets_done := 0
 var targets_total := 0
+var _burst_notified_this_kick := false
 
 func _ready() -> void:
 	_level_label.text = level_name
@@ -60,6 +62,8 @@ func _ready() -> void:
 			break
 	if _ball.has_signal("kicked"):
 		_ball.kicked.connect(_on_kicked)
+	if _ball.has_signal("burst_kicked"):
+		_ball.burst_kicked.connect(_on_burst_kicked)
 	_fade_tutorial_hint()
 
 func _process(_delta: float) -> void:
@@ -104,13 +108,19 @@ func _update_charge() -> void:
 	elif ratio >= 0.4:
 		state_color = COLOR_HIGHLIGHT
 	var at_max := ratio >= 0.995
+	var burst_armed: bool = _ball.burst_armed
+	if burst_armed:
+		state_color = COLOR_BURST
 	var fill := _charge_bar.get_theme_stylebox("fill")
 	if fill is StyleBoxFlat:
 		fill.bg_color = state_color
-		fill.shadow_color = Color(state_color, 0.5 if at_max else 0.0)
-		fill.shadow_size = 6 if at_max else 0
+		fill.shadow_color = Color(state_color, 0.5 if (at_max or burst_armed) else 0.0)
+		fill.shadow_size = 6 if (at_max or burst_armed) else 0
 
-	if at_max:
+	if burst_armed:
+		_power_label.text = "FINAL KICK READY"
+		_power_label.modulate = Color(COLOR_BURST, 0.65 + 0.35 * sin(Time.get_ticks_msec() * 0.025))
+	elif at_max:
 		_power_label.text = "MAX POWER"
 		_power_label.modulate = Color(COLOR_WARNING, 0.65 + 0.35 * sin(Time.get_ticks_msec() * 0.02))
 	else:
@@ -138,10 +148,20 @@ func _update_rewind_gauge(scrubbing: bool) -> void:
 func _on_kicked(power_ratio: float) -> void:
 	kicks_used += 1
 	_kicks_label.text = "KICKS   %d" % kicks_used
+	if _burst_notified_this_kick:
+		# The burst callout already covered the notify/vignette for this kick —
+		# skip the generic MAX POWER reaction so they don't double up.
+		_burst_notified_this_kick = false
+		return
 	if power_ratio >= 0.995:
 		notify("MAX POWER KICK", COLOR_WARNING)
 		_vignette_boost = 1.0
 		PlaceholderSFX.play_max_power()
+
+func _on_burst_kicked() -> void:
+	_burst_notified_this_kick = true
+	notify("FINAL KICK!", COLOR_BURST)
+	_vignette_boost = 1.0
 
 ## Connect WinConditionDetector.progress_changed here (done in the level scene).
 func on_progress(done: int, total: int) -> void:
