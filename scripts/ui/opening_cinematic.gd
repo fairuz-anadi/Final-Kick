@@ -16,6 +16,7 @@ extends Node3D
 const TITLE_SCREEN := "res://scenes/ui/title_screen.tscn"
 const WorkerScene := preload("res://scripts/cinematic/last_worker.gd")
 const RoomScene := preload("res://scripts/cinematic/workshop_room.gd")
+const CutCornerButtonScript := preload("res://scripts/ui/cut_corner_button.gd")
 
 var _room: WorkshopRoom
 var _worker: LastWorker
@@ -27,6 +28,8 @@ var _subtitle: Label
 var _title_year: Label
 var _title_main: Label
 var _prompt: Label
+var _skip_button: Button
+var _menu_button: Button
 
 var _wind_player: AudioStreamPlayer
 var _clock_player: AudioStreamPlayer
@@ -38,6 +41,7 @@ var _finished := false
 func _ready() -> void:
 	_build_world()
 	_build_overlay_ui()
+	_build_skip_ui()
 	_start_ambience()
 	_scene_1()
 
@@ -163,6 +167,12 @@ func _show_title_card() -> void:
 		_scene_tween.kill()
 	_subtitle.modulate.a = 0.0
 	_clock_player.stop()
+
+	# Skipping further isn't meaningful once the title card is already up —
+	# only the way out (Main Menu) still makes sense here.
+	var fade := create_tween()
+	fade.tween_property(_skip_button, "modulate:a", 0.0, 0.3)
+	fade.tween_callback(func() -> void: _skip_button.visible = false)
 
 	var tween := create_tween()
 	tween.tween_property(_overlay, "modulate:a", 1.0, 1.4)
@@ -310,6 +320,54 @@ func _build_overlay_ui() -> void:
 	_prompt.add_theme_font_size_override("font_size", 15)
 	_prompt.add_theme_color_override("font_color", Color(0.25, 0.85, 0.9))
 	layer.add_child(_prompt)
+
+## Two always-available exits from the cinematic, since "press any key"
+## alone isn't discoverable: SKIP jumps straight to the title card (same as
+## the first key press already did), MAIN MENU bails out to the title
+## screen entirely. Both fade in after a beat so the opening black frame
+## isn't cluttered with UI before anything's happened.
+func _build_skip_ui() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 51  # above the story overlay/title layer
+	add_child(layer)
+
+	var font: FontFile = load("res://assets/fonts/Orbitron.ttf")
+
+	_skip_button = CutCornerButtonScript.new()
+	_skip_button.text = "SKIP  ▸▸"
+	_skip_button.accent_color = Color(0.25, 0.85, 0.9)
+	_skip_button.pressed.connect(_show_title_card)
+	layer.add_child(_skip_button)
+	_style_skip_button(_skip_button, font, Vector2(-172, -56))
+
+	_menu_button = CutCornerButtonScript.new()
+	_menu_button.text = "MAIN MENU"
+	_menu_button.accent_color = Color(0.961, 0.651, 0.137)
+	_menu_button.pressed.connect(_go_to_title_screen)
+	layer.add_child(_menu_button)
+	_style_skip_button(_menu_button, font, Vector2(-172, -100))
+
+	for b in [_skip_button, _menu_button]:
+		b.modulate.a = 0.0
+		var tween := create_tween()
+		tween.tween_property(b, "modulate:a", 1.0, 0.8).set_delay(1.0)
+
+func _style_skip_button(b: Button, font: FontFile, offset: Vector2) -> void:
+	b.custom_minimum_size = Vector2(150, 40)
+	b.anchor_left = 1.0
+	b.anchor_right = 1.0
+	b.anchor_top = 1.0
+	b.anchor_bottom = 1.0
+	b.offset_left = offset.x
+	b.offset_right = offset.x + 150.0
+	b.offset_top = offset.y
+	b.offset_bottom = offset.y + 40.0
+	if font:
+		b.add_theme_font_override("font", font)
+	b.add_theme_font_size_override("font_size", 14)
+	b.add_theme_color_override("font_color", Color(0.9, 0.92, 0.95))
+	b.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0))
+	b.add_theme_color_override("font_pressed_color", Color(0.04, 0.05, 0.09))
 
 func _start_ambience() -> void:
 	_wind_player = AudioStreamPlayer.new()
