@@ -37,7 +37,7 @@ func _explode() -> void:
 	_exploded = true
 	_apply_explosion_impulse()
 	_spawn_placeholder_flash()
-	PlaceholderSFX.play_explosion(self)  # PLACEHOLDER SFX — see placeholder_sfx.gd
+	PlaceholderSFX.play_explosion(self)
 	activated.emit()
 	# One-shot: hide/disable immediately so a lingering body can't retrigger
 	# it, then free once the flash (parented to the scene, not the vial) is done.

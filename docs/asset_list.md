@@ -1,9 +1,10 @@
 # Final Kick — Asset List
 
-All assets are built from Godot primitives with shared materials — zero external
-files, zero import pipeline, zero copyright risk (rulebook-safe). Every
-interactive asset keeps the exact collision footprint of the original greybox
-stand-ins, so they swap in place without retuning physics.
+All 3D models and materials are built from Godot primitives by the team — zero
+external files, zero import pipeline for visuals. Every interactive asset keeps
+the exact collision footprint of the original greybox stand-ins, so they swap
+in place without retuning physics. Sound effects are the one external asset
+category in the project — see **Sound effects** below for the license.
 
 ## Materials (`assets/materials/`)
 
@@ -52,6 +53,24 @@ stand-ins, so they swap in place without retuning physics.
 - `win_screen.tscn` — connect `WinConditionDetector.level_complete` → `show_win()`; waits for the spectacle cam before appearing.
 - `title_screen.tscn` — game entry (set as main scene). Space starts.
 - `ending.tscn` — final story beat + credits.
+
+## Sound effects (`assets/audio/sfx/`)
+
+| File | Used for | Source |
+|---|---|---|
+| `kick_thud.ogg` | ball kick | Kenney "Impact Sounds" |
+| `gear_clink.ogg` | gear/grid trigger | Kenney "Impact Sounds" |
+| `vial_explosion.ogg` | vial explosion | Kenney "Sci-fi Sounds" |
+| `grid_zap.ogg` | grid/wire surge | Kenney "Sci-fi Sounds" |
+| `ui_hover.ogg` / `ui_click.ogg` | button hover/press | Kenney "Interface Sounds" |
+| `target_ding.ogg` | target-activated notification | Kenney "Interface Sounds" |
+| `max_power.ogg` | max-power kick callout | Kenney "Interface Sounds" |
+| `level_complete.ogg` | level-complete chime | Kenney "Interface Sounds" |
+
+License: **CC0 1.0 Universal** (public domain, no attribution required) —
+https://kenney.nl/assets, license copy in `assets/audio/sfx/KENNEY_LICENSE.txt`.
+Loaded via `scripts/sfx.gd`; the ambient factory hum (`audio_director.gd`) stays
+synthesized procedurally since it's a seamless drone, not a one-shot effect.
 
 ## Integration reference
 

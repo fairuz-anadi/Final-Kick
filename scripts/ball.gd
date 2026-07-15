@@ -256,7 +256,7 @@ func _process_kick(delta: float) -> void:
 				impulse_strength = lerp(impulse_strength, max_impulse * overcharge_impulse_multiplier, overcharge_ratio)
 			apply_central_impulse(_get_aim_direction(overcharge_ratio) * impulse_strength)
 			kicked.emit(charge_ratio)
-		PlaceholderSFX.play_thud(self)  # PLACEHOLDER SFX — see placeholder_sfx.gd
+		PlaceholderSFX.play_thud(self)
 		charging = false
 		charge_time = 0.0
 		charge_ratio = 0.0
