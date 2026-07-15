@@ -19,6 +19,11 @@ const LEVEL_INFO := {
 		"title": "THE FINAL KICK",
 		"description": "This is the last one. Whatever's waited at the center of this factory has been quiet for years — not for much longer.",
 	},
+	"res://scenes/levels/level_5.tscn": {
+		"eyebrow": "ENTERING — ROOM 05",
+		"title": "THE GAP",
+		"description": "The line breaks here — half the machinery is stranded on the far side. A normal kick won't reach it. Charge past full and hold.",
+	},
 }
 
 @onready var _eyebrow: Label = %Eyebrow

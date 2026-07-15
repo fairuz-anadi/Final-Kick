@@ -16,6 +16,7 @@ const LEVEL_ORDER: Array[String] = [
 	"res://scenes/levels/level_2.tscn",
 	"res://scenes/levels/level_3.tscn",
 	"res://scenes/levels/level_4.tscn",
+	"res://scenes/levels/level_5.tscn",
 ]
 
 @onready var _panel: Control = %Panel
