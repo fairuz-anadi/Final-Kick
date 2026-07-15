@@ -20,6 +20,7 @@ const COLOR_WARNING := Color(0.851, 0.325, 0.31)
 const COLOR_SUCCESS := Color(0.42, 0.749, 0.349)
 const COLOR_REWIND := Color(0.416, 0.549, 0.686)
 const COLOR_BURST := Color(0.545, 0.361, 0.965)  # violet — distinct from the red MAX POWER state
+const COLOR_OVERCHARGE := Color(0.996, 0.541, 0.176)  # hot amber — between HIGHLIGHT and BURST, reads as "risky power" not "ready"
 
 @onready var _ball: RigidBody3D = get_node_or_null(ball_path)
 @onready var _level_label: Label = %LevelName
@@ -109,17 +110,27 @@ func _update_charge() -> void:
 		state_color = COLOR_HIGHLIGHT
 	var at_max := ratio >= 0.995
 	var burst_armed: bool = _ball.burst_armed
+	var overcharge_ratio: float = _ball.overcharge_ratio if "overcharge_ratio" in _ball else 0.0
+	var overcharging := overcharge_ratio > 0.0 and not burst_armed
 	if burst_armed:
 		state_color = COLOR_BURST
+	elif overcharging:
+		state_color = COLOR_OVERCHARGE
+	var glowing := at_max or burst_armed or overcharging
 	var fill := _charge_bar.get_theme_stylebox("fill")
 	if fill is StyleBoxFlat:
 		fill.bg_color = state_color
-		fill.shadow_color = Color(state_color, 0.5 if (at_max or burst_armed) else 0.0)
-		fill.shadow_size = 6 if (at_max or burst_armed) else 0
+		fill.shadow_color = Color(state_color, 0.5 if glowing else 0.0)
+		fill.shadow_size = 6 if glowing else 0
 
 	if burst_armed:
 		_power_label.text = "FINAL KICK READY"
 		_power_label.modulate = Color(COLOR_BURST, 0.65 + 0.35 * sin(Time.get_ticks_msec() * 0.025))
+	elif overcharging:
+		# Wobble is the cost of this power, so the label leans into that
+		# instead of reading as a clean "more power" upgrade like MAX POWER.
+		_power_label.text = "OVERCHARGE — AIM UNSTABLE"
+		_power_label.modulate = Color(COLOR_OVERCHARGE, 0.65 + 0.35 * sin(Time.get_ticks_msec() * 0.03))
 	elif at_max:
 		_power_label.text = "MAX POWER"
 		_power_label.modulate = Color(COLOR_WARNING, 0.65 + 0.35 * sin(Time.get_ticks_msec() * 0.02))

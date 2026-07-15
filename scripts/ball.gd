@@ -17,6 +17,16 @@ const GhostMaterial := preload("res://assets/materials/ghost_material.tres")
 var burst_available: bool = true
 var burst_armed: bool = false
 
+# --- Overcharge: unlike the one-shot burst above, this is a repeatable
+# risk/reward every regular kick gets access to. Holding past max_charge_time
+# (the same extra window the burst uses to arm) scales impulse up further and
+# wobbles the aim direction proportionally, so more range/power costs
+# precision instead of being free. Introduced for Level 6. ---
+@export var overcharge_impulse_multiplier: float = 1.6  # extra impulse multiplier at full overcharge, on top of max_impulse
+@export var overcharge_wobble_degrees: float = 14.0      # max random aim deviation at full overcharge
+
+var overcharge_ratio: float = 0.0  # 0 = normal charge, 1 = fully overcharged (about to arm burst if available)
+
 # --- Rewind/scrub tuning ---
 @export var max_history_frames: int = 600  # ~10s of history at 60 physics fps
 @export var scrub_speed: float = 30.0      # history frames stepped per second while scrubbing
@@ -109,6 +119,7 @@ func _reset_to_start() -> void:
 	charging = false
 	charge_time = 0.0
 	charge_ratio = 0.0
+	overcharge_ratio = 0.0
 	# The old trajectory led off the edge of the world — nothing in it is
 	# somewhere worth scrubbing back to, so start the timeline over too.
 	history.clear()
@@ -156,6 +167,7 @@ func _enter_scrub() -> void:
 	charge_time = 0.0
 	charge_ratio = 0.0
 	burst_armed = false
+	overcharge_ratio = 0.0
 
 func _exit_scrub() -> void:
 	# Resume live simulation from wherever the scrub was left — that point
@@ -208,6 +220,7 @@ func _process_kick(delta: float) -> void:
 		charge_time = 0.0
 		charge_ratio = 0.0
 		burst_armed = false
+		overcharge_ratio = 0.0
 	elif charging and Input.is_action_pressed("kick"):
 		# Charge keeps accumulating past max_charge_time (instead of clamping
 		# there) only while a burst is still up for grabs, so holding longer
@@ -217,6 +230,10 @@ func _process_kick(delta: float) -> void:
 		charge_time = min(charge_time + delta, charge_cap)
 		charge_ratio = clamp(charge_time / max_charge_time, 0.0, 1.0)
 		burst_armed = burst_available and charge_time >= max_charge_time + burst_hold_window
+		# Same extra hold window doubles as the overcharge ramp, whether or
+		# not a burst is available this level — this way Overcharge still
+		# works after the one-per-level burst has been spent.
+		overcharge_ratio = clamp((charge_time - max_charge_time) / burst_hold_window, 0.0, 1.0)
 	elif charging and Input.is_action_just_released("kick"):
 		if burst_armed:
 			apply_central_impulse(_get_aim_direction() * burst_impulse)
@@ -228,14 +245,19 @@ func _process_kick(delta: float) -> void:
 			kicked.emit(1.0)
 		else:
 			var impulse_strength: float = lerp(min_impulse, max_impulse, charge_ratio)
-			apply_central_impulse(_get_aim_direction() * impulse_strength)
+			if overcharge_ratio > 0.0:
+				impulse_strength = lerp(impulse_strength, max_impulse * overcharge_impulse_multiplier, overcharge_ratio)
+			apply_central_impulse(_get_aim_direction(overcharge_ratio) * impulse_strength)
 			kicked.emit(charge_ratio)
 		PlaceholderSFX.play_thud(self)  # PLACEHOLDER SFX — see placeholder_sfx.gd
 		charging = false
 		charge_time = 0.0
 		charge_ratio = 0.0
+		overcharge_ratio = 0.0
 
-func _get_aim_direction() -> Vector3:
+## `wobble_ratio` (0-1) rotates the horizontal aim by a random angle up to
+## overcharge_wobble_degrees — 0 (the default) is a plain, precise aim.
+func _get_aim_direction(wobble_ratio: float = 0.0) -> Vector3:
 	var fallback := Vector3(0, kick_height_ratio, -1).normalized()
 	if camera == null:
 		return fallback
@@ -254,5 +276,11 @@ func _get_aim_direction() -> Vector3:
 	horizontal.y = 0.0
 	if horizontal.length() < 0.001:
 		return fallback
+	horizontal = horizontal.normalized()
 
-	return (horizontal.normalized() + Vector3.UP * kick_height_ratio).normalized()
+	if wobble_ratio > 0.0:
+		var max_wobble_rad: float = deg_to_rad(overcharge_wobble_degrees) * wobble_ratio
+		var wobble_angle: float = randf_range(-max_wobble_rad, max_wobble_rad)
+		horizontal = horizontal.rotated(Vector3.UP, wobble_angle)
+
+	return (horizontal + Vector3.UP * kick_height_ratio).normalized()

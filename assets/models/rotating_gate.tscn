@@ -1,0 +1,44 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/rotating_gate.gd" id="1"]
+[ext_resource type="Material" path="res://assets/materials/dark_metal.tres" id="2"]
+[ext_resource type="Material" path="res://assets/materials/hazard_orange.tres" id="3"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_plank"]
+size = Vector3(0.15, 2.4, 2.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_plank"]
+size = Vector3(0.15, 2.4, 2.0)
+
+[sub_resource type="BoxMesh" id="BoxMesh_stripe"]
+size = Vector3(0.17, 0.25, 2.0)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_hinge"]
+top_radius = 0.1
+bottom_radius = 0.1
+height = 2.6
+
+[node name="RotatingGate" type="Node3D"]
+editor_description = "Level 6 timed obstacle. Swings between blocking a Z-running corridor (angle 90, closed) and lying flush against the wall (angle 0, open) on a fixed cycle — see rotating_gate.gd. Place with the hinge (this node's origin) against the wall the panel should fold back into, and the panel (child Panel, offset +Z) extending into the corridor at rest."
+script = ExtResource("1")
+
+[node name="HingePost" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+mesh = SubResource("CylinderMesh_hinge")
+surface_material_override/0 = ExtResource("2")
+
+[node name="Panel" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Panel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
+mesh = SubResource("BoxMesh_plank")
+surface_material_override/0 = ExtResource("2")
+
+[node name="Stripe" type="MeshInstance3D" parent="Panel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 1)
+mesh = SubResource("BoxMesh_stripe")
+surface_material_override/0 = ExtResource("3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Panel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
+shape = SubResource("BoxShape3D_plank")
