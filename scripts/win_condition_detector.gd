@@ -18,14 +18,17 @@ signal progress_changed(done: int, total: int)
 @export var debug_print_on_complete: bool = true
 
 var _activated: Array[bool] = []
+var _targets: Array[Node] = []
 var _completed: bool = false
 
 func _ready() -> void:
 	_activated.resize(required_objects.size())
 	_activated.fill(false)
+	_targets.resize(required_objects.size())
 
 	for i in required_objects.size():
 		var target: Node = get_node_or_null(required_objects[i])
+		_targets[i] = target
 		if target == null:
 			push_warning("WinConditionDetector: required object at index %d not found (%s)" % [i, required_objects[i]])
 			continue
@@ -42,6 +45,10 @@ func _on_required_object_activated(index: int) -> void:
 	if _completed or _activated[index]:
 		return
 	_activated[index] = true
+	# Factory-revival flourish (light bloom, spark burst, startup rumble,
+	# energy bump) — the "machines coming back to life" feedback loop.
+	if _targets[index] is Node3D:
+		FactoryManager.on_machine_activated(_targets[index])
 	_emit_progress()
 	if not _activated.has(false):
 		_completed = true
