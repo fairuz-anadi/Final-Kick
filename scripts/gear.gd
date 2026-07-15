@@ -82,7 +82,7 @@ func trigger(_source: Node3D = null) -> void:
 func _receive_spin(angular_impulse: float, visited: Array) -> void:
 	_spin += angular_impulse / moment_of_inertia
 	spun.emit(self)
-	PlaceholderSFX.play_clink(self)  # PLACEHOLDER SFX — see placeholder_sfx.gd
+	PlaceholderSFX.play_clink(self)
 	for path in connected_gears:
 		var neighbor: Node = get_node_or_null(path)
 		if neighbor == null or not (neighbor is Gear) or neighbor in visited:

@@ -4,10 +4,14 @@ extends Node
 ##
 ## 1. Gives every Button in the game (present and future, any scene) a
 ##    consistent hover/press feel — a subtle scale animation plus
-##    PlaceholderSFX hover/click sounds — by watching the tree for new
+##    SFX hover/click sounds — by watching the tree for new
 ##    Button nodes rather than requiring each scene to wire its own buttons.
 ## 2. Plays a quiet, looping ambient factory hum for atmosphere (the plan's
-##    "factory heartbeat" idea) — synthesized procedurally, same as the SFX.
+##    "factory heartbeat" idea) — synthesized procedurally, since it's a
+##    seamless drone rather than a one-shot effect. The kick/impact/zap/UI
+##    one-shots in placeholder_sfx.gd are real recorded/sourced audio now;
+##    everything still synthesized here is a loop or ambience bed, not a
+##    discrete effect.
 ## 3. Layered procedural music driven by Factory Energy (set_energy):
 ##    calm piano always → ambient pad as the factory stirs → full arp/bass
 ##    mix near 100%. All three loops play in sync permanently; energy only
@@ -104,7 +108,7 @@ func _start_ambient_hum() -> void:
 	add_child(_hum_player)
 	_hum_player.play()
 
-## PLACEHOLDER ambient bed: a few slightly-detuned low sine layers (for a
+## Synthesized ambient bed: a few slightly-detuned low sine layers (for a
 ## slow beating/pulsing texture) plus faint filtered noise, looped
 ## seamlessly. Not meant to be musical — just a low industrial presence
 ## under everything, quiet enough to never compete with SFX or dialogue.
