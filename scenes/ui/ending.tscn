@@ -67,7 +67,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.24, 0.5, 1)
 theme_override_fonts/font = ExtResource("3")
 theme_override_font_sizes/font_size = 40
-text = "THE FACTORY BREATHES"
+text = "THE FACTORY BREATHES AGAIN"
 horizontal_alignment = 1
 
 [node name="Body" type="Label" parent="Center/VBox"]
@@ -75,7 +75,7 @@ custom_minimum_size = Vector2(580, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
 theme_override_font_sizes/font_size = 17
-text = "What was waiting at the center wasn't a machine at all — it was the very first one ever built here, the one every other machine was quietly wired to protect. Your one good kick didn't just start a machine. It woke the whole factory up, all at once, for the first time in years."
+text = "You thought you were the only thing still moving in here. You weren't. At the center of it all was the very first machine this factory ever built — the one every other machine had spent years silently guarding, waiting for someone who was never supposed to come back. Then you kicked. Not just a gear. Not just a wire, a vial. The whole factory lurched awake at once — lights down hallways you never knew existed, something enormous exhaling somewhere beneath your feet. You didn't just fix one machine today. You woke up everything this place ever was."
 horizontal_alignment = 1
 autowrap_mode = 2
 
