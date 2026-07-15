@@ -1,44 +1,59 @@
 extends RefCounted
 class_name PlaceholderSFX
-## PLACEHOLDER audio. Every sound here is synthesized procedurally at
-## runtime — no recorded/licensed audio files involved — so there's a real,
-## audible stand-in for each trigger event without any copyright risk.
+## Audio. The original nine one-shots (kick, gear/grid, vial, zap, UI
+## hover/click, target ding, max power, level complete) are now real CC0
+## clips from Kenney's Impact/Sci-fi/Interface Sounds packs — see
+## docs/asset_list.md and CREDITS.md. Everything else here (heart loss,
+## factory shutdown, machine startup, narrator/worker voice cues, sparks,
+## rewind, charge ticks, and the wind/clock/heartbeat ambient loops) is
+## still synthesized procedurally at runtime, same as before.
 ##
-## Swap any of these for real recorded/sourced SFX by replacing the
-## call site (e.g. `PlaceholderSFX.play_thud(self)`) with your own
-## AudioStreamPlayer3D + real AudioStream — nothing else needs to change.
+## Swap any remaining placeholder for real recorded/sourced SFX by replacing
+## the call site (e.g. `PlaceholderSFX.play_heart_loss()`) with your own
+## AudioStreamPlayer3D/AudioStreamPlayer + real AudioStream — nothing else
+## needs to change.
 
 const SAMPLE_RATE := 22050.0
 
+const KickThud := preload("res://assets/audio/sfx/kick_thud.ogg")
+const GearClink := preload("res://assets/audio/sfx/gear_clink.ogg")
+const VialExplosion := preload("res://assets/audio/sfx/vial_explosion.ogg")
+const GridZap := preload("res://assets/audio/sfx/grid_zap.ogg")
+const UiHover := preload("res://assets/audio/sfx/ui_hover.ogg")
+const UiClick := preload("res://assets/audio/sfx/ui_click.ogg")
+const TargetDing := preload("res://assets/audio/sfx/target_ding.ogg")
+const MaxPower := preload("res://assets/audio/sfx/max_power.ogg")
+const LevelComplete := preload("res://assets/audio/sfx/level_complete.ogg")
+
 static func play_thud(at: Node3D) -> void:
-	_play(_synthesize_thud(), at)
+	_play(KickThud, at)
 
 static func play_clink(at: Node3D) -> void:
-	_play(_synthesize_clink(), at)
+	_play(GearClink, at)
 
 static func play_explosion(at: Node3D) -> void:
-	_play(_synthesize_explosion(), at)
+	_play(VialExplosion, at)
 
 static func play_zap(at: Node3D) -> void:
-	_play(_synthesize_zap(), at)
+	_play(GridZap, at)
 
 # --- UI / meta sounds: not tied to a world position, so these use a plain
 # (non-positional) AudioStreamPlayer instead of a 3D one. ---
 
 static func play_ui_hover() -> void:
-	_play_2d(_synthesize_ui_hover())
+	_play_2d(UiHover)
 
 static func play_ui_click() -> void:
-	_play_2d(_synthesize_ui_click())
+	_play_2d(UiClick)
 
 static func play_target_ding() -> void:
-	_play_2d(_synthesize_target_ding())
+	_play_2d(TargetDing)
 
 static func play_max_power() -> void:
-	_play_2d(_synthesize_max_power())
+	_play_2d(MaxPower)
 
 static func play_level_complete() -> void:
-	_play_2d(_synthesize_level_complete())
+	_play_2d(LevelComplete)
 
 static func play_heart_loss() -> void:
 	_play_2d(_synthesize_heart_loss())
@@ -81,7 +96,7 @@ static func clock_tick_loop() -> AudioStreamWAV:
 static func heartbeat_loop() -> AudioStreamWAV:
 	return _synthesize_heartbeat_loop()
 
-static func _play(stream: AudioStreamWAV, at: Node3D) -> void:
+static func _play(stream: AudioStream, at: Node3D) -> void:
 	if at == null or not at.is_inside_tree():
 		return
 	var player := AudioStreamPlayer3D.new()
@@ -91,7 +106,7 @@ static func _play(stream: AudioStreamWAV, at: Node3D) -> void:
 	player.play()
 	player.finished.connect(player.queue_free)
 
-static func _play_2d(stream: AudioStreamWAV) -> void:
+static func _play_2d(stream: AudioStream) -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	if tree == null:
 		return
@@ -123,117 +138,6 @@ static func _make_loop_wav(samples: PackedFloat32Array) -> AudioStreamWAV:
 	stream.loop_begin = 0
 	stream.loop_end = samples.size()
 	return stream
-
-## Kick: a short, low-frequency thump with a fast decay.
-static func _synthesize_thud() -> AudioStreamWAV:
-	var duration := 0.16
-	var n := int(SAMPLE_RATE * duration)
-	var samples := PackedFloat32Array()
-	samples.resize(n)
-	for i in n:
-		var t: float = i / SAMPLE_RATE
-		var env: float = exp(-t * 28.0)
-		samples[i] = sin(TAU * 95.0 * t) * env * 0.9
-	return _make_wav(samples)
-
-## Gear/grid trigger: a bright, very short metallic ping.
-static func _synthesize_clink() -> AudioStreamWAV:
-	var duration := 0.09
-	var n := int(SAMPLE_RATE * duration)
-	var samples := PackedFloat32Array()
-	samples.resize(n)
-	for i in n:
-		var t: float = i / SAMPLE_RATE
-		var env: float = exp(-t * 45.0)
-		samples[i] = (sin(TAU * 1100.0 * t) + 0.5 * sin(TAU * 1800.0 * t)) * env * 0.5
-	return _make_wav(samples)
-
-## Vial: filtered noise burst layered with a low sine "boom" for body.
-static func _synthesize_explosion() -> AudioStreamWAV:
-	var duration := 0.45
-	var n := int(SAMPLE_RATE * duration)
-	var samples := PackedFloat32Array()
-	samples.resize(n)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 1337
-	for i in n:
-		var t: float = i / SAMPLE_RATE
-		var env: float = exp(-t * 7.0)
-		var noise: float = rng.randf_range(-1.0, 1.0)
-		var boom: float = sin(TAU * 60.0 * t) * exp(-t * 12.0)
-		samples[i] = clampf(noise * 0.6 + boom * 0.7, -1.0, 1.0) * env
-	return _make_wav(samples)
-
-## Grid surge: a downward frequency sweep with a crackly noise layer.
-static func _synthesize_zap() -> AudioStreamWAV:
-	var duration := 0.22
-	var n := int(SAMPLE_RATE * duration)
-	var samples := PackedFloat32Array()
-	samples.resize(n)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 42
-	for i in n:
-		var t: float = i / SAMPLE_RATE
-		var env: float = exp(-t * 14.0)
-		var freq: float = lerp(2200.0, 300.0, t / duration)
-		var crackle: float = rng.randf_range(-0.3, 0.3)
-		samples[i] = (sin(TAU * freq * t) * 0.7 + crackle) * env
-	return _make_wav(samples)
-
-## Button hover: very quiet, very short high tick — meant to be felt more
-## than heard, since it fires constantly as the mouse moves across a menu.
-static func _synthesize_ui_hover() -> AudioStreamWAV:
-	var duration := 0.035
-	var n := int(SAMPLE_RATE * duration)
-	var samples := PackedFloat32Array()
-	samples.resize(n)
-	for i in n:
-		var t: float = i / SAMPLE_RATE
-		var env: float = exp(-t * 90.0)
-		samples[i] = sin(TAU * 1500.0 * t) * env * 0.3
-	return _make_wav(samples)
-
-## Button press: a slightly firmer two-tone blip, confirming the click landed.
-static func _synthesize_ui_click() -> AudioStreamWAV:
-	var duration := 0.07
-	var n := int(SAMPLE_RATE * duration)
-	var samples := PackedFloat32Array()
-	samples.resize(n)
-	for i in n:
-		var t: float = i / SAMPLE_RATE
-		var env: float = exp(-t * 40.0)
-		var freq: float = lerp(900.0, 1400.0, clampf(t / duration, 0.0, 1.0))
-		samples[i] = sin(TAU * freq * t) * env * 0.5
-	return _make_wav(samples)
-
-## HUD "TARGET ACTIVATED" notification: a single bright, musical bell tone —
-## distinct from the mechanical clink so it reads as a UI/meta cue, not a
-## world sound.
-static func _synthesize_target_ding() -> AudioStreamWAV:
-	var duration := 0.3
-	var n := int(SAMPLE_RATE * duration)
-	var samples := PackedFloat32Array()
-	samples.resize(n)
-	for i in n:
-		var t: float = i / SAMPLE_RATE
-		var env: float = exp(-t * 6.0)
-		samples[i] = (sin(TAU * 1046.5 * t) + 0.4 * sin(TAU * 2093.0 * t)) * env * 0.55
-	return _make_wav(samples)
-
-## MAX POWER kick: a short, bright rising sweep with a buzzy harmonic layer —
-## pairs with the HUD's existing MAX POWER flash/pulse.
-static func _synthesize_max_power() -> AudioStreamWAV:
-	var duration := 0.28
-	var n := int(SAMPLE_RATE * duration)
-	var samples := PackedFloat32Array()
-	samples.resize(n)
-	for i in n:
-		var t: float = i / SAMPLE_RATE
-		var progress: float = t / duration
-		var env: float = exp(-t * 5.0) * clampf(progress * 8.0, 0.0, 1.0)
-		var freq: float = lerp(400.0, 1600.0, progress)
-		samples[i] = (sin(TAU * freq * t) + 0.35 * sin(TAU * freq * 2.0 * t)) * env * 0.6
-	return _make_wav(samples)
 
 ## Heart loss: a soft descending two-note "aww" — sad but gentle, matching
 ## the hopeful tone (a setback, not a horror sting).
@@ -406,20 +310,3 @@ static func _synthesize_heartbeat_loop() -> AudioStreamWAV:
 			var env: float = exp(-t * 22.0) * minf(t * 220.0, 1.0)
 			samples[start + i] += sin(TAU * 52.0 * t) * env * strength
 	return _make_loop_wav(samples)
-
-## Level complete: a short ascending three-note chime (major arpeggio) —
-## the "you solved it" payoff, played once the Spectacle Cam kicks in.
-static func _synthesize_level_complete() -> AudioStreamWAV:
-	var notes := [523.25, 659.25, 783.99]  # C5, E5, G5
-	var note_duration := 0.16
-	var n_per_note := int(SAMPLE_RATE * note_duration)
-	var samples := PackedFloat32Array()
-	samples.resize(n_per_note * notes.size())
-	for note_index in notes.size():
-		var freq: float = notes[note_index]
-		var base: int = note_index * n_per_note
-		for i in n_per_note:
-			var t: float = i / SAMPLE_RATE
-			var env: float = exp(-t * 9.0)
-			samples[base + i] = sin(TAU * freq * t) * env * 0.6
-	return _make_wav(samples)
