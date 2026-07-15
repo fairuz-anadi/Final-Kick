@@ -14,6 +14,11 @@ const HAS_INTRO := {
 	"res://scenes/levels/level_3.tscn": true,
 	"res://scenes/levels/level_4.tscn": true,
 	"res://scenes/levels/level_5.tscn": true,
+	"res://scenes/levels/level_6.tscn": true,
+	"res://scenes/levels/level_7.tscn": true,
+	"res://scenes/levels/level_8.tscn": true,
+	"res://scenes/levels/level_9.tscn": true,
+	"res://scenes/levels/level_10.tscn": true,
 }
 
 func go_to_level(path: String) -> void:
