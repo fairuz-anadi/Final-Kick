@@ -17,10 +17,10 @@
 
 [sub_resource type="Environment" id="Environment_factory"]
 background_mode = 1
-background_color = Color(0.045, 0.052, 0.065, 1)
+background_color = Color(0.059, 0.067, 0.082, 1)
 ambient_light_source = 1
-ambient_light_color = Color(0.34, 0.4, 0.52, 1)
-ambient_light_energy = 0.4
+ambient_light_color = Color(0.36, 0.42, 0.53, 1)
+ambient_light_energy = 0.45
 tonemap_mode = 3
 ssao_enabled = true
 ssao_intensity = 2.0
@@ -28,8 +28,8 @@ glow_enabled = true
 glow_intensity = 0.35
 glow_bloom = 0.05
 fog_enabled = true
-fog_light_color = Color(0.05, 0.06, 0.08, 1)
-fog_density = 0.012
+fog_light_color = Color(0.06, 0.07, 0.09, 1)
+fog_density = 0.006
 adjustment_enabled = true
 adjustment_contrast = 1.05
 
@@ -72,7 +72,7 @@ environment = SubResource("Environment_factory")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8, -0.4, 0.4, 0, 0.7, 0.7, -0.6, -0.6, 0.6, 0, 5, 0)
 light_color = Color(1, 0.95, 0.88, 1)
-light_energy = 0.55
+light_energy = 0.65
 shadow_enabled = true
 
 [node name="CeilingLight1" parent="." instance=ExtResource("14")]
@@ -83,6 +83,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, -6)
 
 [node name="CeilingLight3" parent="." instance=ExtResource("14")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, -24)
+
+[node name="CeilingLight4" parent="." instance=ExtResource("14")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, -33)
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.86, 0.5, 0, -0.5, 0.86, 0, 15, 34)
