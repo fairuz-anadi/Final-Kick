@@ -106,11 +106,18 @@ func _physics_process(delta: float) -> void:
 		_exit_scrub()
 
 	if global_position.y < out_of_bounds_y:
-		_reset_to_start()
+		lose_ball()
 		return
 
 	_process_kick(delta)
 	_record_frame()
+
+## Ball is lost (fell out of bounds, touched a kill zone): costs a heart via
+## LifeManager, then respawns at the start with level progress intact.
+## Public so KillZone areas can trigger the same flow as a fall.
+func lose_ball() -> void:
+	LifeManager.on_ball_lost(self)
+	_reset_to_start()
 
 func _reset_to_start() -> void:
 	transform = _start_transform

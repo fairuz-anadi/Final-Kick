@@ -9,12 +9,12 @@ content_margin_left = 30.0
 content_margin_top = 13.0
 content_margin_right = 30.0
 content_margin_bottom = 13.0
-bg_color = Color(0.102, 0.114, 0.133, 1)
+bg_color = Color(0.043, 0.075, 0.145, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.31, 0.34, 0.4, 0.7)
+border_color = Color(0.22, 0.78, 0.84, 0.5)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
@@ -59,7 +59,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.059, 0.067, 0.082, 1)
+color = Color(0.016, 0.024, 0.047, 1)
 
 [node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -93,7 +93,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
 theme_override_font_sizes/font_size = 17
-text = "One kick. One chance. Rewind, aim again, and wake the machine up for good."
+text = "Year 2147. The Last Worker is gone. His final creation keeps his promise."
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="Center/VBox"]

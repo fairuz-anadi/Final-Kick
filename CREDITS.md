@@ -18,10 +18,14 @@
 - Rajdhani — Indian Type Foundry (via Google Fonts)
 
 ## Audio
-- Current SFX (kick thud, gear/grid clink, vial explosion, electric zap) are
+- Current SFX (kick thud, gear/grid clink, vial explosion, electric zap,
+  heart loss, factory shutdown, machine startup, narrator chime, sparks) are
   **placeholders** — synthesized procedurally at runtime in
   `scripts/placeholder_sfx.gd`, not recorded or sourced from anywhere, so no
   license entry is needed for them.
+- The layered music (calm piano → ambient pad → full mix, driven by Factory
+  Energy) is likewise synthesized procedurally in `scripts/audio_director.gd`
+  — swap the three `_synthesize_*_loop()` streams for real tracks when ready.
 - Replace each with real recorded/sourced SFX when ready (swap the
   `PlaceholderSFX.play_*()` call at each trigger site), and add the source +
   license here once you do — the submission form requires a complete credits list.
