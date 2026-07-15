@@ -4,7 +4,7 @@ extends RigidBody3D
 @export var min_impulse: float = 4.0
 @export var max_impulse: float = 13.5
 @export var max_charge_time: float = 1.2
-@export var kick_height_ratio: float = 0.4
+@export var kick_height_ratio: float = 0.15  # fixed ratio, but scales with impulse — kept low so max-charge kicks (~30 m/s) apex under ~1m, not over the 3m level walls
 
 # --- Rewind/scrub tuning ---
 @export var max_history_frames: int = 600  # ~10s of history at 60 physics fps
@@ -36,7 +36,17 @@ signal kicked(power_ratio: float)
 
 var _impact_cooldown_remaining: float = 0.0
 
+# --- Out-of-bounds recovery ---
+# Rooms are open-fronted (no wall where the ball starts) and finite-sized
+# floors — a hard kick or a bad bounce can send the ball rolling off the
+# edge, off a bumper, wherever, with no way back. Rather than relying on the
+# player to notice and manually pause+restart, catch the fall and reset.
+@export var out_of_bounds_y: float = -5.0
+
+var _start_transform: Transform3D
+
 func _ready() -> void:
+	_start_transform = transform
 	contact_monitor = true
 	max_contacts_reported = 4
 	# High kick speeds (up to ~30 m/s) can tunnel a small fast body through thin
@@ -65,8 +75,23 @@ func _physics_process(delta: float) -> void:
 	if is_scrubbing:
 		_exit_scrub()
 
+	if global_position.y < out_of_bounds_y:
+		_reset_to_start()
+		return
+
 	_process_kick(delta)
 	_record_frame()
+
+func _reset_to_start() -> void:
+	transform = _start_transform
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+	charging = false
+	charge_time = 0.0
+	charge_ratio = 0.0
+	# The old trajectory led off the edge of the world — nothing in it is
+	# somewhere worth scrubbing back to, so start the timeline over too.
+	history.clear()
 
 # --- Recording (always running, even outside scrub mode) ---
 
