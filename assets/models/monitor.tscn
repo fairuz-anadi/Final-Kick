@@ -15,7 +15,7 @@ bottom_radius = 0.06
 height = 0.7
 
 [node name="Monitor" type="Node3D"]
-editor_description = "Control-room monitor on a stand (Samprity dressing prop). Decorative only. Origin at floor level; screen faces +Z."
+editor_description = "Control-room monitor on a stand (dressing prop). Decorative only. Origin at floor level; screen faces +Z."
 
 [node name="Stand" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)

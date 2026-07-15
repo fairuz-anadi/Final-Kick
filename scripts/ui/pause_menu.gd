@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Pause menu (Samprity). ESC (ui_cancel) toggles. The root CanvasLayer runs
+## Pause menu. ESC (ui_cancel) toggles. The root CanvasLayer runs
 ## with process_mode ALWAYS (set in the scene) so it keeps receiving input
 ## while the tree is paused. Holds the full controls reference.
 

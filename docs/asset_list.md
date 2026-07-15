@@ -1,8 +1,8 @@
-# Final Kick — Asset List (Samprity)
+# Final Kick — Asset List
 
 All assets are built from Godot primitives with shared materials — zero external
 files, zero import pipeline, zero copyright risk (rulebook-safe). Every
-interactive asset keeps the exact collision footprint of Anadi's greybox
+interactive asset keeps the exact collision footprint of the original greybox
 stand-ins, so they swap in place without retuning physics.
 
 ## Materials (`assets/materials/`)
@@ -55,7 +55,7 @@ stand-ins, so they swap in place without retuning physics.
 
 ## Integration reference
 
-`scenes/samprity_showcase.tscn` shows every asset wired to Anadi's systems in
-one dressed room, including the WorldEnvironment (glow + fog + ACES) that makes
-the emissive materials read. Rabib: copy its lighting/environment setup into
+`scenes/tech_demo_showcase.tscn` shows every asset wired to the game's systems
+in one dressed room, including the WorldEnvironment (glow + fog + ACES) that
+makes the emissive materials read. Copy its lighting/environment setup into
 the real levels.

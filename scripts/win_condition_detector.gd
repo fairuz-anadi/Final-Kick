@@ -10,7 +10,7 @@ class_name WinConditionDetector
 
 signal level_complete
 
-# ANADI REVIEW (Samprity/UI): additive only — reports "n of m targets done"
+# CROSS-TEAM ADDITION (UI): additive only — reports "n of m targets done"
 # whenever a tracked object activates, so the HUD can show live progress.
 signal progress_changed(done: int, total: int)
 
@@ -47,6 +47,7 @@ func _on_required_object_activated(index: int) -> void:
 		_completed = true
 		if debug_print_on_complete:
 			print("WinConditionDetector: level complete — all %d required objects activated" % _activated.size())
+		PlaceholderSFX.play_level_complete()
 		level_complete.emit()
 
 func _emit_progress() -> void:

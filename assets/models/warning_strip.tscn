@@ -7,7 +7,7 @@
 size = Vector3(0.25, 0.12, 0.02)
 
 [node name="WarningStrip" type="Node3D"]
-editor_description = "Hazard stripe decal (Samprity dressing prop), 1.5m of alternating orange/dark segments. Decorative. Vertical by default — rotate X -90 to lay flat on the floor."
+editor_description = "Hazard stripe decal (dressing prop), 1.5m of alternating orange/dark segments. Decorative. Vertical by default — rotate X -90 to lay flat on the floor."
 
 [node name="Seg1" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.625, 0, 0)

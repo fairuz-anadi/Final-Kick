@@ -17,7 +17,7 @@ friction = 0.5
 bounce = 0.05
 
 [node name="Domino" type="RigidBody3D"]
-editor_description = "Factory domino slab (Samprity asset batch 1). Pure physics — no script. Place standing on its 0.16 edge; origin is the slab center, so rest height is y = 0.55 on flat ground."
+editor_description = "Factory domino slab (asset batch 1). Pure physics — no script. Place standing on its 0.16 edge; origin is the slab center, so rest height is y = 0.55 on flat ground."
 mass = 0.8
 physics_material_override = SubResource("PhysicsMaterial_domino")
 

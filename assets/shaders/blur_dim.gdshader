@@ -1,4 +1,4 @@
-// Menu backdrop (Samprity): cheap background blur (mip sample) + dim, used by
+// Menu backdrop: cheap background blur (mip sample) + dim, used by
 // the pause and result screens so gameplay softens behind the panel.
 shader_type canvas_item;
 

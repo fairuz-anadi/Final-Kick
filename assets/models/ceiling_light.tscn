@@ -10,7 +10,7 @@ size = Vector3(1.2, 0.08, 0.25)
 size = Vector3(1.1, 0.02, 0.18)
 
 [node name="CeilingLight" type="Node3D"]
-editor_description = "Industrial hanging light (Samprity dressing prop): warm emissive strip + a real OmniLight3D. Hang around y = 2.9 in a 3m room."
+editor_description = "Industrial hanging light (dressing prop): warm emissive strip + a real OmniLight3D. Hang around y = 2.9 in a 3m room."
 
 [node name="Housing" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_housing")

@@ -141,7 +141,7 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 0.6)
 theme_override_font_sizes/font_size = 12
-text = "Anadi — systems  ·  Rabib — levels  ·  Samprity — art & UI"
+text = "Systems & Physics  ·  Level Design  ·  Art & UI"
 horizontal_alignment = 1
 
 [connection signal="pressed" from="Center/VBox/StartButton" to="." method="_on_start_pressed"]

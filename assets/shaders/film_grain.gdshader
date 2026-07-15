@@ -1,4 +1,4 @@
-// Always-on presentation pass (Samprity): light film grain + small vignette,
+// Always-on presentation pass: light film grain + small vignette,
 // per the art direction ("premium, cinematic, avoid excessive effects").
 // `boost` is punched briefly by the HUD on a MAX POWER kick.
 shader_type canvas_item;

@@ -19,7 +19,7 @@ height = 0.14
 size = Vector3(1.2, 1.0, 0.12)
 
 [node name="WirePanel" type="Area3D"]
-editor_description = "Electric wire panel (Samprity asset batch 1). Same footprint as the greybox wire node. grid_node.gd attached — the Panel mesh is first so the surge flash targets it. Set connected_nodes per level."
+editor_description = "Electric wire panel (asset batch 1). Same footprint as the greybox wire node. grid_node.gd attached — the Panel mesh is first so the surge flash targets it. Set connected_nodes per level."
 script = ExtResource("1")
 
 [node name="Panel" type="MeshInstance3D" parent="."]

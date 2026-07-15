@@ -1,4 +1,4 @@
-# Final Kick — jam submission fields (Anadi)
+# Final Kick — jam submission fields
 
 Paste-ready answers for the IUT ICT Fest gamejam submission form. This is the
 literal form-field content required by the rulebook checklist (engine,
@@ -53,4 +53,4 @@ FinalKick.exe — no installer."
 - Video: pending Day 8 shoot
 
 ## Credits
-See `CREDITS.md` at the project root (Samprity is keeping this current).
+See `CREDITS.md` at the project root (kept current alongside the art/UI work).

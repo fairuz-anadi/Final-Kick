@@ -1,5 +1,5 @@
 extends Label
-## One-shot floating feedback text (Samprity): rises, scales up slightly,
+## One-shot floating feedback text: rises, scales up slightly,
 ## fades, frees itself after ~1 second. Spawn via HUD.notify(). The spawner
 ## sets `position` to the anchor point; this script re-centers on it.
 

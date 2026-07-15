@@ -1,5 +1,5 @@
 extends Control
-## Title screen (Samprity). Entry point of the game — Start loads the current
+## Title screen. Entry point of the game — Start loads the current
 ## playable level. Space (the "kick" action) also starts, so the first input
 ## the game teaches is the same one the whole game runs on.
 

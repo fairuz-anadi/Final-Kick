@@ -1,5 +1,5 @@
 extends Control
-## Aim crosshair (Samprity). Follows the mouse; the HUD feeds it state every
+## Aim crosshair. Follows the mouse; the HUD feeds it state every
 ## frame via set_state(). Grows while charging, spins cyan while rewinding.
 ## Drawn as thin lines so it never obstructs the play field.
 

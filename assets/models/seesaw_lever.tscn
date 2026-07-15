@@ -23,7 +23,7 @@ friction = 0.7
 bounce = 0.05
 
 [node name="SeesawLever" type="Node3D"]
-editor_description = "Seesaw lever (Samprity asset batch 2). A brass plank balanced on a fixed cylinder — weight landing on one end flips the other end up. Pure physics, no joints, no script."
+editor_description = "Seesaw lever (asset batch 2). A brass plank balanced on a fixed cylinder — weight landing on one end flips the other end up. Pure physics, no joints, no script."
 
 [node name="Fulcrum" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.18, 0)

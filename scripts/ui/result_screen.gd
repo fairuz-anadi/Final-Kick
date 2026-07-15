@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Result screen (Samprity). Connect WinConditionDetector.level_complete →
+## Result screen. Connect WinConditionDetector.level_complete →
 ## show_result(). Waits out the spectacle cam, then fades/scales in with the
 ## run's real stats (from the HUD) and an S/A/B/C rank.
 
@@ -73,7 +73,7 @@ func _on_retry_pressed() -> void:
 	get_tree().reload_current_scene()
 
 func _on_next_pressed() -> void:
-	get_tree().change_scene_to_file(_next_scene())
+	LevelFlow.go_to_level(_next_scene())
 
 ## The level after whichever one is currently running, or the ending scene
 ## if the current scene isn't in LEVEL_ORDER (shouldn't happen) or is the

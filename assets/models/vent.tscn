@@ -9,7 +9,7 @@ size = Vector3(0.9, 0.6, 0.06)
 size = Vector3(0.8, 0.05, 0.03)
 
 [node name="Vent" type="Node3D"]
-editor_description = "Ventilation grate (Samprity dressing prop). Decorative only, no collision — mount flush on a wall."
+editor_description = "Ventilation grate (dressing prop). Decorative only, no collision — mount flush on a wall."
 
 [node name="Frame" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_frame")

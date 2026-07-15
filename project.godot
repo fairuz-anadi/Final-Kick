@@ -43,6 +43,11 @@ scrub_forward={
 ]
 }
 
+[autoload]
+
+AudioDirector="*res://scripts/audio_director.gd"
+LevelFlow="*res://scripts/level_flow.gd"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
