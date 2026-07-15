@@ -1,16 +1,38 @@
 [gd_scene format=3 uid="uid://bup3xisrt7n75"]
 
 [ext_resource type="Script" uid="uid://cf08dipgmtuhy" path="res://scripts/ball.gd" id="1"]
-[ext_resource type="Script" uid="uid://cvcsy7uwpvxkj" path="res://scripts/power_bar.gd" id="2"]
-[ext_resource type="Script" uid="uid://bdbpcmke58j3o" path="res://scripts/gear.gd" id="3"]
 [ext_resource type="Script" uid="uid://deirvrtwm5dg8" path="res://scripts/camera_director.gd" id="4"]
 [ext_resource type="Script" uid="uid://65ctskuu5di2" path="res://scripts/win_condition_detector.gd" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/ui/result_screen.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://assets/models/gear.tscn" id="9"]
+[ext_resource type="Material" path="res://assets/materials/concrete.tres" id="10"]
+[ext_resource type="Material" path="res://assets/materials/ball_device.tres" id="11"]
+[ext_resource type="Material" path="res://assets/materials/wire_glow.tres" id="12"]
+[ext_resource type="PackedScene" path="res://assets/models/kick_trail.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://assets/models/ceiling_light.tscn" id="14"]
+
+[sub_resource type="Environment" id="Environment_factory"]
+background_mode = 1
+background_color = Color(0.059, 0.067, 0.082, 1)
+ambient_light_source = 1
+ambient_light_color = Color(0.35, 0.42, 0.55, 1)
+ambient_light_energy = 0.45
+tonemap_mode = 3
+ssao_enabled = true
+ssao_intensity = 2.0
+glow_enabled = true
+glow_intensity = 0.35
+glow_bloom = 0.05
+fog_enabled = true
+fog_light_color = Color(0.06, 0.07, 0.09, 1)
+fog_density = 0.006
+adjustment_enabled = true
+adjustment_contrast = 1.05
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(20, 0.5, 20)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_greybox"]
-albedo_color = Color(0.8, 0.8, 0.8, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(20, 0.5, 20)
@@ -27,12 +49,6 @@ size = Vector3(0.5, 3, 20)
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall"]
 size = Vector3(0.5, 3, 20)
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_gear"]
-height = 1.0
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_gear"]
-height = 1.0
-
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ball"]
 friction = 0.3
 bounce = 0.2
@@ -41,11 +57,23 @@ bounce = 0.2
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ball"]
 
+[sub_resource type="TorusMesh" id="TorusMesh_strap"]
+inner_radius = 0.52
+outer_radius = 0.6
+
 [node name="Level1" type="Node3D" unique_id=496622730]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_factory")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=428675216]
 transform = Transform3D(0.8, -0.4, 0.4, 0, 0.7, 0.7, -0.6, -0.6, 0.6, 0, 5, 0)
+light_color = Color(1, 0.95, 0.88, 1)
+light_energy = 0.65
 shadow_enabled = true
+
+[node name="CeilingLight1" parent="." instance=ExtResource("14")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, 0)
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1147241784]
 transform = Transform3D(1, 0, 0, 0, 0.94, 0.34, 0, -0.34, 0.94, 0, 3, 9)
@@ -57,7 +85,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=159997229]
 mesh = SubResource("BoxMesh_floor")
-surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
+surface_material_override/0 = ExtResource("10")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=2025564880]
 shape = SubResource("BoxShape3D_floor")
@@ -67,7 +95,7 @@ shape = SubResource("BoxShape3D_floor")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="BackWall" unique_id=1760718703]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -10)
 mesh = SubResource("BoxMesh_backwall")
-surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
+surface_material_override/0 = ExtResource("10")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="BackWall" unique_id=1059629933]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -10)
@@ -78,7 +106,7 @@ shape = SubResource("BoxShape3D_backwall")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="LeftWall" unique_id=767578700]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.5, 0)
 mesh = SubResource("BoxMesh_wall")
-surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
+surface_material_override/0 = ExtResource("10")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="LeftWall" unique_id=444874041]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.5, 0)
@@ -89,23 +117,15 @@ shape = SubResource("BoxShape3D_wall")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="RightWall" unique_id=381723200]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 0)
 mesh = SubResource("BoxMesh_wall")
-surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
+surface_material_override/0 = ExtResource("10")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RightWall" unique_id=1459966276]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 0)
 shape = SubResource("BoxShape3D_wall")
 
-[node name="Gear" type="RigidBody3D" parent="." unique_id=616358792]
+[node name="Gear" parent="." instance=ExtResource("9")]
 editor_description = "Spins when kicked — sitting in the open lane straight ahead of the ball's start. One clean kick, one full spin, level complete."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
-script = ExtResource("3")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Gear" unique_id=433324080]
-mesh = SubResource("CylinderMesh_gear")
-surface_material_override/0 = SubResource("StandardMaterial3D_greybox")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Gear" unique_id=137815097]
-shape = SubResource("CylinderShape3D_gear")
 
 [node name="Ball" type="RigidBody3D" parent="." unique_id=264352771]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 4)
@@ -115,30 +135,32 @@ script = ExtResource("1")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Ball" unique_id=983623415]
 mesh = SubResource("SphereMesh_ball")
+surface_material_override/0 = ExtResource("11")
+
+[node name="Strap" type="MeshInstance3D" parent="Ball"]
+mesh = SubResource("TorusMesh_strap")
+surface_material_override/0 = ExtResource("12")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ball" unique_id=469669709]
 shape = SubResource("SphereShape3D_ball")
+
+[node name="KickTrail" parent="Ball" instance=ExtResource("13")]
 
 [node name="WinConditionDetector" type="Node" parent="." unique_id=1269297758]
 script = ExtResource("5")
 required_objects = Array[NodePath]([NodePath("../Gear")])
 
-[node name="UI" type="CanvasLayer" parent="." unique_id=496658135]
+[node name="HUD" parent="." instance=ExtResource("6")]
+level_name = "LEVEL 1 — FIRST GEAR"
+objective = "Wake the gear"
+ball_path = NodePath("../Ball")
 
-[node name="PowerBar" type="ProgressBar" parent="UI" unique_id=768695960]
-visible = false
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -150.0
-offset_top = -60.0
-offset_right = 150.0
-offset_bottom = -30.0
-grow_horizontal = 2
-grow_vertical = 0
-show_percentage = false
-script = ExtResource("2")
+[node name="ResultScreen" parent="." instance=ExtResource("7")]
+hud_path = NodePath("../HUD")
+next_scene = "res://scenes/levels/level_2.tscn"
+
+[node name="PauseMenu" parent="." instance=ExtResource("8")]
 
 [connection signal="level_complete" from="WinConditionDetector" to="Camera3D" method="_on_level_complete"]
+[connection signal="level_complete" from="WinConditionDetector" to="ResultScreen" method="show_result"]
+[connection signal="progress_changed" from="WinConditionDetector" to="HUD" method="on_progress"]
