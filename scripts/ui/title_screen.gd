@@ -3,7 +3,7 @@ extends Control
 ## playable level. Space (the "kick" action) also starts, so the first input
 ## the game teaches is the same one the whole game runs on.
 
-@export var start_scene: String = "res://scenes/samprity_showcase.tscn"
+@export var start_scene: String = "res://scenes/levels/level_1.tscn"
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("kick"):

@@ -1,18 +1,19 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scripts/ball.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/camera_director.gd" id="4"]
-[ext_resource type="Script" path="res://scripts/win_condition_detector.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/camera_director.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/win_condition_detector.gd" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/ui/result_screen.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://assets/models/gear.tscn" id="10"]
 [ext_resource type="PackedScene" path="res://assets/models/wire_panel.tscn" id="11"]
-[ext_resource type="Material" path="res://assets/materials/concrete.tres" id="12"]
-[ext_resource type="Material" path="res://assets/materials/ball_device.tres" id="13"]
-[ext_resource type="Material" path="res://assets/materials/wire_glow.tres" id="14"]
-[ext_resource type="PackedScene" path="res://assets/models/kick_trail.tscn" id="15"]
-[ext_resource type="PackedScene" path="res://assets/models/ceiling_light.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://assets/models/vial.tscn" id="12"]
+[ext_resource type="Material" path="res://assets/materials/concrete.tres" id="13"]
+[ext_resource type="Material" path="res://assets/materials/ball_device.tres" id="14"]
+[ext_resource type="Material" path="res://assets/materials/wire_glow.tres" id="15"]
+[ext_resource type="PackedScene" path="res://assets/models/kick_trail.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://assets/models/ceiling_light.tscn" id="17"]
 
 [sub_resource type="Environment" id="Environment_factory"]
 background_mode = 1
@@ -55,17 +56,15 @@ friction = 0.3
 bounce = 0.2
 
 [sub_resource type="SphereMesh" id="SphereMesh_ball"]
-radius = 0.5
-height = 1.0
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ball"]
-radius = 0.5
 
 [sub_resource type="TorusMesh" id="TorusMesh_strap"]
 inner_radius = 0.52
 outer_radius = 0.6
 
-[node name="Level2" type="Node3D"]
+[node name="Level3" type="Node3D"]
+editor_description = "PLACEHOLDER layout, real assets — Rabib: the room shape/puzzle is still a stand-in for your real level design; only the dressing (models/materials/lighting) is final. Combines all three trigger types: Gear -> WireNode -> Vial, in a single straight lane."
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_factory")
@@ -76,20 +75,20 @@ light_color = Color(1, 0.95, 0.88, 1)
 light_energy = 0.65
 shadow_enabled = true
 
-[node name="CeilingLight1" parent="." instance=ExtResource("16")]
+[node name="CeilingLight1" parent="." instance=ExtResource("17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, -0.5)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.94, 0.34, 0, -0.34, 0.94, 0, 3, 9)
+transform = Transform3D(1, 0, 0, 0, 0.94, 0.34, 0, -0.34, 0.94, 0, 4, 11)
 current = true
-script = ExtResource("4")
+script = ExtResource("5")
 
 [node name="Floor" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
 mesh = SubResource("BoxMesh_floor")
-surface_material_override/0 = ExtResource("12")
+surface_material_override/0 = ExtResource("13")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
 shape = SubResource("BoxShape3D_floor")
@@ -99,7 +98,7 @@ shape = SubResource("BoxShape3D_floor")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="BackWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -10)
 mesh = SubResource("BoxMesh_backwall")
-surface_material_override/0 = ExtResource("12")
+surface_material_override/0 = ExtResource("13")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="BackWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -10)
@@ -110,7 +109,7 @@ shape = SubResource("BoxShape3D_backwall")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="LeftWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.5, 0)
 mesh = SubResource("BoxMesh_wall")
-surface_material_override/0 = ExtResource("12")
+surface_material_override/0 = ExtResource("13")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="LeftWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.5, 0)
@@ -121,55 +120,60 @@ shape = SubResource("BoxShape3D_wall")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="RightWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 0)
 mesh = SubResource("BoxMesh_wall")
-surface_material_override/0 = ExtResource("12")
+surface_material_override/0 = ExtResource("13")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RightWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 0)
 shape = SubResource("BoxShape3D_wall")
 
 [node name="Gear" parent="." instance=ExtResource("10")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
-editor_description = "Spins when kicked — sits in the kick lane and hands its spin off to WireNode via the 'spun' signal, so this level teaches gear -> grid signal chaining."
+editor_description = "Spins when kicked, hands its spin to WireNode via the 'spun' signal."
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 1)
 
 [node name="WireNode" parent="." instance=ExtResource("11")]
+editor_description = "Fires when it receives the Gear's 'spun' signal, sends its surge on to the Vial."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -1.5)
-editor_description = "Electric grid node — the second trigger type. Fires when it receives the Gear's 'spun' signal (or a direct hit)."
+
+[node name="Vial" parent="." instance=ExtResource("12")]
+editor_description = "Detonates when WireNode's surge reaches it — the end of the chain."
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, -4)
 
 [node name="Ball" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 5)
 mass = 0.45
 physics_material_override = SubResource("PhysicsMaterial_ball")
 script = ExtResource("1")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Ball"]
 mesh = SubResource("SphereMesh_ball")
-surface_material_override/0 = ExtResource("13")
+surface_material_override/0 = ExtResource("14")
 
 [node name="Strap" type="MeshInstance3D" parent="Ball"]
 mesh = SubResource("TorusMesh_strap")
-surface_material_override/0 = ExtResource("14")
+surface_material_override/0 = ExtResource("15")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ball"]
 shape = SubResource("SphereShape3D_ball")
 
-[node name="KickTrail" parent="Ball" instance=ExtResource("15")]
+[node name="KickTrail" parent="Ball" instance=ExtResource("16")]
 
 [node name="WinConditionDetector" type="Node" parent="."]
-script = ExtResource("5")
-required_objects = Array[NodePath]([NodePath("../Gear"), NodePath("../WireNode")])
+script = ExtResource("6")
+required_objects = Array[NodePath]([NodePath("../Gear"), NodePath("../WireNode"), NodePath("../Vial")])
 
 [node name="HUD" parent="." instance=ExtResource("7")]
-level_name = "LEVEL 2 — SPARK THE LINE"
-objective = "Send the spark down the wire"
+level_name = "LEVEL 3 — FULL CIRCUIT"
+objective = "Chain the gear, the wire, and the vial"
 ball_path = NodePath("../Ball")
 
 [node name="ResultScreen" parent="." instance=ExtResource("8")]
 hud_path = NodePath("../HUD")
-next_scene = "res://scenes/levels/level_3.tscn"
+next_scene = "res://scenes/levels/level_4.tscn"
 
 [node name="PauseMenu" parent="." instance=ExtResource("9")]
 
 [connection signal="spun" from="Gear" to="WireNode" method="trigger"]
+[connection signal="surged" from="WireNode" to="Vial" method="trigger"]
 [connection signal="level_complete" from="WinConditionDetector" to="Camera3D" method="_on_level_complete"]
 [connection signal="level_complete" from="WinConditionDetector" to="ResultScreen" method="show_result"]
 [connection signal="progress_changed" from="WinConditionDetector" to="HUD" method="on_progress"]
