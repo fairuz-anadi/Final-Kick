@@ -1,5 +1,7 @@
 extends RigidBody3D
 
+const GhostMaterial := preload("res://assets/materials/ghost_material.tres")
+
 # --- Kick tuning ---
 @export var min_impulse: float = 4.0
 @export var max_impulse: float = 13.5
@@ -9,6 +11,11 @@ extends RigidBody3D
 # --- Rewind/scrub tuning ---
 @export var max_history_frames: int = 600  # ~10s of history at 60 physics fps
 @export var scrub_speed: float = 30.0      # history frames stepped per second while scrubbing
+
+# --- Ghost trail (shows the abandoned "first attempt" after a rewind + new kick) ---
+@export var ghost_trail_point_count: int = 10   # sampled markers spread across the abandoned path
+@export var ghost_trail_marker_radius: float = 0.5  # matches the ball's default SphereMesh radius
+@export var ghost_trail_fade_duration: float = 1.5
 
 var charging: bool = false
 var charge_time: float = 0.0
@@ -116,9 +123,43 @@ func _exit_scrub() -> void:
 	# becomes the new "present," so any frames recorded after it are now a
 	# future that never happened and get dropped.
 	var index := int(round(scrub_index))
+	var abandoned: Array[Dictionary] = history.slice(index + 1)
 	history = history.slice(0, index + 1)
 	is_scrubbing = false
 	freeze = false
+	_spawn_ghost_trail(abandoned)
+
+# --- Ghost trail: a faint marker at intervals along wherever the ball went
+# during the attempt that just got overwritten by rewinding + kicking again. ---
+
+func _spawn_ghost_trail(abandoned: Array[Dictionary]) -> void:
+	if abandoned.is_empty():
+		return
+	var step: int = maxi(1, int(ceil(abandoned.size() / float(ghost_trail_point_count))))
+	var i := 0
+	while i < abandoned.size():
+		_spawn_ghost_marker(abandoned[i]["position"])
+		i += step
+
+func _spawn_ghost_marker(marker_position: Vector3) -> void:
+	var marker := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = ghost_trail_marker_radius
+	sphere.height = ghost_trail_marker_radius * 2.0
+	marker.mesh = sphere
+
+	# Duplicated so fading this marker's alpha doesn't fade every other
+	# marker (or the scrubbing ball) sharing the same base resource.
+	var mat := GhostMaterial.duplicate() as ShaderMaterial
+	marker.material_override = mat
+
+	get_tree().current_scene.add_child(marker)
+	marker.global_position = marker_position
+
+	var tween := marker.create_tween()
+	tween.tween_property(mat, "shader_parameter/ghost_color:a", 0.0, ghost_trail_fade_duration)
+	tween.parallel().tween_property(marker, "scale", Vector3.ZERO, ghost_trail_fade_duration)
+	tween.tween_callback(marker.queue_free)
 
 # --- Kick (paused entirely while scrub mode is active) ---
 
