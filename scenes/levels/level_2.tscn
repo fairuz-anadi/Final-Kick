@@ -165,7 +165,6 @@ ball_path = NodePath("../Ball")
 
 [node name="ResultScreen" parent="." instance=ExtResource("8")]
 hud_path = NodePath("../HUD")
-next_scene = "res://scenes/levels/level_3.tscn"
 
 [node name="PauseMenu" parent="." instance=ExtResource("9")]
 
