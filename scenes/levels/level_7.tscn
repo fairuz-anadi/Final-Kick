@@ -81,6 +81,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, 12)
 [node name="CeilingLight2" parent="." instance=ExtResource("14")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, -6)
 
+[node name="CeilingLight5" parent="." instance=ExtResource("14")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, -16.5)
+
 [node name="CeilingLight3" parent="." instance=ExtResource("14")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, -24)
 
@@ -95,6 +98,15 @@ script = ExtResource("2")
 follow_target = NodePath("../Ball")
 follow_amount = 0.08
 follow_max_offset = 2.0
+waypoint_markers = Array[NodePath]([NodePath("../CamWaypointStation2"), NodePath("../CamWaypointStation3")])
+arrival_targets = Array[NodePath]([NodePath("../Gear2"), NodePath("../Gear3")])
+stage_required_activations = Array[int]([3, 3])
+
+[node name="CamWaypointStation2" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.86, 0.5, 0, -0.5, 0.86, 1, 14.9, 13)
+
+[node name="CamWaypointStation3" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.86, 0.5, 0, -0.5, 0.86, 0.5, 14.95, -4)
 
 [node name="Floor" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, -6)
@@ -200,6 +212,12 @@ hud_path = NodePath("../HUD")
 [connection signal="activated" from="Gear1" to="WireNode1" method="trigger"]
 [connection signal="activated" from="Gear2" to="WireNode2" method="trigger"]
 [connection signal="activated" from="Gear3" to="WireNode3" method="trigger"]
+[connection signal="activated" from="Gear1" to="Camera3D" method="_on_target_activated"]
+[connection signal="activated" from="WireNode1" to="Camera3D" method="_on_target_activated"]
+[connection signal="activated" from="Vial1" to="Camera3D" method="_on_target_activated"]
+[connection signal="activated" from="Gear2" to="Camera3D" method="_on_target_activated"]
+[connection signal="activated" from="WireNode2" to="Camera3D" method="_on_target_activated"]
+[connection signal="activated" from="Vial2" to="Camera3D" method="_on_target_activated"]
 [connection signal="level_complete" from="WinConditionDetector" to="Camera3D" method="_on_level_complete"]
 [connection signal="level_complete" from="WinConditionDetector" to="ResultScreen" method="show_result"]
 [connection signal="progress_changed" from="WinConditionDetector" to="HUD" method="on_progress"]
