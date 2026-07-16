@@ -22,6 +22,27 @@ class_name CameraDirector
 ##   needs no entry in either — its activation instead reaches
 ##   WinConditionDetector -> `_on_level_complete()` above.
 
+# Interior view (art direction): bring the camera down INTO the room —
+# eye-ish height, gentle pitch — instead of hovering above the walls. The
+# same reframe is applied to every cinematic waypoint marker so mid-level
+# camera moves stay consistent with the rest pose.
+@export var interior_view: bool = true
+@export var interior_camera_height: float = 2.25
+@export var interior_pitch_degrees: float = 11.0
+
+# Free orbit (player view control): hold the RIGHT mouse button and drag to
+# swing the camera around the room — to either corner, or up and over to a
+# near top-down view. Scroll-zoom still dollies along the current view.
+# HOME resets to the level's framed shot. Orbit is an offset on top of
+# _cinematic_transform, so shake / spectacle / waypoint moves all still work.
+@export var orbit_sensitivity: float = 0.3    # degrees per pixel of drag
+@export var orbit_yaw_limit: float = 75.0     # keep the open room front roughly toward the player
+@export var orbit_pitch_min: float = -18.0
+@export var orbit_pitch_max: float = 78.0
+
+var _orbit_yaw: float = 0.0
+var _orbit_pitch: float = 0.0
+
 @export var shake_strength_per_impact: float = 0.15
 @export var shake_duration: float = 0.3
 @export var slow_motion_scale: float = 0.25
@@ -96,10 +117,31 @@ var _shake_trauma: float = 0.0  # 0..1, decays over time; drives jitter magnitud
 var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
+	if interior_view:
+		transform = _interior_pose(transform)
+		for path in waypoint_markers:
+			var marker := get_node_or_null(path)
+			if marker is Node3D:
+				marker.global_transform = _interior_pose(marker.global_transform)
 	_cinematic_transform = transform
 	_rng.randomize()
 	_base_fov = fov
 	_follow_node = get_node_or_null(follow_target)
+
+## Rebuild a camera pose for the inside-the-room view: clamp height to
+## just under the ceiling, keep the original yaw, and flatten the pitch to
+## a gentle look-down so the frame is filled by the room, not the void
+## above it.
+func _interior_pose(t: Transform3D) -> Transform3D:
+	var origin := t.origin
+	origin.y = minf(origin.y, interior_camera_height)
+	var forward := -t.basis.z
+	forward.y = 0.0
+	if forward.length() < 0.01:
+		forward = Vector3.FORWARD
+	forward = forward.normalized()
+	var dir := (forward + Vector3.DOWN * tan(deg_to_rad(interior_pitch_degrees))).normalized()
+	return Transform3D(Basis.looking_at(dir, Vector3.UP), origin)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
@@ -107,6 +149,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			_zoom_target = clampf(_zoom_target + zoom_step, zoom_min, zoom_max)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_zoom_target = clampf(_zoom_target - zoom_step, zoom_min, zoom_max)
+	elif event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		_orbit_yaw = clampf(_orbit_yaw - event.relative.x * orbit_sensitivity,
+			-orbit_yaw_limit, orbit_yaw_limit)
+		_orbit_pitch = clampf(_orbit_pitch - event.relative.y * orbit_sensitivity,
+			orbit_pitch_min, orbit_pitch_max)
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_HOME:
+		_orbit_yaw = 0.0
+		_orbit_pitch = 0.0
+		_zoom_target = 0.0
 
 func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_EQUAL) or Input.is_key_pressed(KEY_KP_ADD):
@@ -130,10 +181,12 @@ func _process(delta: float) -> void:
 	_fov_extra = move_toward(_fov_extra, 0.0, fov_recover_speed * delta)
 	fov = _base_fov + _fov_extra
 
-	transform = _cinematic_transform
+	var view := _orbited_pose(_cinematic_transform)
+	transform = view
 	# Dolly along the camera's own forward (-Z) so zoom respects any tilt the
-	# spectacle move applies; offset-based, so it never mutates the rest pose.
-	position += -_cinematic_transform.basis.z * _zoom_current + _follow_offset
+	# spectacle move or the player's orbit applies; offset-based, so it never
+	# mutates the rest pose.
+	position += -view.basis.z * _zoom_current + _follow_offset
 	if _shake_trauma <= 0.0:
 		return
 	var amount: float = _shake_trauma * _shake_trauma  # ease-out: big hits punch harder, fade fast
@@ -151,7 +204,9 @@ func _on_big_impact(strength: float, _impact_position: Vector3) -> void:
 
 func _on_level_complete() -> void:
 	var rest := _cinematic_transform
-	var target_origin: Vector3 = rest.origin.lerp(Vector3.ZERO, spectacle_zoom_in)
+	# Push toward the room center but hold a filming height — from the low
+	# interior rest pose, aiming at the true origin would dive into the floor.
+	var target_origin: Vector3 = rest.origin.lerp(Vector3(0.0, 1.6, 0.0), spectacle_zoom_in)
 	var target_basis: Basis = rest.basis.rotated(Vector3.RIGHT, deg_to_rad(spectacle_tilt_degrees))
 	var target := Transform3D(target_basis, target_origin)
 
@@ -164,6 +219,31 @@ func _on_level_complete() -> void:
 
 func _set_cinematic_transform(t: Transform3D) -> void:
 	_cinematic_transform = t
+
+## Apply the player's orbit angles to a rest pose: swing the camera around
+## the point the shot is looking at, then re-aim at that point. At zero
+## angles this returns the pose untouched (the pivot lies on the original
+## forward ray), so there's no jump when the player first grabs the view.
+func _orbited_pose(rest: Transform3D) -> Transform3D:
+	if absf(_orbit_yaw) < 0.01 and absf(_orbit_pitch) < 0.01:
+		return rest
+	var forward := -rest.basis.z
+	# Pivot: where the view ray crosses ~0.8m height (the action plane).
+	var dist := 10.0
+	if absf(forward.y) > 0.01:
+		dist = clampf((0.8 - rest.origin.y) / forward.y, 6.0, 20.0)
+	var pivot := rest.origin + forward * dist
+	var offset := rest.origin - pivot
+	offset = offset.rotated(Vector3.UP, deg_to_rad(_orbit_yaw))
+	var right := offset.cross(Vector3.UP)
+	if right.length() > 0.01:
+		offset = offset.rotated(right.normalized(), deg_to_rad(_orbit_pitch))
+	var origin := pivot + offset
+	origin.y = maxf(origin.y, 0.5)
+	var dir := (pivot - origin).normalized()
+	# Near top-down, UP is almost parallel to the view — use a stable fallback.
+	var up := Vector3.UP if absf(dir.y) < 0.98 else Vector3.FORWARD
+	return Transform3D(Basis.looking_at(dir, up), origin)
 
 ## Wire directly to a Gear/Vial/GridNode's `activated` signal (one connection
 ## per intermediate target, in the order they're meant to activate — NOT to

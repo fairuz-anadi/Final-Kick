@@ -8,7 +8,7 @@ extends Node
 ## in real VO later by playing a stream inside _show_next_line().
 ##
 ## Wiring: HUD._ready calls play_level_intro(scene_path); LifeManager calls
-## on_death()/on_last_life(); the ending scene calls play_final_completion().
+## on_death()/on_power_critical(); the ending scene calls play_final_completion().
 
 const LEVEL_LINES := {
 	"res://scenes/levels/level_1.tscn": ["One gear remains.", "Wake it."],
@@ -16,6 +16,11 @@ const LEVEL_LINES := {
 	"res://scenes/levels/level_3.tscn": ["He always said machines are like people.", "They work better together."],
 	"res://scenes/levels/level_4.tscn": ["This is the room he spoke about.", "Wake them all."],
 	"res://scenes/levels/level_5.tscn": ["The line breaks here.", "Reach the far side — whatever it takes."],
+	"res://scenes/levels/level_6.tscn": ["He built this gate after the accident.", "Some power should cost something."],
+	"res://scenes/levels/level_7.tscn": ["He walked this hall every morning.", "He greeted every machine by name."],
+	"res://scenes/levels/level_8.tscn": ["His notes warn: the vials never wait.", "Chemistry keeps its own schedule."],
+	"res://scenes/levels/level_9.tscn": ["He dreamed of being two places at once.", "So he built the echo."],
+	"res://scenes/levels/level_10.tscn": ["His final page says only:", "'Everything, once more.'"],
 }
 
 ## Spoken once the level's last machine wakes — small rewards that keep
@@ -25,11 +30,19 @@ const LEVEL_COMPLETE_LINES := {
 	"res://scenes/levels/level_3.tscn": ["He spent years maintaining this place."],
 	"res://scenes/levels/level_4.tscn": ["He knew you would make it."],
 	"res://scenes/levels/level_5.tscn": ["Even the gap couldn't stop you."],
+	"res://scenes/levels/level_6.tscn": ["The gate remembers him kindly."],
+	"res://scenes/levels/level_7.tscn": ["Every machine, greeted by name."],
+	"res://scenes/levels/level_8.tscn": ["Right on schedule after all."],
+	"res://scenes/levels/level_9.tscn": ["Two kicks. One heart."],
+	"res://scenes/levels/level_10.tscn": ["Listen. The whole factory is singing."],
 }
 
 const DEATH_LINE := "Not every kick finds its target."
-const THREE_HEARTS_LINE := "Steady. You were built for this."
-const LAST_LIFE_LINE := "Careful. The factory is counting on you."
+const POWER_CRITICAL_LINE := "The power is slipping away. Wake a machine."
+## Spoken once per session, on the very first lost ball — the game's only
+## teaching of the rewind mechanic, kept diegetic since the HUD carries no
+## instruction text.
+const REWIND_TEACH_LINES := ["I can turn back time for you.", "Hold R. The arrows steer the past."]
 const FINAL_LINES := ["Listen.", "Do you hear it?", "That's life."]
 
 ## Seconds between repeatable one-off lines (deaths) so rapid falls
@@ -39,6 +52,7 @@ const DEATH_LINE_COOLDOWN := 8.0
 var _queue: Array[String] = []
 var _speaking: bool = false
 var _death_line_cooldown_left: float = 0.0
+var _rewind_taught: bool = false
 
 var _layer: CanvasLayer
 var _panel: PanelContainer
@@ -79,23 +93,25 @@ func play_level_complete(scene_path: String) -> void:
 		say(LEVEL_COMPLETE_LINES[scene_path])
 
 func on_death() -> void:
+	# The first lost ball of the session is the perfect moment to reveal the
+	# rewind — the player just wished they could undo something.
+	if not _rewind_taught:
+		_rewind_taught = true
+		_queue.clear()
+		_speaking = false
+		say(REWIND_TEACH_LINES)
+		return
 	if _death_line_cooldown_left > 0.0 or _speaking:
 		return
 	_death_line_cooldown_left = DEATH_LINE_COOLDOWN
 	say([DEATH_LINE])
 
-## The 3-hearts-left state: one steadying comment, cuts ahead of any
-## pending death line so the escalation reads clearly.
-func on_three_hearts() -> void:
+## Energy critically low after real progress: the stakes line always cuts
+## through, even mid-sentence.
+func on_power_critical() -> void:
 	_queue.clear()
 	_speaking = false
-	say([THREE_HEARTS_LINE])
-
-func on_last_life() -> void:
-	# The stakes line always cuts through, even mid-sentence.
-	_queue.clear()
-	_speaking = false
-	say([LAST_LIFE_LINE])
+	say([POWER_CRITICAL_LINE])
 
 func play_final_completion() -> void:
 	clear()
@@ -138,10 +154,10 @@ func _build_subtitle_ui() -> void:
 	_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.03, 0.05, 0.1, 0.75)  # dark navy glass
-	style.border_color = Color(0.22, 0.78, 0.84, 0.35)  # faint cyan edge
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(8)
+	style.bg_color = Color(0.039, 0.051, 0.086, 0.8)  # deep navy glass (#0A0D16)
+	style.border_color = Color(0.0, 0.898, 1.0, 0.5)  # electric cyan edge
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(10)
 	style.content_margin_left = 26.0
 	style.content_margin_right = 26.0
 	style.content_margin_top = 10.0

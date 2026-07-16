@@ -1,7 +1,7 @@
 extends Area3D
 class_name KillZone
 ## Drop-in hazard volume: any Area3D with this script (plus a
-## CollisionShape3D) costs the ball a heart on contact, exactly like falling
+## CollisionShape3D) drains Factory Energy on contact, exactly like falling
 ## out of bounds. Place over pits, crushers, live rails — anywhere the ball
 ## shouldn't go.
 ##

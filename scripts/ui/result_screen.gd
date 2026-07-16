@@ -1,7 +1,8 @@
 extends CanvasLayer
 ## Result screen. Connect WinConditionDetector.level_complete →
 ## show_result(). Waits out the spectacle cam, then fades/scales in with the
-## run's real stats (from the HUD) and an S/A/B/C rank.
+## run's real stats (from the HUD) and a playful earned title — no letter
+## grades, no efficiency math: every clear gets crowned with something fun.
 
 @export var hud_path: NodePath
 @export var spectacle_delay: float = 4.6
@@ -35,18 +36,18 @@ func _ready() -> void:
 func show_result() -> void:
 	await get_tree().create_timer(spectacle_delay).timeout
 
-	var stats := {"time": 0.0, "kicks": 0, "rewinds": 0, "targets_done": 0, "targets_total": 0}
+	var stats := {"time": 0.0, "kicks": 0, "rewinds": 0, "targets_done": 0, "targets_total": 0, "best_chain": 0}
 	var hud := get_node_or_null(hud_path)
 	if hud and hud.has_method("get_stats"):
 		stats = hud.get_stats()
 
-	_stats_label.text = "TIME   %02d:%02d\nTARGETS   %d / %d\nKICKS USED   %d\nREWINDS USED   %d\nEFFICIENCY   %d%%" % [
+	var best_chain: int = stats.get("best_chain", 0)
+	_stats_label.text = "TIME   %02d:%02d\nMACHINES   %d / %d\nKICKS   %d\nBEST CHAIN   ×%d" % [
 		int(stats["time"]) / 60, int(stats["time"]) % 60,
 		stats["targets_done"], stats["targets_total"],
-		stats["kicks"], stats["rewinds"],
-		_efficiency(stats),
+		stats["kicks"], maxi(best_chain, 1),
 	]
-	_rank_label.text = _rank(stats)
+	_rank_label.text = _earned_title(stats)
 	_flawless_badge.visible = stats["rewinds"] == 0
 
 	_panel.visible = true
@@ -57,25 +58,38 @@ func show_result() -> void:
 	tween.tween_property(_panel, "modulate:a", 1.0, 0.5)
 	tween.tween_property(_panel, "scale", Vector2.ONE, 0.5) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	# The title slams in a beat after the panel, oversized then elastic-settling.
+	_rank_label.pivot_offset = _rank_label.size / 2.0
+	_rank_label.scale = Vector2(2.2, 2.2)
+	_rank_label.modulate.a = 0.0
+	var title_tween := create_tween()
+	title_tween.tween_interval(0.35)
+	title_tween.tween_property(_rank_label, "modulate:a", 1.0, 0.12)
+	title_tween.parallel().tween_property(_rank_label, "scale", Vector2.ONE, 0.55) \
+		.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
-# Derived from real inputs only: every kick past the first and every rewind
-# costs efficiency. Not a hidden scoring system — just a readout of the run.
-func _efficiency(stats: Dictionary) -> int:
+## Every run earns a crown — the checks run best-first, so the most
+## impressive thing the player did is the thing that gets named.
+func _earned_title(stats: Dictionary) -> String:
 	var kicks: int = stats["kicks"]
 	var rewinds: int = stats["rewinds"]
-	return clampi(100 - maxi(kicks - 1, 0) * 15 - rewinds * 10, 10, 100)
-
-## Fewest kicks and rewinds = the plan's stated goal, so that's the rank.
-func _rank(stats: Dictionary) -> String:
-	var kicks: int = stats["kicks"]
-	var rewinds: int = stats["rewinds"]
-	if kicks <= 1 and rewinds == 0:
-		return "S"
-	if kicks <= 2 and rewinds <= 1:
-		return "A"
-	if kicks <= 4 and rewinds <= 3:
-		return "B"
-	return "C"
+	var best_chain: int = stats.get("best_chain", 0)
+	var total: int = stats["targets_total"]
+	if kicks <= 1 and total > 1:
+		return "ONE-KICK WONDER"
+	if best_chain >= 5 or (total > 0 and best_chain >= total and best_chain >= 3):
+		return "FULL MELTDOWN"
+	if best_chain == 4:
+		return "CHAIN REACTOR"
+	if best_chain == 3:
+		return "TRIPLE THREAT"
+	if best_chain == 2:
+		return "DOUBLE TROUBLE"
+	if rewinds >= 4:
+		return "TIME BENDER"
+	if stats["time"] <= 30.0:
+		return "SPEED DEMON"
+	return "FACTORY HERO"
 
 func _on_retry_pressed() -> void:
 	get_tree().reload_current_scene()
