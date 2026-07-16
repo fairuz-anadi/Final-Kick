@@ -1,6 +1,6 @@
 extends Camera3D
 class_name CameraDirector
-## Attach to a level's Camera3D. Two independent features, both driven by
+## Attach to a level's Camera3D. Independent features, all driven by
 ## connecting other objects' signals to this script rather than this script
 ## reaching out to them:
 ##
@@ -10,6 +10,17 @@ class_name CameraDirector
 ## - `_on_level_complete()`: wire a WinConditionDetector's `level_complete`
 ##   here for the "Spectacle Cam" — a dramatic push-in + tilt replacing the
 ##   normal view for the win payoff, then a return to normal.
+## - `_on_target_activated()`: wire each intermediate Gear/Vial/GridNode's own
+##   `activated` signal here (NOT WinConditionDetector's — that one only
+##   reports "all done", not "which one, in what order") to advance a
+##   FIXED -> FOLLOWING -> TRANSITIONING -> FIXED sequence: once the
+##   currently-shown target activates, the camera chases the ball
+##   (position only, same viewing angle) until the ball nears
+##   `arrival_targets[stage]`, then tweens (move, then rotate if needed)
+##   into `waypoint_markers[stage]`'s pose and locks there. Both arrays are
+##   indexed in the order targets are meant to activate; the last target
+##   needs no entry in either — its activation instead reaches
+##   WinConditionDetector -> `_on_level_complete()` above.
 
 @export var shake_strength_per_impact: float = 0.15
 @export var shake_duration: float = 0.3
@@ -50,6 +61,33 @@ var _follow_offset := Vector3.ZERO
 var _base_fov: float = 75.0
 var _fov_extra: float = 0.0
 
+# --- Multi-gear sequence: FIXED (locked, showing current target) ->
+# FOLLOWING (chases the ball, position only, angle frozen) -> TRANSITIONING
+# (tweens into the next fixed shot) -> FIXED again. Driven by
+# `_on_target_activated()`, reusing `_follow_node` above as the chase target
+# rather than a second NodePath — every level already points `follow_target`
+# at the Ball for the subtle-drift feature.
+enum CamState { FIXED, FOLLOWING, TRANSITIONING }
+
+@export var waypoint_markers: Array[NodePath] = []  # fixed pose per stage, indexed by activation order
+@export var arrival_targets: Array[NodePath] = []    # same indexing: node whose vicinity ends FOLLOWING
+@export var arrival_radius: float = 2.5              # meters, horizontal distance to arrival_target
+@export var chase_smoothing: float = 5.0             # lerp speed while FOLLOWING; separate from follow_smoothing (that's the always-on subtle drift, not this)
+@export var waypoint_move_time: float = 1.2
+@export var waypoint_rotate_time: float = 0.6
+# How many `_on_target_activated()` calls the *current* stage needs before the
+# camera actually leaves — e.g. a chamber with two interlocked gears both
+# visible in the same fixed shot needs both hit, not just the first, or the
+# camera would peel away mid-chamber. Indexed by stage; a missing or <=0
+# entry defaults to 1 (the common case, one target per stage, like Level 6).
+@export var stage_required_activations: Array[int] = []
+
+var _cam_state: CamState = CamState.FIXED
+var _stage_index: int = 0
+var _stage_activation_count: int = 0
+var _stage_ready_to_follow: bool = false  # this stage's count hit its target; waiting for FIXED to act on it
+var _chase_offset := Vector3.ZERO
+
 # The camera's "intended" pose, ignoring shake. Shake is applied as a
 # per-frame additive jitter on top of this rather than fighting over
 # `transform` directly with whatever's tweening `_cinematic_transform`.
@@ -85,6 +123,9 @@ func _process(delta: float) -> void:
 			0.0,
 			clampf(_follow_node.global_position.z * follow_amount * 0.5, -follow_max_offset, follow_max_offset))
 		_follow_offset = _follow_offset.lerp(target_offset, clampf(follow_smoothing * delta, 0.0, 1.0))
+
+	if _cam_state == CamState.FOLLOWING:
+		_process_chase(delta)
 
 	_fov_extra = move_toward(_fov_extra, 0.0, fov_recover_speed * delta)
 	fov = _base_fov + _fov_extra
@@ -123,3 +164,98 @@ func _on_level_complete() -> void:
 
 func _set_cinematic_transform(t: Transform3D) -> void:
 	_cinematic_transform = t
+
+## Wire directly to a Gear/Vial/GridNode's `activated` signal (one connection
+## per intermediate target, in the order they're meant to activate — NOT to
+## WinConditionDetector, which only reports "all done"). Counting happens
+## regardless of camera state — a stage's arrival_target is usually itself
+## one of the NEXT stage's required objects, so its `activated` signal can
+## easily land while the camera is still FOLLOWING/TRANSITIONING out of the
+## previous stage (arriving at a gear and hitting it tend to happen in the
+## same beat). Whichever stage is "not yet locked in" is the one such a
+## signal belongs to — see `_counting_stage()` — not necessarily `_stage_index`
+## itself, which only advances once the camera is actually FIXED again.
+func _on_target_activated() -> void:
+	var stage: int = _counting_stage()
+	if stage >= waypoint_markers.size():
+		return
+	_stage_activation_count += 1
+	if _stage_activation_count < _required_for_stage(stage):
+		return
+	_stage_activation_count = 0
+	_stage_ready_to_follow = true
+	_try_begin_follow()
+
+# While FIXED, the stage on screen (_stage_index) is still accumulating
+# activations. Once the camera has left FIXED (FOLLOWING/TRANSITIONING out of
+# it), _stage_index hasn't incremented yet, but any further activation can
+# only belong to the stage being traveled toward — _stage_index + 1.
+func _counting_stage() -> int:
+	return _stage_index if _cam_state == CamState.FIXED else _stage_index + 1
+
+func _required_for_stage(stage: int) -> int:
+	if stage < stage_required_activations.size() and stage_required_activations[stage] > 0:
+		return stage_required_activations[stage]
+	return 1
+
+func _try_begin_follow() -> void:
+	if not _stage_ready_to_follow or _cam_state != CamState.FIXED:
+		return
+	_stage_ready_to_follow = false
+	if _follow_node == null:
+		push_warning("CameraDirector: follow_target isn't set, can't enter FOLLOWING")
+		return
+	# Preserve whatever offset the fixed shot currently has from the ball
+	# (distance + framing), so the chase reads as "the same shot sliding
+	# along," not a jump-cut to sitting on top of the ball.
+	_chase_offset = _cinematic_transform.origin - _follow_node.global_position
+	_cam_state = CamState.FOLLOWING
+
+func _process_chase(delta: float) -> void:
+	var target_origin: Vector3 = _follow_node.global_position + _chase_offset
+	var new_origin: Vector3 = _cinematic_transform.origin.lerp(
+		target_origin, clampf(chase_smoothing * delta, 0.0, 1.0))
+	# Basis (viewing angle) is untouched here — that's the "position only" requirement.
+	_cinematic_transform = Transform3D(_cinematic_transform.basis, new_origin)
+
+	var arrival_node: Node3D = get_node_or_null(arrival_targets[_stage_index])
+	if arrival_node == null:
+		push_warning("CameraDirector: arrival_targets[%d] not found" % _stage_index)
+		return
+	var ball_flat: Vector3 = _follow_node.global_position
+	var target_flat: Vector3 = arrival_node.global_position
+	ball_flat.y = 0.0
+	target_flat.y = 0.0
+	if ball_flat.distance_to(target_flat) <= arrival_radius:
+		_begin_transition()
+
+func _begin_transition() -> void:
+	var marker: Node3D = get_node_or_null(waypoint_markers[_stage_index])
+	if marker == null:
+		push_warning("CameraDirector: waypoint_markers[%d] not found" % _stage_index)
+		_cam_state = CamState.FIXED  # fail safe — don't strand the camera mid-chase forever
+		return
+
+	_cam_state = CamState.TRANSITIONING
+	var start: Transform3D = _cinematic_transform
+	var moved: Transform3D = Transform3D(start.basis, marker.global_position)  # translate first...
+	var final: Transform3D = marker.global_transform                          # ...only then rotate
+
+	var tween := create_tween()
+	tween.tween_method(_set_cinematic_transform, start, moved, waypoint_move_time) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if not moved.basis.is_equal_approx(final.basis):
+		tween.tween_method(_set_cinematic_transform, moved, final, waypoint_rotate_time) \
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	else:
+		_cinematic_transform = final
+	tween.tween_callback(_end_transition)
+
+func _end_transition() -> void:
+	_cam_state = CamState.FIXED
+	_stage_index += 1
+	# Rare but possible: the new stage's own requirement was already fully met
+	# mid-transition (e.g. a required=1 stage whose one target got hit the
+	# instant the ball arrived). Act on it immediately instead of waiting for
+	# another `activated` signal that may never come.
+	_try_begin_follow()

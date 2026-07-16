@@ -84,6 +84,13 @@ transform = Transform3D(1, 0, 0, 0, 0.94, 0.34, 0, -0.34, 0.94, 0, 9, 22)
 current = true
 script = ExtResource("2")
 follow_target = NodePath("../Ball")
+waypoint_markers = Array[NodePath]([NodePath("../CamWaypointFarCluster")])
+arrival_targets = Array[NodePath]([NodePath("../Gear3")])
+arrival_radius = 4.5
+stage_required_activations = Array[int]([2])
+
+[node name="CamWaypointFarCluster" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.94, 0.34, 0, -0.34, 0.94, 0, 9, 6)
 
 [node name="FloorNear" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 9)
@@ -189,5 +196,7 @@ hud_path = NodePath("../HUD")
 
 [connection signal="big_impact" from="Ball" to="Camera3D" method="_on_big_impact"]
 [connection signal="level_complete" from="WinConditionDetector" to="Camera3D" method="_on_level_complete"]
+[connection signal="activated" from="Gear" to="Camera3D" method="_on_target_activated"]
+[connection signal="activated" from="Gear2" to="Camera3D" method="_on_target_activated"]
 [connection signal="level_complete" from="WinConditionDetector" to="ResultScreen" method="show_result"]
 [connection signal="progress_changed" from="WinConditionDetector" to="HUD" method="on_progress"]
