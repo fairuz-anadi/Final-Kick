@@ -93,6 +93,10 @@ var _squash: float = 0.0  # 1 = fully squashed, decays each frame
 
 func _ready() -> void:
 	_start_transform = transform
+	# Difficulty scales the rewind window (Easy: longer, Hard: shorter);
+	# overrides the exported default rather than replacing it, so the
+	# inspector value still applies as the Medium/fallback baseline.
+	max_history_frames = Difficulty.rewind_frames()
 	contact_monitor = true
 	max_contacts_reported = 4
 	# High kick speeds (up to ~30 m/s) can tunnel a small fast body through thin
