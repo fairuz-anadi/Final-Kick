@@ -29,6 +29,7 @@ FactoryManager="*res://scripts/factory_manager.gd"
 ScoreManager="*res://scripts/score_manager.gd"
 InstructionsPanel="*res://scenes/ui/instructions_panel.tscn"
 Difficulty="*res://scripts/difficulty.gd"
+SettingsPanel="*res://scenes/ui/settings_panel.tscn"
 
 [display]
 

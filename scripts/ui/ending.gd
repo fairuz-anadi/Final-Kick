@@ -192,11 +192,16 @@ func _build_ui() -> void:
 	vbox.add_child(title)
 
 	var body := Label.new()
-	body.text = "He never saw it wake.\nBut every light in this factory is his."
+	# The last line ties the ending directly back to the jam's own framing
+	# of "Kickoff" ("the spark that sets an entire chain of events into
+	# motion") — in the Worker's voice, not a slogan lifted verbatim.
+	body.text = "He never saw it wake.\nBut every light in this factory is his.\nOne kick. And the whole factory followed."
 	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_theme_font_size_override("font_size", 17)
 	body.add_theme_color_override("font_color", Color(0.82, 0.84, 0.87))
 	vbox.add_child(body)
+
+	var is_new_best: bool = ScoreManager.finish_run()
 
 	var score_label := Label.new()
 	score_label.text = "FINAL SCORE   %d" % ScoreManager.total_score
@@ -206,6 +211,19 @@ func _build_ui() -> void:
 	score_label.add_theme_font_size_override("font_size", 22)
 	score_label.add_theme_color_override("font_color", Color(0.961, 0.651, 0.137))
 	vbox.add_child(score_label)
+
+	var best_label := Label.new()
+	if font:
+		best_label.add_theme_font_override("font", font)
+	best_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	best_label.add_theme_font_size_override("font_size", 15)
+	if is_new_best:
+		best_label.text = "★ NEW BEST"
+		best_label.add_theme_color_override("font_color", Color(0.24, 1.0, 0.65))
+	else:
+		best_label.text = "BEST   %d" % ScoreManager.best_score
+		best_label.add_theme_color_override("font_color", Color(0.62, 0.68, 0.82))
+	vbox.add_child(best_label)
 
 	var credits := Label.new()
 	credits.text = "ANADI — SYSTEMS & PHYSICS\nRABIB — LEVEL DESIGN & SOUND\nSAMPRITY — ART, UI & SHADERS\n\nMADE WITH GODOT 4.7 FOR THE KICKOFF GAMEJAM"
