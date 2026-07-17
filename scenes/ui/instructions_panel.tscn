@@ -101,10 +101,6 @@ theme_override_constants/separation = 16
 [node name="Title" type="Label" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.898, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0.898, 1, 0.4)
-theme_override_constants/shadow_offset_x = 0
-theme_override_constants/shadow_offset_y = 0
-theme_override_constants/shadow_outline_size = 14
 theme_override_fonts/font = ExtResource("3")
 theme_override_font_sizes/font_size = 34
 text = "HOW TO PLAY"
