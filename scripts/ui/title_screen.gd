@@ -10,6 +10,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_on_start_pressed()
 
 func _on_start_pressed() -> void:
+	ScoreManager.reset_run()
 	get_tree().change_scene_to_file(start_scene)
 
 func _on_quit_pressed() -> void:

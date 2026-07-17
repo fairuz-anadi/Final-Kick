@@ -129,6 +129,20 @@ func _build_ui() -> void:
 	var layer := CanvasLayer.new()
 	add_child(layer)
 
+	# Subtle screen-vision overlay (vignette + scanlines, no visible gradient
+	# tint) so the ending reads through the same "HUD vision" language as the
+	# other menus, without hiding the 3D workshop room behind it.
+	var vision := ColorRect.new()
+	var vision_material := ShaderMaterial.new()
+	vision_material.shader = load("res://assets/shaders/gradient_vision.gdshader")
+	vision_material.set_shader_parameter("opacity", 0.35)
+	vision_material.set_shader_parameter("vignette_amount", 0.5)
+	vision_material.set_shader_parameter("scanline_amount", 0.05)
+	vision.material = vision_material
+	vision.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vision.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(vision)
+
 	var font: FontFile = load("res://assets/fonts/Orbitron.ttf")
 
 	_subtitle = Label.new()
@@ -183,6 +197,15 @@ func _build_ui() -> void:
 	body.add_theme_font_size_override("font_size", 17)
 	body.add_theme_color_override("font_color", Color(0.82, 0.84, 0.87))
 	vbox.add_child(body)
+
+	var score_label := Label.new()
+	score_label.text = "FINAL SCORE   %d" % ScoreManager.total_score
+	score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if font:
+		score_label.add_theme_font_override("font", font)
+	score_label.add_theme_font_size_override("font_size", 22)
+	score_label.add_theme_color_override("font_color", Color(0.961, 0.651, 0.137))
+	vbox.add_child(score_label)
 
 	var credits := Label.new()
 	credits.text = "ANADI — SYSTEMS & PHYSICS\nRABIB — LEVEL DESIGN & SOUND\nSAMPRITY — ART, UI & SHADERS\n\nMADE WITH GODOT 4.7 FOR THE KICKOFF GAMEJAM"

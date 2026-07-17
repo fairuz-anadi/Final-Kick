@@ -40,11 +40,14 @@ func show_result() -> void:
 	if hud and hud.has_method("get_stats"):
 		stats = hud.get_stats()
 
-	_stats_label.text = "TIME   %02d:%02d\nTARGETS   %d / %d\nKICKS USED   %d\nREWINDS USED   %d\nEFFICIENCY   %d%%" % [
+	var score_info := ScoreManager.score_level(stats)
+
+	_stats_label.text = "TIME   %02d:%02d\nTARGETS   %d / %d\nKICKS USED   %d\nREWINDS USED   %d\nEFFICIENCY   %d%%\nSCORE   %d   (TOTAL %d)" % [
 		int(stats["time"]) / 60, int(stats["time"]) % 60,
 		stats["targets_done"], stats["targets_total"],
 		stats["kicks"], stats["rewinds"],
 		_efficiency(stats),
+		score_info["level_score"], score_info["total_score"],
 	]
 	_rank_label.text = _rank(stats)
 	_flawless_badge.visible = stats["rewinds"] == 0
