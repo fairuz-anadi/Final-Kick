@@ -43,6 +43,10 @@ const CHAIN_COLORS := [COLOR_ENERGY, COLOR_HIGHLIGHT, COLOR_WARNING, COLOR_BURST
 @onready var _film_grain: ColorRect = %FilmGrain
 @onready var _energy_bar: ProgressBar = %EnergyBar
 @onready var _energy_label: Label = %EnergyLabel
+@onready var _view_front_button: Button = %FrontButton
+@onready var _view_back_button: Button = %BackButton
+@onready var _view_top_button: Button = %TopButton
+@onready var _view_bottom_button: Button = %BottomButton
 
 ## Milestone flavor under the energy bar — sells "the factory is waking up".
 const ENERGY_MOODS := [
@@ -56,6 +60,7 @@ var _danger_active := false
 var _charge_stage: int = 0  # 0 none / 1 ≥40% / 2 ≥80% / 3 max-or-burst
 
 var _ball_mesh: MeshInstance3D
+var _camera_director: CameraDirector
 var _was_scrubbing := false
 var _elapsed := 0.0
 var _timer_running := true
@@ -86,6 +91,14 @@ func _ready() -> void:
 		_ball.kicked.connect(_on_kicked)
 	if _ball.has_signal("burst_kicked"):
 		_ball.burst_kicked.connect(_on_burst_kicked)
+
+	var cam := get_viewport().get_camera_3d()
+	if cam is CameraDirector:
+		_camera_director = cam
+	_view_front_button.pressed.connect(func() -> void: _set_view("front"))
+	_view_back_button.pressed.connect(func() -> void: _set_view("back"))
+	_view_top_button.pressed.connect(func() -> void: _set_view("top"))
+	_view_bottom_button.pressed.connect(func() -> void: _set_view("bottom"))
 
 	# The HUD is the one node guaranteed to exist in every level, so it's
 	# where the per-level singletons get their "a level just started" call.
@@ -364,6 +377,10 @@ func notify(message: String, color: Color, font_size: int = 24) -> void:
 	add_child(floating)
 	var viewport_size := get_viewport().get_visible_rect().size
 	floating.position = Vector2(viewport_size.x * 0.5, viewport_size.y * 0.3)
+
+func _set_view(view_name: String) -> void:
+	if _camera_director:
+		_camera_director.set_preset_view(view_name)
 
 ## Real run stats for the result screen.
 func get_stats() -> Dictionary:

@@ -31,17 +31,33 @@ class_name CameraDirector
 @export var interior_pitch_degrees: float = 11.0
 
 # Free orbit (player view control): hold the RIGHT mouse button and drag to
-# swing the camera around the room — to either corner, or up and over to a
-# near top-down view. Scroll-zoom still dollies along the current view.
-# HOME resets to the level's framed shot. Orbit is an offset on top of
-# _cinematic_transform, so shake / spectacle / waypoint moves all still work.
+# swing the camera all the way around the room — any yaw, near-full pitch
+# (top-down to near-bottom-up), so every gear can be lined up and inspected.
+# Scroll-zoom still dollies along the current view. HOME resets to the
+# level's framed shot. Orbit is an offset on top of _cinematic_transform, so
+# shake / spectacle / waypoint moves all still work.
 @export var orbit_sensitivity: float = 0.3    # degrees per pixel of drag
-@export var orbit_yaw_limit: float = 75.0     # keep the open room front roughly toward the player
-@export var orbit_pitch_min: float = -18.0
-@export var orbit_pitch_max: float = 78.0
+# Pitch still stops just short of ±90° — exactly vertical is a gimbal
+# singularity for the look-at basis below (the "up" vector degenerates).
+@export var orbit_pitch_min: float = -85.0
+@export var orbit_pitch_max: float = 85.0
 
 var _orbit_yaw: float = 0.0
 var _orbit_pitch: float = 0.0
+
+# Named preset views (keys 1-4, or the HUD's view buttons): instant snaps to
+# a cardinal angle around the room so every gear can be lined up without
+# hand-dragging the orbit. Yaw/pitch are offsets on the same rest pose the
+# free orbit above uses, so a preset can still be nudged further by hand
+# afterward. Front is the level's own framed shot (0, 0); Back is the
+# opposite side; Top/Bottom sit at the same near-vertical clamp the free
+# orbit stops at, for the same gimbal-singularity reason.
+const VIEW_PRESETS := {
+	"front": {"yaw": 0.0, "pitch": 0.0},
+	"back": {"yaw": 180.0, "pitch": 0.0},
+	"top": {"yaw": 0.0, "pitch": 85.0},
+	"bottom": {"yaw": 0.0, "pitch": -85.0},
+}
 
 @export var shake_strength_per_impact: float = 0.15
 @export var shake_duration: float = 0.3
@@ -58,8 +74,11 @@ var _orbit_pitch: float = 0.0
 # _cinematic_transform, so shake and the spectacle move are unaffected.
 @export var zoom_step: float = 0.7           # meters per wheel notch
 @export var zoom_key_speed: float = 6.0      # meters per second while +/- held
-@export var zoom_min: float = -4.0           # max dolly OUT (negative = away)
-@export var zoom_max: float = 6.0            # max dolly IN (toward the room)
+# Wide enough to back all the way out of the 9.7m room or push in close on
+# a single gear; not literally unbounded so the camera can't dolly through
+# the walls and out into the void.
+@export var zoom_min: float = -10.0          # max dolly OUT (negative = away)
+@export var zoom_max: float = 12.0           # max dolly IN (toward the room)
 @export var zoom_smoothing: float = 8.0      # lerp speed toward the target zoom
 
 var _zoom_target: float = 0.0
@@ -150,14 +169,31 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_zoom_target = clampf(_zoom_target - zoom_step, zoom_min, zoom_max)
 	elif event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-		_orbit_yaw = clampf(_orbit_yaw - event.relative.x * orbit_sensitivity,
-			-orbit_yaw_limit, orbit_yaw_limit)
+		# Yaw wraps freely (full 360° orbit); only pitch stays clamped, to
+		# avoid the vertical gimbal singularity.
+		_orbit_yaw = wrapf(_orbit_yaw - event.relative.x * orbit_sensitivity, -180.0, 180.0)
 		_orbit_pitch = clampf(_orbit_pitch - event.relative.y * orbit_sensitivity,
 			orbit_pitch_min, orbit_pitch_max)
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_HOME:
 		_orbit_yaw = 0.0
 		_orbit_pitch = 0.0
 		_zoom_target = 0.0
+	elif event is InputEventKey and event.pressed and not event.echo:
+		match event.keycode:
+			KEY_1: set_preset_view("front")
+			KEY_2: set_preset_view("back")
+			KEY_3: set_preset_view("top")
+			KEY_4: set_preset_view("bottom")
+
+## Snap the orbit straight to a named cardinal view — see VIEW_PRESETS.
+## Zoom is left untouched; only the angle changes.
+func set_preset_view(view_name: String) -> void:
+	if not VIEW_PRESETS.has(view_name):
+		push_warning("CameraDirector: unknown preset view '%s'" % view_name)
+		return
+	var preset: Dictionary = VIEW_PRESETS[view_name]
+	_orbit_yaw = preset["yaw"]
+	_orbit_pitch = clampf(preset["pitch"], orbit_pitch_min, orbit_pitch_max)
 
 func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_EQUAL) or Input.is_key_pressed(KEY_KP_ADD):
