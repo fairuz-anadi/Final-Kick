@@ -25,6 +25,9 @@ func _on_restart_pressed() -> void:
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
+func _on_how_to_play_pressed() -> void:
+	InstructionsPanel.open()
+
 func _on_menu_pressed() -> void:
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/ui/title_screen.tscn")

@@ -126,6 +126,17 @@ theme_override_colors/font_color = Color(0.95, 0.97, 1, 1)
 theme_override_colors/font_hover_color = Color(0.039, 0.051, 0.086, 1)
 text = "►  START"
 
+[node name="HowToPlayButton" type="Button" parent="Center/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+text = "HOW TO PLAY"
+
 [node name="QuitButton" type="Button" parent="Center/VBox"]
 layout_mode = 2
 size_flags_horizontal = 4
@@ -153,4 +164,5 @@ text = "Systems & Physics  ·  Level Design  ·  Art & UI"
 horizontal_alignment = 1
 
 [connection signal="pressed" from="Center/VBox/StartButton" to="." method="_on_start_pressed"]
+[connection signal="pressed" from="Center/VBox/HowToPlayButton" to="." method="_on_how_to_play_pressed"]
 [connection signal="pressed" from="Center/VBox/QuitButton" to="." method="_on_quit_pressed"]

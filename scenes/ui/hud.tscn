@@ -302,6 +302,61 @@ theme_override_font_sizes/font_size = 13
 text = "KICK POWER   0%"
 horizontal_alignment = 1
 
+[node name="ViewBox" type="PanelContainer" parent="."]
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -92.0
+offset_right = 304.0
+offset_bottom = -28.0
+grow_horizontal = 1
+grow_vertical = 0
+theme = ExtResource("5")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_plain")
+
+[node name="ViewVBox" type="VBoxContainer" parent="ViewBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ViewLabel" type="Label" parent="ViewBox/ViewVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
+theme_override_fonts/font = ExtResource("6")
+theme_override_font_sizes/font_size = 11
+text = "CAMERA VIEW"
+horizontal_alignment = 1
+
+[node name="ViewButtons" type="HBoxContainer" parent="ViewBox/ViewVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="FrontButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "FRONT"
+
+[node name="BackButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "BACK"
+
+[node name="TopButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "TOP"
+
+[node name="BottomButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "BTM"
+
 [node name="RewindBox" type="PanelContainer" parent="."]
 anchor_left = 1.0
 anchor_top = 1.0
