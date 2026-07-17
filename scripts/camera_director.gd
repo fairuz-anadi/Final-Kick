@@ -81,6 +81,13 @@ const VIEW_PRESETS := {
 @export var zoom_max: float = 12.0           # max dolly IN (toward the room)
 @export var zoom_smoothing: float = 8.0      # lerp speed toward the target zoom
 
+# Final position safety clamp (see _process) — keeps the wide zoom/orbit
+# ranges above from pushing the camera through the walls or ceiling, which
+# have no collision. Matches factory_dressing.gd's ROOM_HALF/CEILING_HEIGHT
+# with a small inward margin.
+const ROOM_BOUND := 9.0
+const CEILING_CLEARANCE := 4.3
+
 var _zoom_target: float = 0.0
 var _zoom_current: float = 0.0
 
@@ -223,6 +230,13 @@ func _process(delta: float) -> void:
 	# spectacle move or the player's orbit applies; offset-based, so it never
 	# mutates the rest pose.
 	position += -view.basis.z * _zoom_current + _follow_offset
+	# The wide zoom/orbit ranges above can otherwise push the camera straight
+	# through the room's walls/ceiling (which have no collision) — clamp the
+	# final position to stay inside the ~9.7m room shell (factory_dressing.gd's
+	# ROOM_HALF) regardless of how far the player zoomed or orbited.
+	position.x = clampf(position.x, -ROOM_BOUND, ROOM_BOUND)
+	position.z = clampf(position.z, -ROOM_BOUND, ROOM_BOUND)
+	position.y = clampf(position.y, 0.5, CEILING_CLEARANCE)
 	if _shake_trauma <= 0.0:
 		return
 	var amount: float = _shake_trauma * _shake_trauma  # ease-out: big hits punch harder, fade fast

@@ -28,6 +28,7 @@ const LEVEL_ORDER: Array[String] = [
 @onready var _panel: Control = %Panel
 @onready var _stats_label: Label = %Stats
 @onready var _rank_label: Label = %Rank
+@onready var _score_label: Label = %ScoreLabel
 @onready var _flawless_badge: Label = %FlawlessBadge
 
 func _ready() -> void:
@@ -49,6 +50,9 @@ func show_result() -> void:
 	]
 	_rank_label.text = _earned_title(stats)
 	_flawless_badge.visible = stats["rewinds"] == 0
+
+	var score := ScoreManager.score_level(stats)
+	_score_label.text = "SCORE  +%d   ·   RUN TOTAL  %d" % [score["level_score"], score["total_score"]]
 
 	_panel.visible = true
 	_panel.modulate.a = 0.0

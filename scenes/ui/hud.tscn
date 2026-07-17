@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1"]
 [ext_resource type="Material" path="res://assets/materials/ghost_material.tres" id="2"]
@@ -15,40 +15,67 @@ shader = ExtResource("3")
 shader = ExtResource("7")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-content_margin_left = 16.0
-content_margin_top = 12.0
-content_margin_right = 16.0
-content_margin_bottom = 12.0
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
 bg_color = Color(0.039, 0.051, 0.086, 0.85)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(1, 0.714, 0.153, 0.8)
+border_color = Color(1, 0.714, 0.153, 0.65)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
-shadow_color = Color(1, 0.714, 0.153, 0.18)
-shadow_size = 8
+shadow_color = Color(1, 0.714, 0.153, 0.12)
+shadow_size = 3
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_plain"]
-content_margin_left = 16.0
-content_margin_top = 12.0
-content_margin_right = 16.0
-content_margin_bottom = 12.0
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
 bg_color = Color(0.039, 0.051, 0.086, 0.85)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0.898, 1, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.898, 1, 0.4)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
-shadow_color = Color(0, 0.898, 1, 0.15)
-shadow_size = 8
+shadow_color = Color(0, 0.898, 1, 0.1)
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_view_btn"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.02, 0.03, 0.06, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.898, 1, 0.45)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_view_btn_hover"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0, 0.898, 1, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_bg"]
 bg_color = Color(0.02, 0.03, 0.06, 0.9)
@@ -99,13 +126,13 @@ border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0, 0.898, 1, 0.6)
+border_color = Color(0, 0.898, 1, 0.55)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-shadow_color = Color(0, 0.898, 1, 0.15)
-shadow_size = 8
+shadow_color = Color(0, 0.898, 1, 0.12)
+shadow_size = 3
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1")
@@ -230,7 +257,7 @@ horizontal_alignment = 2
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -160.0
-offset_top = 14.0
+offset_top = 18.0
 offset_right = 160.0
 grow_horizontal = 2
 theme = ExtResource("5")
@@ -337,24 +364,40 @@ alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
+theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
 text = "FRONT"
 
 [node name="BackButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
+theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
 text = "BACK"
 
 [node name="TopButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
+theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
 text = "TOP"
 
 [node name="BottomButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
+theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
 text = "BTM"
 
 [node name="RewindBox" type="PanelContainer" parent="."]

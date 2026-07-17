@@ -107,6 +107,19 @@ theme_override_font_sizes/font_size = 52
 text = "FACTORY HERO"
 horizontal_alignment = 1
 
+[node name="ScoreLabel" type="Label" parent="Panel/Center/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.898, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.898, 1, 0.4)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 10
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 26
+text = "SCORE  +0   ·   RUN TOTAL  0"
+horizontal_alignment = 1
+
 [node name="FlawlessBadge" type="Label" parent="Panel/Center/VBox"]
 unique_name_in_owner = true
 visible = false
