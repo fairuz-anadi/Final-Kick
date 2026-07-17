@@ -18,3 +18,18 @@ func _on_quit_pressed() -> void:
 
 func _on_how_to_play_pressed() -> void:
 	InstructionsPanel.open()
+
+# The three difficulty buttons share a ButtonGroup (radio-button behavior),
+# so exactly one of these fires with `pressed = true` per selection change —
+# the others fire `false` as they get deselected, which is ignored here.
+func _on_easy_toggled(pressed: bool) -> void:
+	if pressed:
+		Difficulty.current = Difficulty.Level.EASY
+
+func _on_medium_toggled(pressed: bool) -> void:
+	if pressed:
+		Difficulty.current = Difficulty.Level.MEDIUM
+
+func _on_hard_toggled(pressed: bool) -> void:
+	if pressed:
+		Difficulty.current = Difficulty.Level.HARD

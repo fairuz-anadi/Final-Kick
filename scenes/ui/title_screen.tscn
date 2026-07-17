@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="1"]
 [ext_resource type="Theme" path="res://assets/ui/theme.tres" id="2"]
@@ -38,6 +38,8 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 shadow_color = Color(1, 0.239, 0.506, 0.45)
 shadow_size = 10
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_difficulty"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
 content_margin_left = 30.0
@@ -111,6 +113,59 @@ theme_override_font_sizes/font_size = 17
 text = "Year 2147. The Last Worker is gone. His final creation keeps his promise."
 horizontal_alignment = 1
 
+[node name="DifficultyLabel" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 12
+text = "DIFFICULTY"
+horizontal_alignment = 1
+
+[node name="DifficultyRow" type="HBoxContainer" parent="Center/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="EasyButton" type="Button" parent="Center/VBox/DifficultyRow"]
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_difficulty")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+theme_override_colors/font_pressed_color = Color(0.04, 0.05, 0.09, 1)
+text = "EASY"
+
+[node name="MediumButton" type="Button" parent="Center/VBox/DifficultyRow"]
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_difficulty")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+theme_override_colors/font_pressed_color = Color(0.04, 0.05, 0.09, 1)
+text = "MEDIUM"
+
+[node name="HardButton" type="Button" parent="Center/VBox/DifficultyRow"]
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_difficulty")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+theme_override_colors/font_pressed_color = Color(0.04, 0.05, 0.09, 1)
+text = "HARD"
+
 [node name="Spacer" type="Control" parent="Center/VBox"]
 custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
@@ -163,6 +218,9 @@ theme_override_font_sizes/font_size = 12
 text = "Systems & Physics  ·  Level Design  ·  Art & UI"
 horizontal_alignment = 1
 
+[connection signal="toggled" from="Center/VBox/DifficultyRow/EasyButton" to="." method="_on_easy_toggled"]
+[connection signal="toggled" from="Center/VBox/DifficultyRow/MediumButton" to="." method="_on_medium_toggled"]
+[connection signal="toggled" from="Center/VBox/DifficultyRow/HardButton" to="." method="_on_hard_toggled"]
 [connection signal="pressed" from="Center/VBox/StartButton" to="." method="_on_start_pressed"]
 [connection signal="pressed" from="Center/VBox/HowToPlayButton" to="." method="_on_how_to_play_pressed"]
 [connection signal="pressed" from="Center/VBox/QuitButton" to="." method="_on_quit_pressed"]

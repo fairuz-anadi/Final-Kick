@@ -22,8 +22,6 @@ signal energy_drained(amount: float)
 signal power_critical(active: bool)
 signal factory_shutdown
 
-## Factory Energy lost per ball loss (out of 100).
-const DRAIN_PER_LOSS := 20.0
 ## Below this (with progress made) the HUD shows the red warning state.
 const CRITICAL_ENERGY := 25.0
 ## Blackout text hold time before the black fade finishes and the level reloads.
@@ -63,8 +61,9 @@ func on_ball_lost(ball: Node3D) -> void:
 	# Before any machine is awake there's no earned energy to lose — early
 	# experimenting stays free. The HUD reads amount 0 as a plain "BALL LOST".
 	if had_progress:
-		FactoryManager.drain_energy(DRAIN_PER_LOSS)
-		energy_drained.emit(DRAIN_PER_LOSS)
+		var drain := Difficulty.drain_per_loss()
+		FactoryManager.drain_energy(drain)
+		energy_drained.emit(drain)
 	else:
 		energy_drained.emit(0.0)
 	PlaceholderSFX.play_heart_loss()
