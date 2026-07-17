@@ -1,9 +1,5 @@
 # Final Kick — Credits
 
-## Team
-- **Anadi** — systems & physics (kick, rewind, triggers, win detection, spectacle cam)
-- **Rabib** — level design, SFX, balancing
-- **Samprity** — 3D assets, materials, UI, shaders, itch.io page
 
 ## Engine & tools
 - Godot Engine 4.7 (MIT license) — https://godotengine.org

@@ -1,12 +1,18 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/result_screen.gd" id="1"]
 [ext_resource type="Theme" path="res://assets/ui/theme.tres" id="2"]
 [ext_resource type="FontFile" path="res://assets/fonts/Orbitron.ttf" id="3"]
 [ext_resource type="Shader" path="res://assets/shaders/blur_dim.gdshader" id="4"]
+[ext_resource type="Shader" path="res://assets/shaders/gradient_vision.gdshader" id="5"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
 shader = ExtResource("4")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vision"]
+shader = ExtResource("5")
+shader_parameter/vignette_amount = 0.7
+shader_parameter/opacity = 0.75
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
 content_margin_left = 26.0
@@ -61,6 +67,16 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.6)
+
+[node name="GradientVision" type="ColorRect" parent="Panel"]
+layout_mode = 1
+material = SubResource("ShaderMaterial_vision")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Center" type="CenterContainer" parent="Panel"]
 layout_mode = 1
