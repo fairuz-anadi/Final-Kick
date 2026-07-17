@@ -21,11 +21,11 @@ func _ready() -> void:
 	button_up.connect(func() -> void: _pressing = false; queue_redraw())
 
 func _draw() -> void:
-	var size := get_size()
+	var sz := get_size()
 	var pts := PackedVector2Array([
-		Vector2(cut, 0), Vector2(size.x, 0),
-		Vector2(size.x, size.y - cut), Vector2(size.x - cut, size.y),
-		Vector2(0, size.y), Vector2(0, cut),
+		Vector2(cut, 0), Vector2(sz.x, 0),
+		Vector2(sz.x, sz.y - cut), Vector2(sz.x - cut, sz.y),
+		Vector2(0, sz.y), Vector2(0, cut),
 	])
 
 	var fill: Color
@@ -47,5 +47,5 @@ func _draw() -> void:
 
 	# Bracket accents at the two square corners — the "control panel" read.
 	var tick := minf(cut, 8.0)
-	draw_polyline(PackedVector2Array([Vector2(0, size.y - tick * 1.6), Vector2(0, size.y), Vector2(tick * 1.6, size.y)]), border, 2.0, true)
-	draw_polyline(PackedVector2Array([Vector2(size.x - tick * 1.6, 0), Vector2(size.x, 0), Vector2(size.x, tick * 1.6)]), border, 2.0, true)
+	draw_polyline(PackedVector2Array([Vector2(0, sz.y - tick * 1.6), Vector2(0, sz.y), Vector2(tick * 1.6, sz.y)]), border, 2.0, true)
+	draw_polyline(PackedVector2Array([Vector2(sz.x - tick * 1.6, 0), Vector2(sz.x, 0), Vector2(sz.x, tick * 1.6)]), border, 2.0, true)

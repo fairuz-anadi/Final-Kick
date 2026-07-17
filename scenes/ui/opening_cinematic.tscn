@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" path="res://scripts/ui/opening_cinematic.gd" id="1"]
 
-[node name="OpeningCinematic" type="Node3D"]
+[node name="OpeningCinematic" type="Node2D"]
 script = ExtResource("1")

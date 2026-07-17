@@ -1,190 +1,229 @@
-extends Node3D
-## Opening cinematic — the project's main scene. Seven beats in the Last
-## Worker's workshop (all primitives, built at runtime by WorkshopRoom /
-## LastWorker):
+extends Node2D
+## Opening cinematic — the project's main scene. Six illustrated shots
+## (Samprity's art in assets/cinematic/) played as a living storyboard:
+## every shot has a slow camera move, and light behaves like light —
+## the ball's glow breathes, the desk lamp flickers, fog drifts, dust
+## floats. The final shot is built from separate layers (bench / ball /
+## kid) so the camera gets real parallax.
 ##
-##  1  Black. Wind and a ticking clock. "There was a time..."
-##  2  The workshop, warm and alive — the Worker (younger) repairing the machine.
-##  3  Time passes: the clock spins, the lights die, everyone leaves.
-##  4  Decades later: the Worker, old now, stands at his desk. A dim sphere waits.
-##  5  Close-up: he attaches the ring. Sparks. The ball wakes.
-##  6  He sits down. The room goes dark. Only the ball still glows.
-##  7  YEAR 2147 — FINAL KICK — then the title screen.
+##  1  The dead factory skyline. "There was a time..."
+##  2  The empty workshop — bench, chair, the waiting ball.
+##  3  A kid in the doorway.
+##  4  Close-up: the note. "Wake them."
+##  5  The ball in his hands.
+##  6  Parallax: the kid at the bench, finishing what was started.
+##  7  The ball's glow flashes out — straight into the title screen.
 ##
-## Any input skips to the title card; a second input continues.
+## Any input (or the SKIP button) jumps straight to the title screen.
 
 const TITLE_SCREEN := "res://scenes/ui/title_screen.tscn"
-const WorkerScene := preload("res://scripts/cinematic/last_worker.gd")
-const RoomScene := preload("res://scripts/cinematic/workshop_room.gd")
 const CutCornerButtonScript := preload("res://scripts/ui/cut_corner_button.gd")
 
-var _room: WorkshopRoom
-var _worker: LastWorker
-var _camera: Camera3D
-var _cam_focus := Vector3(0, 1, 0)
+const ART := "res://assets/cinematic/"
+
+const GLOW_CYAN := Color(0.35, 0.85, 1.0, 0.5)
+const GLOW_WARM := Color(1.0, 0.72, 0.4, 0.5)
+const GLOW_MOON := Color(0.75, 0.85, 1.0, 0.4)
+
+# Layout of the parallax bench shot, tuned against the art.
+const BENCH_BALL_NORM := Vector2(0.44, 0.55)   # on the tabletop, left of centre
+const BENCH_KID_NORM := Vector2(0.71, 0.67)    # sitting at the right end
+const BENCH_KID_HEIGHT := 0.62                 # kid height, fraction of screen
+const BENCH_BALL_HEIGHT := 0.16                # ball height, fraction of screen
+
+var _vs: Vector2
+
+var _shot: Node2D
+var _tweens: Array[Tween] = []
+var _cam_tween: Tween        # the active shot's camera move — killed per shot
+
+# Last camera state, so a window resize can re-frame immediately.
+var _active_spr: Sprite2D
+var _active_zoom := 1.0
+var _active_focus := Vector2(0.5, 0.5)
+var _bench_group: Node2D
 
 var _overlay: ColorRect
+var _flash: ColorRect
 var _subtitle: Label
-var _title_year: Label
-var _title_main: Label
-var _prompt: Label
 var _skip_button: Button
-var _menu_button: Button
 
 var _wind_player: AudioStreamPlayer
 var _clock_player: AudioStreamPlayer
 
-var _scene_tween: Tween
-var _on_title_card := false
+var _pulse_glows: Array[Sprite2D] = []    # breathing machine-glow
+var _flicker_glows: Array[Sprite2D] = []  # unsteady lamp light
+var _fogs: Array[Sprite2D] = []           # drifting haze
+var _kid: Sprite2D                        # breathes, in the bench shot
+
 var _finished := false
 
 func _ready() -> void:
-	_build_world()
+	_vs = get_viewport_rect().size
+	get_viewport().size_changed.connect(_on_viewport_resized)
 	_build_overlay_ui()
 	_build_skip_ui()
 	_start_ambience()
-	_scene_1()
+	_shot_1()
 
-func _process(_delta: float) -> void:
-	_camera.look_at(_cam_focus)
-	if _on_title_card and _prompt.modulate.a > 0.0:
-		_prompt.modulate.a = 0.55 + 0.45 * sin(Time.get_ticks_msec() * 0.004)
+func _process(delta: float) -> void:
+	var t := Time.get_ticks_msec() / 1000.0
+	for g in _pulse_glows:
+		g.modulate.a = g.get_meta("base_a") \
+			+ g.get_meta("amp") * sin(t * g.get_meta("speed") + g.get_meta("phase"))
+	for g in _flicker_glows:
+		var a: float = g.modulate.a + randf_range(-0.05, 0.05)
+		g.modulate.a = clampf(lerpf(a, g.get_meta("base_a"), 0.1), 0.3, 1.0)
+	for f in _fogs:
+		f.position.x += f.get_meta("drift") * delta
+		if absf(f.position.x - f.get_meta("home_x")) > f.get_meta("range"):
+			f.set_meta("drift", -f.get_meta("drift"))
+	if is_instance_valid(_kid):
+		_kid.scale.y = _kid.get_meta("base_scale") * (1.0 + 0.006 * sin(t * 1.5))
 
 func _unhandled_input(event: InputEvent) -> void:
 	var pressed: bool = (event is InputEventKey and event.pressed) \
 		or (event is InputEventMouseButton and event.pressed)
-	if not pressed:
-		return
-	if _on_title_card:
+	if pressed:
 		_go_to_title_screen()
-	else:
-		_show_title_card()
 
-# --- The seven scenes --------------------------------------------------
+# --- The six shots -----------------------------------------------------
 
-func _scene_1() -> void:
+func _shot_1() -> void:
+	var spr := _add_art("01_skyline.png")
+	_animate_cam(spr, 9.5, 1.05, 1.17, Vector2(0.5, 0.5), Vector2(0.58, 0.44))
+	_add_glow(spr, Vector2(0.305, 0.195), GLOW_MOON, 190.0, 0.45, 0.15, 0.5)
+	_add_fog(spr, 0.86, 2)
+
 	_overlay.modulate.a = 1.0
-	_scene_tween = create_tween()
-	_add_line(_scene_tween, "There was a time when the lights never went out.", 3.2)
-	_scene_tween.tween_callback(_scene_2)
+	var st := _tween()
+	st.tween_property(_overlay, "modulate:a", 0.0, 2.4)
+	_add_line(st, "There was a time when the lights never went out.", 3.0)
+	_add_line(st, "That was a long time ago.", 2.4)
+	st.tween_interval(0.6)
+	st.tween_callback(_shot_2)
 
-func _scene_2() -> void:
-	# The living factory: warm light, running machine, the Worker at work.
-	_room.set_light_level(1.0)
-	_room.set_machine_alive(true)
-	_room.clock_speed = 0.02
-	_worker.set_age(false)
-	_worker.position = _room.machine_spot()
-	_worker.rotation.y = PI
-	_worker.set_pose("repair")
+func _shot_2() -> void:
+	var spr := _add_art("02_workshop_empty.png")
+	_animate_cam(spr, 10.0, 1.08, 1.2, Vector2(0.34, 0.56), Vector2(0.53, 0.5))
+	_add_glow(spr, Vector2(0.525, 0.495), GLOW_CYAN, 150.0, 0.55, 0.2, 1.6)
+	_add_glow(spr, Vector2(0.655, 0.23), GLOW_WARM, 170.0, 0.6, 0.0, 0.0, true)
+	_add_dust(spr, Vector2(0.62, 0.4), Vector2(150, 130))
 
-	_camera.position = Vector3(7.0, 5.2, 6.5)
-	_cam_focus = Vector3(-1.0, 1.2, -2.0)
+	var st := _tween()
+	_add_line(st, "For decades, one worker kept the old machines company.", 3.2)
+	_add_line(st, "Now his chair sits empty.", 2.6)
+	st.tween_interval(0.6)
+	st.tween_callback(_shot_3)
 
-	_scene_tween = create_tween()
-	_scene_tween.tween_property(_overlay, "modulate:a", 0.0, 2.2)
-	_scene_tween.parallel().tween_property(_camera, "position",
-		Vector3(5.6, 4.2, 5.4), 6.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_add_line(_scene_tween, "This factory powered entire cities.", 2.8)
-	_scene_tween.tween_callback(_scene_3)
+func _shot_3() -> void:
+	var spr := _add_art("03_doorway.png")
+	_animate_cam(spr, 8.0, 1.12, 1.08, Vector2(0.58, 0.52), Vector2(0.32, 0.5))
+	_add_glow(spr, Vector2(0.655, 0.52), GLOW_CYAN, 140.0, 0.55, 0.2, 1.6)
+	_add_glow(spr, Vector2(0.795, 0.29), GLOW_WARM, 150.0, 0.55, 0.0, 0.0, true)
+	_add_glow(spr, Vector2(0.215, 0.135), GLOW_MOON, 130.0, 0.4, 0.12, 0.5)
 
-func _scene_3() -> void:
-	# Time passes: the clock races, the light drains, the machine dies.
-	_scene_tween = create_tween()
-	_scene_tween.tween_callback(func() -> void:
-		_room.clock_speed = 30.0
-		_clock_player.pitch_scale = 2.5)
-	_scene_tween.tween_method(_room.set_light_level, 1.0, 0.12, 5.0) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_scene_tween.parallel().tween_property(_camera, "position",
-		Vector3(4.6, 3.4, 4.6), 5.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_add_line(_scene_tween, "But eventually...", 1.8)
-	_scene_tween.tween_callback(func() -> void: _room.set_machine_alive(false))
-	_add_line(_scene_tween, "Everyone left.", 2.4)
-	_scene_tween.tween_callback(_scene_4)
+	var st := _tween()
+	st.tween_interval(1.2)
+	_add_line(st, "But someone found the workshop.", 3.0)
+	st.tween_interval(1.0)
+	st.tween_callback(_shot_4)
 
-func _scene_4() -> void:
-	# Decades later. He is old now, and he has one thing left to build.
-	_room.clock_speed = 0.02
-	_clock_player.pitch_scale = 1.0
-	_worker.set_age(true)
-	_worker.position = _room.desk_spot()
-	_worker.rotation.y = PI
-	_worker.set_pose("stand")
+func _shot_4() -> void:
+	var spr := _add_art("04_note.png")
+	_animate_cam(spr, 8.5, 1.03, 1.14, Vector2(0.54, 0.55), Vector2(0.56, 0.5))
+	_add_glow(spr, Vector2(0.13, 0.4), GLOW_CYAN, 210.0, 0.5, 0.18, 1.6)
 
-	_camera.position = Vector3(4.4, 2.6, 1.2)
-	_cam_focus = _room.desk_spot() + Vector3(0, 1.1, -0.4)
+	var st := _tween()
+	st.tween_interval(0.8)
+	_add_line(st, "\"Wake them.\"", 2.8, true)
+	_add_line(st, "That was all the note said.", 2.4)
+	st.tween_interval(0.5)
+	st.tween_callback(_shot_5)
 
-	_scene_tween = create_tween()
-	_scene_tween.tween_property(_camera, "position", Vector3(3.8, 2.2, 0.6), 3.2) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_add_line(_scene_tween, "For decades, one worker stayed.", 2.6)
-	_add_line(_scene_tween, "And when his hands grew old, he built one last thing.", 3.0)
-	_scene_tween.tween_callback(_scene_5)
+func _shot_5() -> void:
+	var spr := _add_art("05_hands_ball.png")
+	_animate_cam(spr, 8.0, 1.04, 1.16, Vector2(0.55, 0.52), Vector2(0.565, 0.48))
+	_add_glow(spr, Vector2(0.565, 0.5), GLOW_CYAN, 230.0, 0.6, 0.25, 2.0)
 
-func _scene_5() -> void:
-	# Close on the desk: the ring attaches, sparks fly, the ball wakes.
-	_cam_focus = _room.ball_position()
-	_scene_tween = create_tween()
-	_scene_tween.tween_property(_camera, "position",
-		_room.ball_position() + Vector3(1.1, 0.7, 1.4), 2.0) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_scene_tween.tween_callback(func() -> void:
-		_room.set_ring_visible(true)
-		_spawn_sparks(_room.ball_position())
-		PlaceholderSFX.play_spark(_room))
-	_scene_tween.tween_method(_room.set_ball_glow, 0.0, 0.55, 1.2)
-	_add_line(_scene_tween, "\"You don't need to understand.\"", 2.4, true)
-	_add_line(_scene_tween, "\"Just promise me one thing.\"", 2.4, true)
-	_add_line(_scene_tween, "\"Wake them.\"", 3.0, true)
-	_scene_tween.tween_callback(_scene_6)
+	var st := _tween()
+	st.tween_interval(0.8)
+	_add_line(st, "The old man's final invention — still glowing.  Still waiting.", 3.4)
+	st.tween_interval(0.6)
+	st.tween_callback(_shot_6)
 
-func _scene_6() -> void:
-	# He sits. The room lets go. The ball keeps its light.
-	_worker.position = _room.chair_spot()
-	_worker.rotation.y = 0.0
-	_worker.set_pose("sit")
+func _shot_6() -> void:
+	# Parallax: bench, ball and kid on separate layers, camera dollying
+	# across. Nearer layers pan farther, so the flat art gains depth.
+	_begin_shot()
 
-	_cam_focus = _room.chair_spot() + Vector3(-0.4, 0.9, -0.6)
-	_camera.position = Vector3(1.4, 2.0, 2.8)
+	var group := Node2D.new()
+	group.position = _vs * 0.5
+	_shot.add_child(group)
 
-	_scene_tween = create_tween()
-	_scene_tween.tween_method(_room.set_light_level, 0.12, 0.0, 4.5) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_scene_tween.parallel().tween_method(_room.set_ball_glow, 0.55, 1.0, 4.5)
-	_scene_tween.parallel().tween_property(_camera, "position",
-		Vector3(2.2, 1.6, 2.0), 6.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_scene_tween.parallel().tween_property(_wind_player, "volume_db", -34.0, 5.0)
-	_add_line(_scene_tween, "The Last Worker was gone.", 2.6)
-	_add_line(_scene_tween, "But his final creation remained.", 3.0)
-	_scene_tween.tween_callback(_show_title_card)
+	var bench := Sprite2D.new()
+	bench.texture = load(ART + "06_bench_bg.png")
+	var bts: Vector2 = bench.texture.get_size()
+	var bscale := maxf(_vs.x / bts.x, _vs.y / bts.y) * 1.1
+	bench.scale = Vector2(bscale, bscale)
+	group.add_child(bench)
+	_add_glow(bench, Vector2(0.545, 0.26), GLOW_WARM, 190.0, 0.6, 0.0, 0.0, true)
+	_add_dust(bench, Vector2(0.53, 0.42), Vector2(160, 120))
 
-func _show_title_card() -> void:
-	if _on_title_card:
+	var ball := Sprite2D.new()
+	ball.texture = load(ART + "ball_cutout.png")
+	var ball_ts: Vector2 = ball.texture.get_size()
+	var ball_scale := BENCH_BALL_HEIGHT * _vs.y / (0.68 * ball_ts.y)
+	ball.scale = Vector2(ball_scale, ball_scale)
+	group.add_child(ball)
+	_add_glow(ball, Vector2(0.5, 0.49), GLOW_CYAN, 420.0, 0.5, 0.2, 1.6)
+
+	_kid = Sprite2D.new()
+	_kid.texture = load(ART + "kid_sitting.png")
+	var kid_ts: Vector2 = _kid.texture.get_size()
+	var kid_scale := BENCH_KID_HEIGHT * _vs.y / (0.88 * kid_ts.y)
+	_kid.scale = Vector2(kid_scale, kid_scale)
+	_kid.offset = -(Vector2(0.55, 0.52) - Vector2(0.5, 0.5)) * kid_ts
+	_kid.set_meta("base_scale", kid_scale)
+	group.add_child(_kid)
+
+	var ball_base := (BENCH_BALL_NORM - Vector2(0.5, 0.5)) * bts * bscale
+	var kid_base := (BENCH_KID_NORM - Vector2(0.5, 0.5)) * bts * bscale
+
+	var cam := _tween()
+	cam.tween_method(_bench_cam.bind(group, bench, ball, ball_base, kid_base),
+		0.0, 1.0, 11.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_cam_tween = cam
+	_bench_group = group
+
+	var st := _tween()
+	st.tween_interval(1.0)
+	_add_line(st, "So the kid took the old man's seat...", 3.0)
+	_add_line(st, "...and finished what was started.", 3.0)
+	st.tween_interval(0.8)
+	st.tween_callback(_ignite)
+
+## Camera drive for the parallax shot: one zoom + a dolly where nearer
+## layers pan farther than the bench behind them.
+func _bench_cam(t: float, group: Node2D, bench: Sprite2D, ball: Sprite2D,
+		ball_base: Vector2, kid_base: Vector2) -> void:
+	group.scale = Vector2.ONE * lerpf(1.03, 1.13, t)
+	var pan := lerpf(30.0, -30.0, t)
+	bench.position = Vector2(pan, 0)
+	ball.position = ball_base + Vector2(pan * 1.2, 0)
+	if is_instance_valid(_kid):
+		_kid.position = kid_base + Vector2(pan * 1.5, 0)
+
+## The ball's light swells into a flash, and the flash IS the cut:
+## the title screen takes over at full white.
+func _ignite() -> void:
+	if _finished:
 		return
-	_on_title_card = true
-	if _scene_tween and _scene_tween.is_running():
-		_scene_tween.kill()
-	_subtitle.modulate.a = 0.0
-	_clock_player.stop()
-
-	# Skipping further isn't meaningful once the title card is already up —
-	# only the way out (Main Menu) still makes sense here.
-	var fade := create_tween()
-	fade.tween_property(_skip_button, "modulate:a", 0.0, 0.3)
-	fade.tween_callback(func() -> void: _skip_button.visible = false)
-
-	var tween := create_tween()
-	tween.tween_property(_overlay, "modulate:a", 1.0, 1.4)
-	tween.tween_callback(PlaceholderSFX.play_max_power)
-	tween.tween_property(_title_year, "modulate:a", 1.0, 0.9)
-	tween.tween_property(_title_main, "modulate:a", 1.0, 1.1) \
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(_title_main, "scale", Vector2.ONE, 1.1) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(_prompt, "modulate:a", 1.0, 0.6)
-	tween.tween_interval(4.5)
-	tween.tween_callback(_go_to_title_screen)
+	PlaceholderSFX.play_max_power()
+	var tw := create_tween()
+	tw.tween_property(_flash, "modulate:a", 1.0, 0.4) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tw.tween_callback(_go_to_title_screen)
 
 func _go_to_title_screen() -> void:
 	if _finished:
@@ -192,7 +231,155 @@ func _go_to_title_screen() -> void:
 	_finished = true
 	get_tree().change_scene_to_file(TITLE_SCREEN)
 
-# --- Helpers -----------------------------------------------------------
+# --- Shot machinery ----------------------------------------------------
+
+func _tween() -> Tween:
+	var tw := create_tween()
+	_tweens.append(tw)
+	return tw
+
+## Crossfades from the previous shot to a fresh empty one. The outgoing
+## shot's camera tween dies here — it must never outlive its sprite.
+func _begin_shot() -> void:
+	var old := _shot
+	if _cam_tween and _cam_tween.is_valid():
+		_cam_tween.kill()
+	_active_spr = null
+	_bench_group = null
+	_pulse_glows.clear()
+	_flicker_glows.clear()
+	_fogs.clear()
+	_kid = null
+	_shot = Node2D.new()
+	add_child(_shot)
+	_shot.modulate.a = 0.0
+	var fade := _tween()
+	fade.tween_property(_shot, "modulate:a", 1.0, 0.9)
+	if old:
+		fade.parallel().tween_property(old, "modulate:a", 0.0, 0.9)
+		fade.tween_callback(old.queue_free)
+
+## Starts a new shot holding one full-frame illustration.
+func _add_art(tex_name: String) -> Sprite2D:
+	_begin_shot()
+	var spr := Sprite2D.new()
+	spr.centered = false
+	spr.texture = load(ART + tex_name)
+	_shot.add_child(spr)
+	return spr
+
+## Frames `focus` (normalized image coords) at screen centre at `zoom`
+## (1.0 = image just covers the viewport), clamped so edges never show.
+func _apply_cam(spr: Sprite2D, zoom: float, focus: Vector2) -> void:
+	var ts: Vector2 = spr.texture.get_size()
+	var s := maxf(_vs.x / ts.x, _vs.y / ts.y) * zoom
+	spr.scale = Vector2(s, s)
+	var pos := _vs * 0.5 - focus * ts * s
+	pos.x = clampf(pos.x, _vs.x - ts.x * s, 0.0)
+	pos.y = clampf(pos.y, _vs.y - ts.y * s, 0.0)
+	spr.position = pos
+	_active_spr = spr
+	_active_zoom = zoom
+	_active_focus = focus
+
+func _animate_cam(spr: Sprite2D, dur: float, z0: float, z1: float,
+		f0: Vector2, f1: Vector2) -> void:
+	_apply_cam(spr, z0, f0)
+	var tw := _tween()
+	tw.tween_method(_cam_step.bind(spr, z0, z1, f0, f1),
+		0.0, 1.0, dur).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_cam_tween = tw
+
+func _cam_step(t: float, spr: Sprite2D, z0: float, z1: float,
+		f0: Vector2, f1: Vector2) -> void:
+	if is_instance_valid(spr):
+		_apply_cam(spr, lerpf(z0, z1, t), f0.lerp(f1, t))
+
+## The window changed size (resize, maximise, fullscreen): re-measure and
+## re-frame whatever is on screen right now.
+func _on_viewport_resized() -> void:
+	_vs = get_viewport_rect().size
+	if is_instance_valid(_active_spr):
+		_apply_cam(_active_spr, _active_zoom, _active_focus)
+	if is_instance_valid(_bench_group):
+		_bench_group.position = _vs * 0.5
+
+# --- Light, haze and dust ----------------------------------------------
+
+func _make_glow_tex(inner: Color) -> GradientTexture2D:
+	var g := Gradient.new()
+	g.set_color(0, inner)
+	g.set_color(1, Color(inner.r, inner.g, inner.b, 0.0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(0.5, 0.0)
+	tex.width = 256
+	tex.height = 256
+	return tex
+
+## Additive light blob glued to a point on `spr`'s image, so it rides the
+## camera move. Pulsing (amp/speed) for machine glow, flicker=true for
+## unsteady lamp light. `radius_px` is in image pixels.
+func _add_glow(spr: Sprite2D, norm: Vector2, color: Color, radius_px: float,
+		base_a: float, amp: float, speed: float, flicker := false) -> void:
+	var ts: Vector2 = spr.texture.get_size()
+	var glow := Sprite2D.new()
+	glow.texture = _make_glow_tex(color)
+	var mat := CanvasItemMaterial.new()
+	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	glow.material = mat
+	glow.scale = Vector2.ONE * (radius_px / 128.0)
+	glow.position = norm * ts - (ts * 0.5 if spr.centered else Vector2.ZERO)
+	glow.modulate.a = base_a
+	glow.set_meta("base_a", base_a)
+	glow.set_meta("amp", amp)
+	glow.set_meta("speed", speed)
+	glow.set_meta("phase", randf() * TAU)
+	spr.add_child(glow)
+	if flicker:
+		_flicker_glows.append(glow)
+	else:
+		_pulse_glows.append(glow)
+
+## Soft haze blobs drifting slowly along the bottom of the frame.
+func _add_fog(spr: Sprite2D, norm_y: float, count: int) -> void:
+	var ts: Vector2 = spr.texture.get_size()
+	for i in count:
+		var fog := Sprite2D.new()
+		fog.texture = _make_glow_tex(Color(0.55, 0.65, 0.85, 0.14))
+		fog.scale = Vector2(6.5, 2.2)
+		var x := ts.x * (0.25 + 0.5 * float(i) / maxf(count - 1, 1.0))
+		fog.position = Vector2(x, ts.y * norm_y)
+		fog.set_meta("home_x", x)
+		fog.set_meta("range", ts.x * 0.06)
+		fog.set_meta("drift", (12.0 if i % 2 == 0 else -9.0))
+		spr.add_child(fog)
+		_fogs.append(fog)
+
+## Dust motes hanging in the light around `norm` (image coords).
+func _add_dust(spr: Sprite2D, norm: Vector2, extents: Vector2) -> void:
+	var ts: Vector2 = spr.texture.get_size()
+	var dust := CPUParticles2D.new()
+	dust.amount = 24
+	dust.lifetime = 7.0
+	dust.preprocess = 7.0
+	dust.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	dust.emission_rect_extents = extents
+	dust.direction = Vector2(0, -1)
+	dust.spread = 30.0
+	dust.gravity = Vector2.ZERO
+	dust.initial_velocity_min = 3.0
+	dust.initial_velocity_max = 9.0
+	dust.scale_amount_min = 0.015
+	dust.scale_amount_max = 0.045
+	dust.color = Color(1.0, 0.95, 0.8, 0.4)
+	dust.texture = _make_glow_tex(Color.WHITE)
+	dust.position = norm * ts - (ts * 0.5 if spr.centered else Vector2.ZERO)
+	spr.add_child(dust)
+
+# --- Overlay UI (unchanged from the 3D version) ------------------------
 
 ## Chains one subtitle line into `tween`: set text (+ voice cue), fade in,
 ## hold, fade out. worker=true styles it as the Worker speaking.
@@ -209,62 +396,53 @@ func _add_line(tween: Tween, text: String, hold: float, worker := false) -> void
 	tween.tween_interval(hold)
 	tween.tween_property(_subtitle, "modulate:a", 0.0, 0.5)
 
-func _spawn_sparks(at: Vector3) -> void:
-	var sparks := CPUParticles3D.new()
-	sparks.one_shot = true
-	sparks.amount = 28
-	sparks.lifetime = 0.7
-	sparks.explosiveness = 0.95
-	sparks.direction = Vector3.UP
-	sparks.spread = 70.0
-	sparks.initial_velocity_min = 1.0
-	sparks.initial_velocity_max = 2.6
-	sparks.gravity = Vector3(0, -6, 0)
-	sparks.scale_amount_min = 0.015
-	sparks.scale_amount_max = 0.04
-	sparks.color = Color(1.0, 0.8, 0.4)
-	sparks.mesh = SphereMesh.new()
-	add_child(sparks)
-	sparks.position = at
-	sparks.emitting = true
-	get_tree().create_timer(2.0).timeout.connect(sparks.queue_free)
-
-func _build_world() -> void:
-	var env := Environment.new()
-	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.01, 0.015, 0.03)
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.35, 0.42, 0.55)
-	env.ambient_light_energy = 0.25
-	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	env.glow_enabled = true
-	env.glow_intensity = 0.6
-	env.glow_bloom = 0.1
-	var world_env := WorldEnvironment.new()
-	world_env.environment = env
-	add_child(world_env)
-
-	_room = RoomScene.new()
-	add_child(_room)
-	_worker = WorkerScene.new()
-	add_child(_worker)
-
-	_camera = Camera3D.new()
-	_camera.fov = 55.0
-	add_child(_camera)
-	_camera.position = Vector3(7.0, 5.2, 6.5)
-	_camera.current = true
-
 func _build_overlay_ui() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 50
 	add_child(layer)
+
+	var vignette := TextureRect.new()
+	var vg := Gradient.new()
+	vg.set_color(0, Color(0, 0, 0, 0))
+	vg.set_color(1, Color(0, 0, 0, 0.5))
+	vg.add_point(0.55, Color(0, 0, 0, 0.02))
+	var vtex := GradientTexture2D.new()
+	vtex.gradient = vg
+	vtex.fill = GradientTexture2D.FILL_RADIAL
+	vtex.fill_from = Vector2(0.5, 0.5)
+	vtex.fill_to = Vector2(0.5, -0.1)
+	vtex.width = 512
+	vtex.height = 512
+	vignette.texture = vtex
+	vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vignette.stretch_mode = TextureRect.STRETCH_SCALE
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(vignette)
+
+	for top in [true, false]:
+		var bar := ColorRect.new()
+		bar.color = Color.BLACK
+		bar.anchor_right = 1.0
+		if top:
+			bar.anchor_bottom = 0.06
+		else:
+			bar.anchor_top = 0.94
+			bar.anchor_bottom = 1.0
+		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layer.add_child(bar)
 
 	_overlay = ColorRect.new()
 	_overlay.color = Color.BLACK
 	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_overlay)
+
+	_flash = ColorRect.new()
+	_flash.color = Color(0.75, 0.95, 1.0)
+	_flash.modulate.a = 0.0
+	_flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(_flash)
 
 	var font: FontFile = load("res://assets/fonts/Orbitron.ttf")
 
@@ -275,60 +453,21 @@ func _build_overlay_ui() -> void:
 	_subtitle.anchor_top = 0.8
 	_subtitle.anchor_bottom = 0.88
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_subtitle.add_theme_font_size_override("font_size", 26)
+	if font:
+		_subtitle.add_theme_font_override("font", font)
+	_subtitle.add_theme_font_size_override("font_size", 22)
+	_subtitle.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	_subtitle.add_theme_constant_override("shadow_offset_y", 2)
 	_subtitle.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_subtitle)
 
-	_title_year = Label.new()
-	_title_year.text = "YEAR 2147"
-	_title_year.modulate.a = 0.0
-	_title_year.anchor_left = 0.0
-	_title_year.anchor_right = 1.0
-	_title_year.anchor_top = 0.34
-	_title_year.anchor_bottom = 0.4
-	_title_year.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if font:
-		_title_year.add_theme_font_override("font", font)
-	_title_year.add_theme_font_size_override("font_size", 22)
-	_title_year.add_theme_color_override("font_color", Color(0.25, 0.85, 0.9))
-	layer.add_child(_title_year)
-
-	_title_main = Label.new()
-	_title_main.text = "FINAL KICK"
-	_title_main.modulate.a = 0.0
-	_title_main.scale = Vector2(0.92, 0.92)
-	_title_main.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_title_main.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_title_main.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	if font:
-		_title_main.add_theme_font_override("font", font)
-	_title_main.add_theme_font_size_override("font_size", 84)
-	_title_main.add_theme_color_override("font_color", Color(0.961, 0.651, 0.137))
-	layer.add_child(_title_main)
-	_title_main.pivot_offset = get_viewport().get_visible_rect().size / 2.0
-
-	_prompt = Label.new()
-	_prompt.text = "PRESS ANY KEY"
-	_prompt.modulate.a = 0.0
-	_prompt.anchor_left = 0.0
-	_prompt.anchor_right = 1.0
-	_prompt.anchor_top = 0.78
-	_prompt.anchor_bottom = 0.82
-	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if font:
-		_prompt.add_theme_font_override("font", font)
-	_prompt.add_theme_font_size_override("font_size", 15)
-	_prompt.add_theme_color_override("font_color", Color(0.25, 0.85, 0.9))
-	layer.add_child(_prompt)
-
-## Two always-available exits from the cinematic, since "press any key"
-## alone isn't discoverable: SKIP jumps straight to the title card (same as
-## the first key press already did), MAIN MENU bails out to the title
-## screen entirely. Both fade in after a beat so the opening black frame
+## One always-available exit from the cinematic, since "press any key"
+## alone isn't discoverable: SKIP jumps straight to the title screen (same
+## as any key press). It fades in after a beat so the opening black frame
 ## isn't cluttered with UI before anything's happened.
 func _build_skip_ui() -> void:
 	var layer := CanvasLayer.new()
-	layer.layer = 51  # above the story overlay/title layer
+	layer.layer = 51  # above the story overlay layer
 	add_child(layer)
 
 	var font: FontFile = load("res://assets/fonts/Orbitron.ttf")
@@ -336,21 +475,13 @@ func _build_skip_ui() -> void:
 	_skip_button = CutCornerButtonScript.new()
 	_skip_button.text = "SKIP  ▸▸"
 	_skip_button.accent_color = Color(0.25, 0.85, 0.9)
-	_skip_button.pressed.connect(_show_title_card)
+	_skip_button.pressed.connect(_go_to_title_screen)
 	layer.add_child(_skip_button)
 	_style_skip_button(_skip_button, font, Vector2(-172, -56))
 
-	_menu_button = CutCornerButtonScript.new()
-	_menu_button.text = "MAIN MENU"
-	_menu_button.accent_color = Color(0.961, 0.651, 0.137)
-	_menu_button.pressed.connect(_go_to_title_screen)
-	layer.add_child(_menu_button)
-	_style_skip_button(_menu_button, font, Vector2(-172, -100))
-
-	for b in [_skip_button, _menu_button]:
-		b.modulate.a = 0.0
-		var tween := create_tween()
-		tween.tween_property(b, "modulate:a", 1.0, 0.8).set_delay(1.0)
+	_skip_button.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(_skip_button, "modulate:a", 1.0, 0.8).set_delay(1.0)
 
 func _style_skip_button(b: Button, font: FontFile, offset: Vector2) -> void:
 	b.custom_minimum_size = Vector2(150, 40)
@@ -378,6 +509,6 @@ func _start_ambience() -> void:
 
 	_clock_player = AudioStreamPlayer.new()
 	_clock_player.stream = PlaceholderSFX.clock_tick_loop()
-	_clock_player.volume_db = -16.0
+	_clock_player.volume_db = -24.0
 	add_child(_clock_player)
 	_clock_player.play()
