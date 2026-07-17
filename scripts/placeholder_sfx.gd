@@ -36,6 +36,19 @@ const ChargeTick := preload("res://assets/audio/sfx/charge_tick.ogg")
 static func play_thud(at: Node3D) -> void:
 	_play(KickThud, at)
 
+## The kick itself: deeper and louder the harder the charge — power you can
+## hear the moment the ball leaves.
+static func play_kick(at: Node3D, power: float) -> void:
+	var t := clampf(power, 0.0, 1.0)
+	_play(KickThud, at, lerpf(1.25, 0.8, t), lerpf(-4.0, 3.0, t))
+
+## Every meaningful ball impact (walls, crates, machines): the same thud
+## clip, pitch-randomized so repeats don't machine-gun, volume scaled by
+## contact strength so hard slams sound like hard slams.
+static func play_impact(at: Node3D, strength: float) -> void:
+	var t := clampf(strength / 8.0, 0.0, 1.0)
+	_play(KickThud, at, randf_range(0.9, 1.2), lerpf(-16.0, 0.0, t))
+
 static func play_clink(at: Node3D) -> void:
 	_play(GearClink, at)
 
@@ -56,6 +69,11 @@ static func play_ui_click() -> void:
 
 static func play_target_ding() -> void:
 	_play_2d(TargetDing)
+
+## Chain combo reward: the target ding pitched up another step per chain
+## link — the same "rising stakes" trick the charge tick uses.
+static func play_chain(chain: int) -> void:
+	_play_2d(TargetDing, 1.0 + (chain - 1) * 0.14)
 
 static func play_max_power() -> void:
 	_play_2d(MaxPower)
@@ -110,12 +128,13 @@ static func clock_tick_loop() -> AudioStreamWAV:
 static func heartbeat_loop() -> AudioStreamWAV:
 	return _synthesize_heartbeat_loop()
 
-static func _play(stream: AudioStream, at: Node3D, pitch_scale: float = 1.0) -> void:
+static func _play(stream: AudioStream, at: Node3D, pitch_scale: float = 1.0, volume_db: float = 0.0) -> void:
 	if at == null or not at.is_inside_tree():
 		return
 	var player := AudioStreamPlayer3D.new()
 	player.stream = stream
 	player.pitch_scale = pitch_scale
+	player.volume_db = volume_db
 	at.get_tree().current_scene.add_child(player)
 	player.global_position = at.global_position
 	player.play()

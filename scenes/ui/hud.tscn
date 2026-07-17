@@ -19,17 +19,17 @@ content_margin_left = 16.0
 content_margin_top = 12.0
 content_margin_right = 16.0
 content_margin_bottom = 12.0
-bg_color = Color(0.043, 0.075, 0.145, 0.8)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.961, 0.651, 0.137, 0.45)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0, 0, 0, 0.35)
+bg_color = Color(0.039, 0.051, 0.086, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.714, 0.153, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(1, 0.714, 0.153, 0.18)
 shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_plain"]
@@ -37,72 +37,74 @@ content_margin_left = 16.0
 content_margin_top = 12.0
 content_margin_right = 16.0
 content_margin_bottom = 12.0
-bg_color = Color(0.043, 0.075, 0.145, 0.8)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.22, 0.78, 0.84, 0.3)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0, 0, 0, 0.35)
+bg_color = Color(0.039, 0.051, 0.086, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.898, 1, 0.6)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0.898, 1, 0.15)
 shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_bg"]
-bg_color = Color(0.027, 0.047, 0.09, 0.9)
+bg_color = Color(0.02, 0.03, 0.06, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.22, 0.78, 0.84, 0.5)
+border_color = Color(0, 0.898, 1, 0.55)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_charge_fill"]
-bg_color = Color(0.918, 0.918, 0.918, 1)
+bg_color = Color(0, 0.898, 1, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
-shadow_color = Color(0.918, 0.918, 0.918, 0)
-shadow_size = 0
+shadow_color = Color(0, 0.898, 1, 0.25)
+shadow_size = 3
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rewind_fill"]
-bg_color = Color(0.416, 0.549, 0.686, 1)
+bg_color = Color(0.3, 0.65, 1, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+shadow_color = Color(0.3, 0.65, 1, 0.3)
+shadow_size = 3
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_energy_fill"]
-bg_color = Color(0.25, 0.85, 0.9, 1)
+bg_color = Color(0, 0.898, 1, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-shadow_color = Color(0.25, 0.85, 0.9, 0.35)
-shadow_size = 4
+shadow_color = Color(0, 0.898, 1, 0.35)
+shadow_size = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_top_center"]
 content_margin_left = 20.0
 content_margin_top = 8.0
 content_margin_right = 20.0
 content_margin_bottom = 10.0
-bg_color = Color(0.043, 0.075, 0.145, 0.8)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.22, 0.78, 0.84, 0.3)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(0, 0, 0, 0.35)
+bg_color = Color(0.039, 0.051, 0.086, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.898, 1, 0.6)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0.898, 1, 0.15)
 shadow_size = 8
 
 [node name="HUD" type="CanvasLayer"]
@@ -161,13 +163,13 @@ text = "MACHINE HALL 01"
 
 [node name="UnitLabel" type="Label" parent="TopLeftPanel/TopLeft"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
 theme_override_font_sizes/font_size = 14
 text = "UNIT: LAST WORKER"
 
 [node name="ObjectiveHead" type="Label" parent="TopLeftPanel/TopLeft"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.961, 0.651, 0.137, 0.85)
+theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
 theme_override_fonts/font = ExtResource("6")
 theme_override_font_sizes/font_size = 11
 text = "OBJECTIVE"
@@ -182,7 +184,7 @@ text = "Wake every machine"
 [node name="Targets" type="Label" parent="TopLeftPanel/TopLeft"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
 theme_override_font_sizes/font_size = 15
 text = "TARGETS   0 / 0"
 
@@ -211,7 +213,7 @@ horizontal_alignment = 2
 [node name="KicksLabel" type="Label" parent="TopRightPanel/TopRight"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
 theme_override_font_sizes/font_size = 15
 text = "KICKS   0"
 horizontal_alignment = 2
@@ -219,7 +221,7 @@ horizontal_alignment = 2
 [node name="RewindsLabel" type="Label" parent="TopRightPanel/TopRight"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
 theme_override_font_sizes/font_size = 15
 text = "REWINDS   0"
 horizontal_alignment = 2
@@ -238,15 +240,9 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_top_center")
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Hearts" type="HBoxContainer" parent="TopCenterPanel/TopCenter"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 10
-alignment = 1
-
 [node name="EnergyHead" type="Label" parent="TopCenterPanel/TopCenter"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.85, 0.9, 0.85)
+theme_override_colors/font_color = Color(0, 0.898, 1, 0.9)
 theme_override_fonts/font = ExtResource("6")
 theme_override_font_sizes/font_size = 10
 text = "FACTORY ENERGY"
@@ -254,7 +250,7 @@ horizontal_alignment = 1
 
 [node name="EnergyBar" type="ProgressBar" parent="TopCenterPanel/TopCenter"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(270, 10)
+custom_minimum_size = Vector2(270, 14)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_energy_fill")
@@ -264,7 +260,7 @@ show_percentage = false
 [node name="EnergyLabel" type="Label" parent="TopCenterPanel/TopCenter"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
 theme_override_font_sizes/font_size = 12
 text = "0%  —  SILENT"
 horizontal_alignment = 1
@@ -327,10 +323,10 @@ theme_override_constants/separation = 6
 [node name="RewindGaugeLabel" type="Label" parent="RewindBox/RewindVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
+theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
 theme_override_fonts/font = ExtResource("6")
 theme_override_font_sizes/font_size = 11
-text = "REWIND — HOLD R"
+text = "REWIND"
 horizontal_alignment = 2
 
 [node name="RewindGauge" type="ProgressBar" parent="RewindBox/RewindVBox"]
@@ -341,20 +337,3 @@ theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_rewind_fill")
 show_percentage = false
 
-[node name="TutorialHint" type="Label" parent="."]
-unique_name_in_owner = true
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -430.0
-offset_top = -26.0
-offset_right = 430.0
-offset_bottom = -6.0
-grow_horizontal = 2
-grow_vertical = 0
-theme = ExtResource("5")
-theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 0.85)
-theme_override_font_sizes/font_size = 14
-text = "HOLD SPACE — CHARGE   ·   RELEASE — KICK   ·   MOUSE — AIM   ·   R + LEFT / RIGHT — REWIND   ·   SCROLL — ZOOM   ·   ESC — PAUSE"
-horizontal_alignment = 1

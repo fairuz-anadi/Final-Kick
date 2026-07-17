@@ -64,7 +64,16 @@ signal burst_kicked
 @export var big_impact_threshold: float = 4.0  # min contact impulse magnitude that counts as "big"
 @export var big_impact_cooldown: float = 0.3   # don't re-fire faster than this even during a hard multi-frame hit
 
+# --- Impact audio: every meaningful hit makes a sound (not just "big" ones),
+# volume-scaled by contact strength. Much lower threshold + shorter cooldown
+# than big_impact, so bounces feel physical without machine-gunning while
+# the ball rolls. ---
+@export var impact_sound_threshold: float = 0.8
+@export var impact_sound_cooldown: float = 0.12
+
 var _impact_cooldown_remaining: float = 0.0
+var _impact_sound_cooldown_remaining: float = 0.0
+var _pending_impact_sound: float = 0.0  # set in _integrate_forces (physics callback), played in _physics_process
 
 # --- Out-of-bounds recovery ---
 # Rooms are open-fronted (no wall where the ball starts) and finite-sized
@@ -75,6 +84,13 @@ var _impact_cooldown_remaining: float = 0.0
 
 var _start_transform: Transform3D
 
+# --- Personality (visual only, physics untouched): the mesh squashes on
+# impacts, stretches along fast flight, coils down while charging, and a
+# glow core brightens with the charge. ---
+var _visual_mesh: MeshInstance3D
+var _glow_light: OmniLight3D
+var _squash: float = 0.0  # 1 = fully squashed, decays each frame
+
 func _ready() -> void:
 	_start_transform = transform
 	contact_monitor = true
@@ -83,20 +99,81 @@ func _ready() -> void:
 	# colliders (e.g. the 0.05m-thick wire-node panels) within one physics step.
 	continuous_cd = true
 
-func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	if _impact_cooldown_remaining > 0.0:
+	for child in get_children():
+		if child is MeshInstance3D and child.mesh is SphereMesh:
+			_visual_mesh = child
+			break
+	_glow_light = OmniLight3D.new()
+	_glow_light.omni_range = 3.0
+	_glow_light.light_energy = 0.0
+	add_child(_glow_light)
+
+func _process(delta: float) -> void:
+	_update_personality(delta)
+
+## Squash & stretch + charge glow. Scales/orients only the child mesh, so
+## the collision sphere and all physics are untouched.
+func _update_personality(delta: float) -> void:
+	if _glow_light:
+		if charging:
+			# Cyan while safe, hot pink approaching max — same language as
+			# the HUD charge bar.
+			_glow_light.light_color = Color(0.0, 0.898, 1.0).lerp(
+				Color(1.0, 0.24, 0.51), clampf((charge_ratio - 0.4) / 0.6, 0.0, 1.0))
+			_glow_light.light_energy = move_toward(
+				_glow_light.light_energy, 0.3 + charge_ratio * 1.4, delta * 6.0)
+		else:
+			_glow_light.light_energy = move_toward(_glow_light.light_energy, 0.0, delta * 5.0)
+
+	if _visual_mesh == null:
 		return
+	if is_scrubbing:
+		_visual_mesh.basis = Basis.IDENTITY
+		return
+	_squash = move_toward(_squash, 0.0, delta * 4.0)
+	var speed := linear_velocity.length()
+	var stretch := clampf(speed / 28.0, 0.0, 1.0) * 0.22
+	# Anticipation: the ball coils down while a kick charges, like it's
+	# crouching before a jump.
+	var coil := 0.10 * charge_ratio if charging else 0.0
+	var net := stretch - _squash * 0.6 - coil
+	if speed > 1.5:
+		# Align the mesh's Y axis with the velocity so stretch happens along
+		# the direction of motion (and squash flattens against it).
+		var dir := linear_velocity / speed
+		var x_axis := dir.cross(Vector3.UP)
+		if x_axis.length() < 0.01:
+			x_axis = Vector3.RIGHT
+		x_axis = x_axis.normalized()
+		_visual_mesh.global_transform.basis = Basis(x_axis, dir, x_axis.cross(dir))
+	else:
+		_visual_mesh.basis = Basis.IDENTITY
+	_visual_mesh.scale = Vector3(1.0 - net * 0.45, 1.0 + net, 1.0 - net * 0.45)
+
+func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	var max_strength := 0.0
 	for i in state.get_contact_count():
 		var impulse: Vector3 = state.get_contact_impulse(i)
 		var strength: float = impulse.length()
-		if strength >= big_impact_threshold:
+		max_strength = maxf(max_strength, strength)
+		if strength >= big_impact_threshold and _impact_cooldown_remaining <= 0.0:
 			_impact_cooldown_remaining = big_impact_cooldown
 			big_impact.emit(strength, state.get_contact_local_position(i))
-			break
+	# Don't spawn audio nodes from inside the physics callback — just flag
+	# the hit; _physics_process plays it on the next safe tick.
+	if max_strength >= impact_sound_threshold and _impact_sound_cooldown_remaining <= 0.0:
+		_impact_sound_cooldown_remaining = impact_sound_cooldown
+		_pending_impact_sound = max_strength
 
 func _physics_process(delta: float) -> void:
 	if _impact_cooldown_remaining > 0.0:
 		_impact_cooldown_remaining -= delta
+	if _impact_sound_cooldown_remaining > 0.0:
+		_impact_sound_cooldown_remaining -= delta
+	if _pending_impact_sound > 0.0:
+		PlaceholderSFX.play_impact(self, _pending_impact_sound)
+		_squash = maxf(_squash, clampf(_pending_impact_sound / 8.0, 0.35, 1.0))
+		_pending_impact_sound = 0.0
 
 	if Input.is_key_pressed(KEY_R):
 		_scrub(delta)
@@ -112,8 +189,8 @@ func _physics_process(delta: float) -> void:
 	_process_kick(delta)
 	_record_frame()
 
-## Ball is lost (fell out of bounds, touched a kill zone): costs a heart via
-## LifeManager, then respawns at the start with level progress intact.
+## Ball is lost (fell out of bounds, touched a kill zone): drains Factory
+## Energy via LifeManager, then respawns at the start with level progress intact.
 ## Public so KillZone areas can trigger the same flow as a fall.
 func lose_ball() -> void:
 	LifeManager.on_ball_lost(self)
@@ -127,6 +204,9 @@ func _reset_to_start() -> void:
 	charge_time = 0.0
 	charge_ratio = 0.0
 	overcharge_ratio = 0.0
+	_squash = 0.0
+	if _visual_mesh:
+		_visual_mesh.basis = Basis.IDENTITY
 	# The old trajectory led off the edge of the world — nothing in it is
 	# somewhere worth scrubbing back to, so start the timeline over too.
 	history.clear()
@@ -256,7 +336,13 @@ func _process_kick(delta: float) -> void:
 				impulse_strength = lerp(impulse_strength, max_impulse * overcharge_impulse_multiplier, overcharge_ratio)
 			apply_central_impulse(_get_aim_direction(overcharge_ratio) * impulse_strength)
 			kicked.emit(charge_ratio)
-		PlaceholderSFX.play_thud(self)
+		# Kick audio scales with how hard the kick actually was (a burst
+		# release always has charge_ratio at 1.0).
+		PlaceholderSFX.play_kick(self, charge_ratio)
+		# Release flash + recoil squash — the coiled-up charge visibly fires.
+		if _glow_light:
+			_glow_light.light_energy = 2.2
+		_squash = 0.5
 		charging = false
 		charge_time = 0.0
 		charge_ratio = 0.0

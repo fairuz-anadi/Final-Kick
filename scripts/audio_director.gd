@@ -13,19 +13,20 @@ extends Node
 ##    everything still synthesized here is a loop or ambience bed, not a
 ##    discrete effect.
 ## 3. Layered procedural music driven by Factory Energy (set_energy):
-##    calm piano always → ambient pad as the factory stirs → full arp/bass
-##    mix near 100%. All three loops play in sync permanently; energy only
-##    fades their volumes, so layers blend instead of restarting.
+##    an upbeat synth groove (kick/hats/bouncy bass) always → a plucky
+##    lead hook as the factory stirs → sparkle arps + claps near 100%.
+##    All three loops play in sync permanently; energy only fades their
+##    volumes, so layers blend instead of restarting.
 
 const HOVER_SCALE := 1.05
 const HOVER_TWEEN_TIME := 0.08
 const HUM_VOLUME_DB := -22.0
 
-## One musical phrase: 8 beats at 75 BPM. All layers share it so they stay
+## One musical phrase: 16 beats at 120 BPM. All layers share it so they stay
 ## in step just by starting together.
-const MUSIC_LOOP_SECONDS := 6.4
-const PIANO_DB := -14.0
-const PAD_DB := -17.0
+const MUSIC_LOOP_SECONDS := 8.0
+const GROOVE_DB := -13.0
+const MELODY_DB := -14.0
 const FULL_DB := -15.0
 const OFF_DB := -60.0
 
@@ -39,11 +40,11 @@ func _ready() -> void:
 	_start_ambient_hum()
 	_start_music()
 
-## Factory Energy (0..100) → music intensity. Piano is always present;
-## the pad breathes in from ~30%; the full layer completes it from ~65%.
+## Factory Energy (0..100) → music intensity. The groove is always present;
+## the melody breathes in from ~30%; the full layer completes it from ~65%.
 func set_energy(pct: float) -> void:
 	var t := clampf(pct / 100.0, 0.0, 1.0)
-	_fade_layer("pad", lerpf(0.0, 1.0, clampf((t - 0.3) / 0.5, 0.0, 1.0)), PAD_DB)
+	_fade_layer("melody", lerpf(0.0, 1.0, clampf((t - 0.3) / 0.5, 0.0, 1.0)), MELODY_DB)
 	_fade_layer("full", lerpf(0.0, 1.0, clampf((t - 0.65) / 0.35, 0.0, 1.0)), FULL_DB)
 
 func _fade_layer(layer_name: String, mix: float, full_db: float) -> void:
@@ -55,8 +56,8 @@ func _fade_layer(layer_name: String, mix: float, full_db: float) -> void:
 	tween.tween_property(player, "volume_db", target_db, 2.5)
 
 func _start_music() -> void:
-	_music_layers["piano"] = _make_music_player(_synthesize_piano_loop(), PIANO_DB)
-	_music_layers["pad"] = _make_music_player(_synthesize_pad_loop(), OFF_DB)
+	_music_layers["groove"] = _make_music_player(_synthesize_groove_loop(), GROOVE_DB)
+	_music_layers["melody"] = _make_music_player(_synthesize_melody_loop(), OFF_DB)
 	_music_layers["full"] = _make_music_player(_synthesize_full_loop(), OFF_DB)
 
 func _make_music_player(stream: AudioStreamWAV, db: float) -> AudioStreamPlayer:
@@ -149,79 +150,112 @@ func _make_looping_wav(samples: PackedFloat32Array, sample_rate: float) -> Audio
 
 # --- PLACEHOLDER music loops (procedural, same spirit as PlaceholderSFX;
 # swap for real tracks by loading streams into _make_music_player). All
-# share MUSIC_LOOP_SECONDS and the A-minor pentatonic world so they can
-# stack in any combination. ---
+# share MUSIC_LOOP_SECONDS (16 beats @ 120 BPM) and the A-major pentatonic
+# world (A B C# E F#) so they can stack in any combination and nothing
+# ever clashes. ---
 
 const MUSIC_SAMPLE_RATE := 22050.0
+const BEAT := MUSIC_LOOP_SECONDS / 16.0  # 0.5s — 120 BPM
 
-## Rounds a frequency so it completes whole cycles inside the loop —
-## otherwise sustained tones click at the loop seam.
-func _loopable(freq: float) -> float:
-	return round(freq * MUSIC_LOOP_SECONDS) / MUSIC_LOOP_SECONDS
-
-## Layer 1 — calm piano: a soft, hopeful 8-note phrase, one note per beat,
-## long decays overlapping like held pedal.
-func _synthesize_piano_loop() -> AudioStreamWAV:
+## Layer 1 — the groove (always on): four-on-the-floor kick, off-beat hats,
+## and a bouncy octave bass line. Upbeat from the very first second, even
+## before any machine wakes.
+func _synthesize_groove_loop() -> AudioStreamWAV:
 	var n := int(MUSIC_SAMPLE_RATE * MUSIC_LOOP_SECONDS)
 	var samples := PackedFloat32Array()
 	samples.resize(n)
-	var beat := MUSIC_LOOP_SECONDS / 8.0
-	# A4, C5, E5, D5 / C5, E5, G5, E5 — rises and settles, hopeful not sad.
-	var notes := [440.0, 523.25, 659.25, 587.33, 523.25, 659.25, 783.99, 659.25]
-	for note_index in notes.size():
-		var freq: float = notes[note_index]
-		var start := int(note_index * beat * MUSIC_SAMPLE_RATE)
-		var remaining := n - start
-		for i in mini(remaining, int(MUSIC_SAMPLE_RATE * 2.0)):
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 99
+
+	# Kick drum on every beat: a pitch-dropping sine thump with a tiny click.
+	for b in 16:
+		var start := int(b * BEAT * MUSIC_SAMPLE_RATE)
+		for i in mini(n - start, int(MUSIC_SAMPLE_RATE * 0.22)):
 			var t: float = i / MUSIC_SAMPLE_RATE
-			var env: float = exp(-t * 2.2) * minf(t * 60.0, 1.0)
-			var tone: float = sin(TAU * freq * t) + 0.35 * sin(TAU * freq * 2.0 * t) + 0.1 * sin(TAU * freq * 3.0 * t)
-			samples[start + i] += tone * env * 0.24
+			var freq: float = 42.0 + 70.0 * exp(-t * 28.0)
+			var env: float = exp(-t * 16.0)
+			samples[start + i] += sin(TAU * freq * t) * env * 0.75
+
+	# Hats on the off-beats: short bright noise ticks — the bounce.
+	for b in 16:
+		var start := int((b * BEAT + BEAT * 0.5) * MUSIC_SAMPLE_RATE)
+		for i in mini(n - start, int(MUSIC_SAMPLE_RATE * 0.05)):
+			var t: float = i / MUSIC_SAMPLE_RATE
+			samples[start + i] += rng.randf_range(-1.0, 1.0) * exp(-t * 110.0) * 0.22
+
+	# Bass: octave-bounce eighth notes over A / F# / E / A — root on the
+	# beat, octave-up on the "and". Saw-ish tone so it cuts through.
+	var bar_roots := [110.0, 92.5, 82.41, 110.0]  # A2, F#2, E2, A2
+	for b in 16:
+		var root: float = bar_roots[floori(b / 4.0)]
+		for half in 2:
+			var freq: float = root if half == 0 else root * 2.0
+			var start := int((b * BEAT + half * BEAT * 0.5) * MUSIC_SAMPLE_RATE)
+			for i in mini(n - start, int(MUSIC_SAMPLE_RATE * 0.20)):
+				var t: float = i / MUSIC_SAMPLE_RATE
+				var env: float = exp(-t * 9.0) * minf(t * 300.0, 1.0)
+				var tone: float = sin(TAU * freq * t) + 0.45 * sin(TAU * freq * 2.0 * t) + 0.2 * sin(TAU * freq * 3.0 * t)
+				samples[start + i] += tone * env * 0.30
+
 	for i in n:
 		samples[i] = clampf(samples[i], -1.0, 1.0)
 	return _make_looping_wav(samples, MUSIC_SAMPLE_RATE)
 
-## Layer 2 — ambient pad: a sustained Am(add9) chord with slow breathing
-## tremolo. Frequencies are loop-aligned so the sustain never clicks.
-func _synthesize_pad_loop() -> AudioStreamWAV:
+## Layer 2 — the hook: a plucky, cheerful lead melody, one note per beat.
+## Fades in as the factory stirs — the moment the level starts going well,
+## the music starts singing.
+func _synthesize_melody_loop() -> AudioStreamWAV:
 	var n := int(MUSIC_SAMPLE_RATE * MUSIC_LOOP_SECONDS)
 	var samples := PackedFloat32Array()
 	samples.resize(n)
-	var chord := [_loopable(110.0), _loopable(164.81), _loopable(220.0), _loopable(246.94), _loopable(329.63)]
-	var lfo := _loopable(0.3125)  # 2 full breaths per loop
+	# A-major pentatonic hook: rises, bounces, resolves home — hopeful and hummable.
+	var notes := [
+		329.63, 440.0, 493.88, 554.37,   # E4  A4  B4  C#5
+		659.25, 554.37, 493.88, 440.0,   # E5  C#5 B4  A4
+		369.99, 440.0, 493.88, 659.25,   # F#4 A4  B4  E5
+		554.37, 493.88, 440.0, 493.88,   # C#5 B4  A4  B4
+	]
+	for note_index in notes.size():
+		var freq: float = notes[note_index]
+		var start := int(note_index * BEAT * MUSIC_SAMPLE_RATE)
+		for i in mini(n - start, int(MUSIC_SAMPLE_RATE * 0.55)):
+			var t: float = i / MUSIC_SAMPLE_RATE
+			var env: float = exp(-t * 5.0) * minf(t * 200.0, 1.0)
+			var tone: float = sin(TAU * freq * t) + 0.4 * sin(TAU * freq * 2.0 * t) + 0.15 * sin(TAU * freq * 3.0 * t)
+			samples[start + i] += tone * env * 0.22
 	for i in n:
-		var t: float = i / MUSIC_SAMPLE_RATE
-		var breath: float = 0.6 + 0.4 * sin(TAU * lfo * t)
-		var v := 0.0
-		for freq in chord:
-			v += sin(TAU * freq * t)
-		samples[i] = clampf(v / chord.size() * breath * 0.5, -1.0, 1.0)
+		samples[i] = clampf(samples[i], -1.0, 1.0)
 	return _make_looping_wav(samples, MUSIC_SAMPLE_RATE)
 
-## Layer 3 — full mix top: soft bass pulses on each beat plus a quiet
-## 16th-note arpeggio shimmer. Stacks on top of piano+pad for the climax.
+## Layer 3 — full mix top: 16th-note sparkle arps plus claps on beats 2 & 4.
+## Stacks on top of the groove + hook for the near-fully-awake climax.
 func _synthesize_full_loop() -> AudioStreamWAV:
 	var n := int(MUSIC_SAMPLE_RATE * MUSIC_LOOP_SECONDS)
 	var samples := PackedFloat32Array()
 	samples.resize(n)
-	var beat := MUSIC_LOOP_SECONDS / 8.0
-	# Bass: A1 pulses, every beat.
-	for b in 8:
-		var start := int(b * beat * MUSIC_SAMPLE_RATE)
-		for i in mini(n - start, int(MUSIC_SAMPLE_RATE * 0.45)):
-			var t: float = i / MUSIC_SAMPLE_RATE
-			var env: float = exp(-t * 6.0) * minf(t * 90.0, 1.0)
-			samples[start + i] += sin(TAU * 55.0 * t) * env * 0.4
-	# Arp: A5/C6/E6/A6 climbing, four per beat, very quiet sparkle.
-	var arp := [880.0, 1046.5, 1318.5, 1760.0]
-	var step := beat / 4.0
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 41
+
+	# Sparkle: A5/C#6/E6/A6 climbing 16ths, quiet glitter over everything.
+	var arp := [880.0, 1108.73, 1318.51, 1760.0]
+	var step := BEAT / 2.0
 	for s in 32:
 		var freq: float = arp[s % 4]
 		var start := int(s * step * MUSIC_SAMPLE_RATE)
-		for i in mini(n - start, int(MUSIC_SAMPLE_RATE * 0.18)):
+		for i in mini(n - start, int(MUSIC_SAMPLE_RATE * 0.14)):
 			var t: float = i / MUSIC_SAMPLE_RATE
-			var env: float = exp(-t * 14.0) * minf(t * 200.0, 1.0)
-			samples[start + i] += sin(TAU * freq * t) * env * 0.12
+			var env: float = exp(-t * 16.0) * minf(t * 250.0, 1.0)
+			samples[start + i] += sin(TAU * freq * t) * env * 0.11
+
+	# Claps on beats 2 and 4 of every bar: layered noise bursts.
+	for b in 16:
+		if b % 4 != 1 and b % 4 != 3:
+			continue
+		var start := int(b * BEAT * MUSIC_SAMPLE_RATE)
+		for i in mini(n - start, int(MUSIC_SAMPLE_RATE * 0.09)):
+			var t: float = i / MUSIC_SAMPLE_RATE
+			samples[start + i] += rng.randf_range(-1.0, 1.0) * exp(-t * 45.0) * 0.32
+
 	for i in n:
 		samples[i] = clampf(samples[i], -1.0, 1.0)
 	return _make_looping_wav(samples, MUSIC_SAMPLE_RATE)

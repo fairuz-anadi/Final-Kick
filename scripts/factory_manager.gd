@@ -17,18 +17,22 @@ signal energy_changed(pct: float)
 const FactoryDressingScript := preload("res://scripts/factory_dressing.gd")
 
 ## Environment interpolation: DEAD (energy 0) → ALIVE (energy 100).
-## Deliberately warmer and brighter than the old always-dark baseline.
+## Industrial palette (per Samprity): cool steel-blue when asleep, warming
+## toward amber as the machines wake — the arc from cold to alive IS the
+## lighting story.
 const DEAD := {
 	"ambient_energy": 0.3, "ambient_color": Color(0.3, 0.38, 0.52),
 	"glow_intensity": 0.4, "glow_bloom": 0.05,
 	"fog_color": Color(0.05, 0.06, 0.09), "sun_energy": 0.45,
 	"sun_color": Color(0.85, 0.9, 1.0),
+	"bg_color": Color(0.045, 0.052, 0.068),
 }
 const ALIVE := {
 	"ambient_energy": 1.05, "ambient_color": Color(0.62, 0.55, 0.45),
 	"glow_intensity": 0.9, "glow_bloom": 0.22,
 	"fog_color": Color(0.16, 0.12, 0.07), "sun_energy": 1.0,
 	"sun_color": Color(1.0, 0.93, 0.82),
+	"bg_color": Color(0.09, 0.085, 0.08),
 }
 
 ## Later levels start slightly brighter — the factory remembers every room
@@ -41,6 +45,12 @@ const LEVEL_BASE_BRIGHTNESS := {
 	"res://scenes/levels/level_5.tscn": 0.24,
 }
 
+## What the player has earned: 100 * machines awakened / total machines.
+var progress_pct: float = 0.0
+## Accumulated penalty from lost balls (LifeManager.drain_energy). Persists
+## for the level, so recovery comes from waking more machines, not waiting.
+var drain: float = 0.0
+## The one number everything reads: progress minus drain, floored at 0.
 var energy: float = 0.0
 
 var _environment: Environment
@@ -53,6 +63,8 @@ var _base_brightness: float = 0.0
 ## handles, drop the room to the DEAD state, and spawn the dressing.
 func start_level() -> void:
 	energy = 0.0
+	progress_pct = 0.0
+	drain = 0.0
 	var scene := get_tree().current_scene
 	if scene == null:
 		return
@@ -83,15 +95,28 @@ func start_level() -> void:
 func register_progress(done: int, total: int) -> void:
 	if total <= 0:
 		return
-	var new_energy := 100.0 * done / float(total)
+	progress_pct = 100.0 * done / float(total)
+	_recompute_energy()
+
+## Lost ball penalty (see LifeManager): eats into earned energy. The world
+## visibly dims back down with it — losses have to *feel* like losses.
+func drain_energy(amount: float) -> void:
+	drain += amount
+	_recompute_energy()
+
+func _recompute_energy() -> void:
+	var new_energy := clampf(progress_pct - drain, 0.0, 100.0)
 	if is_equal_approx(new_energy, energy):
 		return
+	var rising := new_energy > energy
 	energy = new_energy
 	_tween_environment(energy)
 	if _dressing and is_instance_valid(_dressing):
 		_dressing.set_energy(energy)
 	AudioDirector.set_energy(energy)
 	energy_changed.emit(energy)
+	if rising:
+		LifeManager.on_energy_recovered()
 
 ## Per-machine wake-up flourish: warm light bloom + rising spark burst +
 ## startup rumble at the machine that just came back to life.
@@ -162,6 +187,7 @@ func _apply_energy_to_environment(pct: float) -> void:
 		_environment.glow_intensity = lerpf(DEAD.glow_intensity, ALIVE.glow_intensity, t)
 		_environment.glow_bloom = lerpf(DEAD.glow_bloom, ALIVE.glow_bloom, t)
 		_environment.fog_light_color = DEAD.fog_color.lerp(ALIVE.fog_color, t)
+		_environment.background_color = DEAD.bg_color.lerp(ALIVE.bg_color, t)
 	if _sun and is_instance_valid(_sun):
 		_sun.light_energy = lerpf(DEAD.sun_energy, ALIVE.sun_energy, t)
 		_sun.light_color = DEAD.sun_color.lerp(ALIVE.sun_color, t)

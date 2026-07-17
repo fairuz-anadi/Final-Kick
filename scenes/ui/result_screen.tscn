@@ -19,27 +19,31 @@ content_margin_left = 26.0
 content_margin_top = 11.0
 content_margin_right = 26.0
 content_margin_bottom = 11.0
-bg_color = Color(0.043, 0.075, 0.145, 0.92)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.22, 0.78, 0.84, 0.5)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0.039, 0.051, 0.086, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.898, 1, 0.85)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0.898, 1, 0.25)
+shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
 content_margin_left = 26.0
 content_margin_top = 11.0
 content_margin_right = 26.0
 content_margin_bottom = 11.0
-bg_color = Color(0.961, 0.651, 0.137, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(1, 0.239, 0.506, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(1, 0.239, 0.506, 0.45)
+shadow_size = 10
 
 [node name="ResultScreen" type="CanvasLayer"]
 layer = 5
@@ -88,26 +92,34 @@ theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="Panel/Center/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.42, 0.749, 0.349, 1)
+theme_override_colors/font_color = Color(0, 0.898, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.898, 1, 0.4)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 12
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 42
-text = "MACHINE AWAKENED"
+theme_override_font_sizes/font_size = 34
+text = "FACTORY AWAKENED!"
 horizontal_alignment = 1
 
 [node name="Rank" type="Label" parent="Panel/Center/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.961, 0.651, 0.137, 1)
+theme_override_colors/font_color = Color(1, 0.714, 0.153, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.714, 0.153, 0.45)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 16
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 72
-text = "S"
+theme_override_font_sizes/font_size = 52
+text = "FACTORY HERO"
 horizontal_alignment = 1
 
 [node name="FlawlessBadge" type="Label" parent="Panel/Center/VBox"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(0.42, 0.749, 0.349, 1)
+theme_override_colors/font_color = Color(0.24, 1, 0.65, 1)
 theme_override_fonts/font = ExtResource("3")
 theme_override_font_sizes/font_size = 20
 text = "★ FLAWLESS — NO REWINDS USED"
