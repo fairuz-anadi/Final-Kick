@@ -53,10 +53,10 @@ static func play_clink(at: Node3D) -> void:
 	_play(GearClink, at)
 
 static func play_explosion(at: Node3D) -> void:
-	_play(VialExplosion, at)
+	_play(VialExplosion, at, 1.0, 2.0)
 
 static func play_zap(at: Node3D) -> void:
-	_play(GridZap, at)
+	_play(GridZap, at, 1.0, 1.5)
 
 # --- UI / meta sounds: not tied to a world position, so these use a plain
 # (non-positional) AudioStreamPlayer instead of a 3D one. ---
@@ -75,20 +75,25 @@ static func play_target_ding() -> void:
 static func play_chain(chain: int) -> void:
 	_play_2d(TargetDing, 1.0 + (chain - 1) * 0.14)
 
+## Big stinger — ducks the music under it for a beat so the hit actually
+## reads as loud instead of getting buried in the groove.
 static func play_max_power() -> void:
-	_play_2d(MaxPower)
+	_play_2d(MaxPower, 1.0, 3.0)
+	AudioDirector.duck_music()
 
 static func play_level_complete() -> void:
-	_play_2d(LevelComplete)
+	_play_2d(LevelComplete, 1.0, 3.0)
+	AudioDirector.duck_music()
 
 static func play_heart_loss() -> void:
 	_play_2d(HeartLoss)
 
 static func play_shutdown() -> void:
-	_play_2d(Shutdown)
+	_play_2d(Shutdown, 1.0, 2.0)
+	AudioDirector.duck_music(8.0, 0.5, 1.2)
 
 static func play_machine_start(at: Node3D) -> void:
-	_play(MachineStart, at)
+	_play(MachineStart, at, 1.0, 2.0)
 
 static func play_narrator_blip() -> void:
 	_play_2d(NarratorBlip)
@@ -135,18 +140,21 @@ static func _play(stream: AudioStream, at: Node3D, pitch_scale: float = 1.0, vol
 	player.stream = stream
 	player.pitch_scale = pitch_scale
 	player.volume_db = volume_db
+	player.bus = "SFX"
 	at.get_tree().current_scene.add_child(player)
 	player.global_position = at.global_position
 	player.play()
 	player.finished.connect(player.queue_free)
 
-static func _play_2d(stream: AudioStream, pitch_scale: float = 1.0) -> void:
+static func _play_2d(stream: AudioStream, pitch_scale: float = 1.0, volume_db: float = 0.0) -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	if tree == null:
 		return
 	var player := AudioStreamPlayer.new()
 	player.stream = stream
 	player.pitch_scale = pitch_scale
+	player.volume_db = volume_db
+	player.bus = "SFX"
 	player.finished.connect(player.queue_free)
 	# Deferred add + play-on-entry so this is safe to call from _ready
 	# (e.g. a narrator line on a scene's very first frame), when the tree

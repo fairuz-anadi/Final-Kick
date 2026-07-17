@@ -64,9 +64,24 @@ func _make_music_player(stream: AudioStreamWAV, db: float) -> AudioStreamPlayer:
 	var player := AudioStreamPlayer.new()
 	player.stream = stream
 	player.volume_db = db
+	player.bus = "Music"
 	add_child(player)
 	player.play()
 	return player
+
+## Briefly pulls the Music bus down so a big SFX stinger (MAX POWER, level
+## complete, shutdown) actually reads as loud instead of getting buried in
+## the groove — a few uses only, not called per-hit, or it'd pump/flutter.
+func duck_music(amount_db: float = 6.0, hold_time: float = 0.3, recover_time: float = 0.6) -> void:
+	var bus_idx := AudioServer.get_bus_index("Music")
+	if bus_idx == -1:
+		return
+	var tween := create_tween()
+	tween.tween_method(
+		func(db: float) -> void: AudioServer.set_bus_volume_db(bus_idx, db), 0.0, -amount_db, 0.1)
+	tween.tween_interval(hold_time)
+	tween.tween_method(
+		func(db: float) -> void: AudioServer.set_bus_volume_db(bus_idx, db), -amount_db, 0.0, recover_time)
 
 func _wire_existing_buttons(node: Node) -> void:
 	if node is Button:
@@ -106,6 +121,7 @@ func _start_ambient_hum() -> void:
 	_hum_player = AudioStreamPlayer.new()
 	_hum_player.stream = _synthesize_ambient_hum()
 	_hum_player.volume_db = HUM_VOLUME_DB
+	_hum_player.bus = "Music"
 	add_child(_hum_player)
 	_hum_player.play()
 

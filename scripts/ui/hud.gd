@@ -117,7 +117,7 @@ func _ready() -> void:
 ## feel alive instead of stamped on.
 func _animate_panels_in() -> void:
 	var delay := 0.0
-	for panel_name in ["TopLeftPanel", "TopCenterPanel", "TopRightPanel"]:
+	for panel_name in ["TopLeftPanel", "TopCenterPanel", "TopRightPanel", "ViewBox", "RewindBox"]:
 		var panel: Control = get_node_or_null(NodePath(panel_name))
 		if panel == null:
 			continue
