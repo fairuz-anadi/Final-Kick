@@ -33,6 +33,7 @@ func _ready() -> void:
 	mouse_exited.connect(func() -> void: _hovering = false; _bg.queue_redraw())
 	button_down.connect(func() -> void: _pressing = true; _bg.queue_redraw())
 	button_up.connect(func() -> void: _pressing = false; _bg.queue_redraw())
+	toggled.connect(func(_on: bool) -> void: _bg.queue_redraw())
 
 func _draw_body() -> void:
 	var sz := _bg.get_size()
@@ -44,8 +45,9 @@ func _draw_body() -> void:
 	var closed := pts.duplicate()
 	closed.append(pts[0])
 
-	# 0..1 heat: idle → hover → pressed
-	var hot := 1.0 if _pressing else (0.6 if _hovering else 0.0)
+	# 0..1 heat: idle → hover → pressed. A latched toggle (difficulty
+	# radio buttons) stays at full heat while selected.
+	var hot := 1.0 if (_pressing or button_pressed) else (0.6 if _hovering else 0.0)
 
 	# Soft outer glow: three rings, the widest the faintest. Drawn before
 	# the opaque fill so only the outward half of each ring survives.

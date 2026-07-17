@@ -22,6 +22,9 @@ LevelFlow="*res://scripts/level_flow.gd"
 NarratorManager="*res://scripts/narrator_manager.gd"
 LifeManager="*res://scripts/life_manager.gd"
 FactoryManager="*res://scripts/factory_manager.gd"
+ScoreManager="*res://scripts/score_manager.gd"
+InstructionsPanel="*res://scenes/ui/instructions_panel.tscn"
+Difficulty="*res://scripts/difficulty.gd"
 
 [display]
 

@@ -3,15 +3,16 @@ class_name PlaceholderSFX
 ## Audio. Every one-shot below is now a real CC0 clip from Kenney's
 ## Impact/Sci-fi/Interface Sounds packs (kenney.nl/assets, public domain, no
 ## attribution required) — see docs/asset_list.md and CREDITS.md for the
-## per-file source. `worker_blip` and `charge_tick` reuse a single real clip
-## each with a different `pitch_scale` per call rather than needing a
-## separate file per pitch.
+## per-file source. `charge_tick` reuses a single real clip with a different
+## `pitch_scale` per call rather than needing a separate file per pitch.
 ##
-## Only the three looping ambient beds (wind, clock, heartbeat) are still
-## synthesized: none of Kenney's packs have a seamless ambience loop that
-## fits, and getting a loop's seam wrong is a worse risk than a synthesized
-## one that's guaranteed click-free. Swap them for real loops later by
-## replacing `_synthesize_*_loop()`'s call site — nothing else needs to change.
+## The three looping ambient beds (wind, clock, heartbeat) plus the Worker's
+## cinematic voice cue (`worker_blip`) are synthesized instead: none of
+## Kenney's packs had a seamless ambience loop that fit, and the Worker
+## needed a voice audibly distinct from the narrator's chime rather than
+## reusing that same clip pitched down. Swap any of them for real
+## clips/loops later by replacing the relevant `_synthesize_*()` call site —
+## nothing else needs to change.
 
 const SAMPLE_RATE := 22050.0
 
@@ -104,11 +105,15 @@ static func play_rewind() -> void:
 static func play_charge_tick(stage: int) -> void:
 	_play_2d(ChargeTick, 1.0 + stage * 0.22)
 
-## Slightly deeper/warmer than the narrator chime — the Worker's own voice
-## cue, used when HE speaks (cinematic) rather than the narrator. Same clip
-## as play_narrator_blip, pitched down instead of using a second file.
+## The Worker's own voice cue, used when HE speaks (cinematic) rather than
+## the narrator — a synthesized warm, weary falling tone rather than the
+## narrator chime pitched down, so the two voices are audibly distinct.
+static var _worker_blip_cache: AudioStreamWAV
+
 static func play_worker_blip() -> void:
-	_play_2d(NarratorBlip, 0.72)
+	if _worker_blip_cache == null:
+		_worker_blip_cache = _synthesize_worker_blip()
+	_play_2d(_worker_blip_cache)
 
 # --- Looping ambient streams: callers own the AudioStreamPlayer (start,
 # volume, stop) — these just synthesize the loop. Used by the cinematic
@@ -204,6 +209,22 @@ static func _synthesize_clock_loop() -> AudioStreamWAV:
 			var env: float = exp(-t * 160.0)
 			samples[start + i] = (sin(TAU * 1900.0 * t) + 0.4 * sin(TAU * 950.0 * t)) * env * strength
 	return _make_loop_wav(samples)
+
+## Worker voice cue: a soft two-harmonic tone gliding downward (340Hz→220Hz),
+## with a slow attack — reads as a low, weary "hm" rather than the narrator's
+## bright single-frequency chime.
+static func _synthesize_worker_blip() -> AudioStreamWAV:
+	var duration := 0.22
+	var n := int(SAMPLE_RATE * duration)
+	var samples := PackedFloat32Array()
+	samples.resize(n)
+	for i in n:
+		var t: float = i / SAMPLE_RATE
+		var freq: float = lerpf(340.0, 220.0, t / duration)
+		var env: float = exp(-t * 14.0) * minf(t * 80.0, 1.0)
+		var tone: float = sin(TAU * freq * t) + 0.35 * sin(TAU * freq * 2.0 * t)
+		samples[i] = tone * env * 0.5
+	return _make_wav(samples)
 
 ## Heartbeat: the classic lub-dub, one beat per second — plays under
 ## everything once the player is down to two hearts.
