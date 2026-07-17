@@ -192,6 +192,24 @@ theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 0.9, 0.99, 1)
 text = "HOW TO PLAY"
 
+[node name="SettingsButton" type="Button" parent="Buttons"]
+layout_mode = 2
+script = ExtResource("5")
+accent_color = Color(0.9, 0.36, 0.82, 1)
+fill_color = Color(0.17, 0.07, 0.2, 1)
+glow_strength = 0.45
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxEmpty_quit")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_quit")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_quit")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_quit")
+theme_override_colors/font_color = Color(1, 0.9, 0.99, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 0.9, 0.99, 1)
+text = "SETTINGS"
+
 [node name="QuitButton" type="Button" parent="Buttons"]
 layout_mode = 2
 script = ExtResource("5")
@@ -253,4 +271,5 @@ horizontal_alignment = 0
 [connection signal="toggled" from="DifficultyRow/HardButton" to="." method="_on_hard_toggled"]
 [connection signal="pressed" from="Buttons/StartButton" to="." method="_on_start_pressed"]
 [connection signal="pressed" from="Buttons/HowToPlayButton" to="." method="_on_how_to_play_pressed"]
+[connection signal="pressed" from="Buttons/SettingsButton" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="Buttons/QuitButton" to="." method="_on_quit_pressed"]

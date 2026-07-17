@@ -159,6 +159,15 @@ theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
 theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
 text = "HOW TO PLAY"
 
+[node name="SettingsButton" type="Button" parent="Panel/Center/VBox/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+text = "SETTINGS"
+
 [node name="MenuButton" type="Button" parent="Panel/Center/VBox/Buttons"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
@@ -171,4 +180,5 @@ text = "MAIN MENU"
 [connection signal="pressed" from="Panel/Center/VBox/Buttons/ResumeButton" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="Panel/Center/VBox/Buttons/RestartButton" to="." method="_on_restart_pressed"]
 [connection signal="pressed" from="Panel/Center/VBox/Buttons/HowToPlayButton" to="." method="_on_how_to_play_pressed"]
+[connection signal="pressed" from="Panel/Center/VBox/Buttons/SettingsButton" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="Panel/Center/VBox/Buttons/MenuButton" to="." method="_on_menu_pressed"]
