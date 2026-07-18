@@ -116,7 +116,7 @@ func _earned_title(stats: Dictionary) -> String:
 	return "FACTORY HERO"
 
 func _on_retry_pressed() -> void:
-	get_tree().reload_current_scene()
+	SceneTransition.reload()
 
 func _on_next_pressed() -> void:
 	LevelFlow.go_to_level(_next_scene())
@@ -132,4 +132,4 @@ func _next_scene() -> String:
 	return LEVEL_ORDER[index + 1]
 
 func _on_menu_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/ui/title_screen.tscn")
+	SceneTransition.go("res://scenes/ui/title_screen.tscn")

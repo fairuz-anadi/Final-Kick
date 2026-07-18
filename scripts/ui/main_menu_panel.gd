@@ -29,7 +29,7 @@ func _on_settings_pressed() -> void:
 	SettingsPanel.open()
 
 func _on_story_pressed() -> void:
-	get_tree().change_scene_to_file(OPENING_CINEMATIC)
+	SceneTransition.go(OPENING_CINEMATIC)
 
 func _on_leaderboard_pressed() -> void:
 	LeaderboardPanel.open()
