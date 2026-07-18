@@ -26,7 +26,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _any_overlay_open() -> bool:
 	return MainMenuPanel.is_open() or LeaderboardPanel.is_open() \
 		or SettingsPanel.is_open() or DifficultyPanel.is_open() \
-		or InstructionsPanel.is_open()
+		or InstructionsPanel.is_open() or StoryPanel.is_open()
 
 func _on_start_pressed() -> void:
 	_name_prompt.visible = true
