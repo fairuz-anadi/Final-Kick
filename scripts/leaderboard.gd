@@ -5,7 +5,7 @@ extends Node
 ## just a sorted list on disk, same pattern as ScoreManager's best_score.
 
 const SAVE_PATH := "user://leaderboard.cfg"
-const MAX_ENTRIES := 10
+const MAX_ENTRIES := 5
 
 ## Array of {"name": String, "score": int}, sorted highest score first.
 var entries: Array[Dictionary] = []
@@ -55,6 +55,14 @@ func submit_score(username: String, score: int) -> bool:
 			_save()
 	return changed
 
+## Whether `username` currently holds a spot on the board. Lets callers that
+## submit progressively (once per level clear) phrase their status message
+## from the board's actual state instead of submit_score's return value —
+## which is false for "same score already saved", not just "didn't make it".
+func is_on_board(username: String) -> bool:
+	var clean_name := username.strip_edges().to_lower()
+	return entries.any(func(e): return e.name.to_lower() == clean_name)
+
 ## The saved score for `username` (case-insensitive), or -1 if not on the board.
 func best_for(username: String) -> int:
 	var clean := username.strip_edges().to_lower()
@@ -74,3 +82,8 @@ func _load() -> void:
 		return
 	var loaded: Array = cfg.get_value("leaderboard", "entries", [])
 	entries.assign(loaded)
+	# A save from before the cap shrank (it used to be 10) can hold more
+	# entries than the board now shows — trim to the current top MAX_ENTRIES.
+	entries.sort_custom(func(a, b): return a.score > b.score)
+	if entries.size() > MAX_ENTRIES:
+		entries.resize(MAX_ENTRIES)

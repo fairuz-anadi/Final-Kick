@@ -28,10 +28,12 @@ const LEVEL_ORDER: Array[String] = [
 @export var clear_music_volume_db: float = -4.0
 
 @onready var _panel: Control = %Panel
+@onready var _title_label: Label = %Title
 @onready var _stats_label: Label = %Stats
 @onready var _rank_label: Label = %Rank
 @onready var _score_label: Label = %ScoreLabel
 @onready var _flawless_badge: Label = %FlawlessBadge
+@onready var _next_button: Button = %NextButton
 
 func _ready() -> void:
 	_panel.visible = false
@@ -51,6 +53,16 @@ func show_result() -> void:
 	]
 	_rank_label.text = _earned_title(stats)
 	_flawless_badge.visible = stats["rewinds"] == 0
+
+	# Clearing the LAST level isn't just another clear — it's the whole
+	# factory coming back to life. The panel switches into celebration mode:
+	# golden full-run headline, and NEXT leads into the ending story instead
+	# of another room, so it can't say "NEXT LEVEL".
+	if _next_scene() == ending_scene:
+		_title_label.text = "ALL %d LEVELS CLEAR — EVERY MACHINE IS RUNNING" % LEVEL_ORDER.size()
+		_title_label.add_theme_color_override("font_color", Color(0.961, 0.651, 0.137))
+		_rank_label.text = "THE FACTORY LIVES!"
+		_next_button.text = ">>  WAKE THE FACTORY"
 
 	var score := ScoreManager.score_level(stats, get_tree().current_scene.scene_file_path)
 	_score_label.text = "SCORE  +%d   ·   TOTAL  %d" % [score["level_score"], score["total_score"]]

@@ -7,14 +7,17 @@ extends Node3D
 ## Narration plays over a slow pan toward the desk, then the credits panel
 ## fades in. Any input skips ahead to the credits.
 
+# No flat full stops — ellipses, dashes and the odd exclamation keep each
+# line breathing like a voice, not a caption; the fade/rise in _next_beat
+# does the pacing.
 const BEATS := [
-	{"text": "Listen.", "hold": 2.0},
+	{"text": "Listen...", "hold": 2.0},
 	{"text": "Do you hear it?", "hold": 2.2},
-	{"text": "That's life.", "hold": 3.0},
-	{"text": "People thought this place was dead.", "hold": 2.6},
-	{"text": "They were wrong.", "hold": 2.4},
-	{"text": "It was only waiting.", "hold": 2.4},
-	{"text": "Waiting for one final kick.", "hold": 3.4},
+	{"text": "That's life!", "hold": 3.0},
+	{"text": "People thought this place was dead...", "hold": 2.6},
+	{"text": "They were wrong!", "hold": 2.4},
+	{"text": "It was only... waiting.", "hold": 2.4},
+	{"text": "Waiting — for one final kick!", "hold": 3.4},
 ]
 
 const RoomScene := preload("res://scripts/cinematic/workshop_room.gd")
@@ -55,11 +58,23 @@ func _next_beat() -> void:
 		return
 	var beat: Dictionary = BEATS[_beat_index]
 	_subtitle.text = beat.text
-	PlaceholderSFX.play_narrator_blip()
+	# Alive, not stamped: each line fades in while rising softly into place,
+	# holds, then drifts up and away as it fades — never a hard pop. Only the
+	# opening line gets a voice cue; after that the room's hum carries it.
+	if _beat_index == 0:
+		PlaceholderSFX.play_narrator_blip()
 	_beat_tween = create_tween()
-	_beat_tween.tween_property(_subtitle, "modulate:a", 1.0, 0.6)
+	_beat_tween.tween_property(_subtitle, "modulate:a", 1.0, 0.7)
+	_beat_tween.parallel().tween_property(_subtitle, "offset_top", 0.0, 0.8) \
+		.from(16.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_beat_tween.parallel().tween_property(_subtitle, "offset_bottom", 0.0, 0.8) \
+		.from(16.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_beat_tween.tween_interval(beat.hold)
 	_beat_tween.tween_property(_subtitle, "modulate:a", 0.0, 0.5)
+	_beat_tween.parallel().tween_property(_subtitle, "offset_top", -12.0, 0.5) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_beat_tween.parallel().tween_property(_subtitle, "offset_bottom", -12.0, 0.5) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	_beat_tween.tween_callback(_next_beat)
 
 func _start_camera_pan() -> void:
@@ -90,8 +105,11 @@ func _reveal_credits() -> void:
 	var tween := create_tween()
 	tween.tween_property(_credits_panel, "modulate:a", 1.0, 1.0)
 
-func _on_back_pressed() -> void:
+func _on_main_menu_pressed() -> void:
 	SceneTransition.go("res://scenes/ui/title_screen.tscn")
+
+func _on_quit_pressed() -> void:
+	get_tree().quit()
 
 # --- Construction ------------------------------------------------------
 
@@ -152,6 +170,10 @@ func _build_ui() -> void:
 	_subtitle.anchor_top = 0.8
 	_subtitle.anchor_bottom = 0.88
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# Same face as the opening cinematic's narration — the ending's story is
+	# the other bookend of the same voice.
+	if font:
+		_subtitle.add_theme_font_override("font", font)
 	_subtitle.add_theme_font_size_override("font_size", 34)
 	_subtitle.add_theme_color_override("font_color", Color(0.9, 0.92, 0.95))
 	_subtitle.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -195,79 +217,185 @@ func _build_ui() -> void:
 	# The last line ties the ending directly back to the jam's own framing
 	# of "Kickoff" ("the spark that sets an entire chain of events into
 	# motion") — in the Worker's voice, not a slogan lifted verbatim.
-	body.text = "He never saw it wake.\nBut every light in this factory is his.\nOne kick. And the whole factory followed."
+	body.text = "He never saw it wake...\nBut listen — every hum, every spark,\nevery light burning tonight? His.\nOne kick — that was all — and the whole factory answered!"
 	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	body.add_theme_font_size_override("font_size", 22)
-	body.add_theme_color_override("font_color", Color(0.82, 0.84, 0.87))
+	if font:
+		body.add_theme_font_override("font", font)
+	body.add_theme_font_size_override("font_size", 23)
+	body.add_theme_color_override("font_color", Color(0.88, 0.89, 0.92))
 	vbox.add_child(body)
 
-	var is_new_best: bool = ScoreManager.finish_run()
+	var divider := ColorRect.new()
+	divider.custom_minimum_size = Vector2(300, 1)
+	divider.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	divider.color = Color(0.22, 0.78, 0.84, 0.35)
+	vbox.add_child(divider)
+
+	# Personal best still persists to score.cfg behind the scenes, but the
+	# panel's "best" is the board's own #1 — the number to actually chase.
+	ScoreManager.finish_run()
+	Leaderboard.submit_score(Leaderboard.pending_name, ScoreManager.total_score)
 
 	var score_label := Label.new()
 	score_label.text = "FINAL SCORE   %d" % ScoreManager.total_score
 	score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if font:
 		score_label.add_theme_font_override("font", font)
-	score_label.add_theme_font_size_override("font_size", 29)
+	score_label.add_theme_font_size_override("font_size", 30)
 	score_label.add_theme_color_override("font_color", Color(0.961, 0.651, 0.137))
 	vbox.add_child(score_label)
 
-	var best_label := Label.new()
+	_build_dashboard(vbox, font)
+
+	# Same two actions, same neon cut-corner buttons, as the title screen.
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 24)
+	vbox.add_child(buttons)
+	buttons.add_child(_make_menu_button("MAIN MENU", font, _on_main_menu_pressed))
+	buttons.add_child(_make_menu_button("QUIT", font, _on_quit_pressed))
+
+# Medal colors for the board's podium ranks; every rank below bronze shares
+# the cool grey.
+const RANK_COLORS: Array[Color] = [
+	Color(1.0, 0.78, 0.2),    # gold
+	Color(0.8, 0.84, 0.9),    # silver
+	Color(0.85, 0.55, 0.3),   # bronze
+]
+
+## The post-story dashboard: the top-5 board in its own bordered sub-panel —
+## medal-colored ranks, the player's row lit green — plus a one-line verdict
+## on where this run landed. Auto-shown with the rest of the credits panel
+## the moment the narration ends.
+func _build_dashboard(vbox: VBoxContainer, font: FontFile) -> void:
+	# An empty board is just a sad box — skip the whole panel until there's
+	# at least one real score to show off.
+	if Leaderboard.entries.is_empty():
+		return
+	var board := PanelContainer.new()
+	board.custom_minimum_size = Vector2(430, 0)
+	board.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.016, 0.035, 0.078, 0.92)
+	style.border_color = Color(0.95, 0.42, 0.88, 0.4)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(10)
+	style.content_margin_left = 22.0
+	style.content_margin_right = 22.0
+	style.content_margin_top = 12.0
+	style.content_margin_bottom = 14.0
+	board.add_theme_stylebox_override("panel", style)
+	vbox.add_child(board)
+
+	var list := VBoxContainer.new()
+	list.add_theme_constant_override("separation", 4)
+	board.add_child(list)
+
+	var heading := Label.new()
+	heading.text = "FACTORY LEADERBOARD"
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if font:
-		best_label.add_theme_font_override("font", font)
-	best_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	best_label.add_theme_font_size_override("font_size", 20)
-	if is_new_best:
-		best_label.text = "NEW BEST!"  # ASCII only — "★" is tofu in web exports
-		best_label.add_theme_color_override("font_color", Color(0.24, 1.0, 0.65))
-	else:
-		best_label.text = "BEST   %d" % ScoreManager.best_score
-		best_label.add_theme_color_override("font_color", Color(0.62, 0.68, 0.82))
-	vbox.add_child(best_label)
+		heading.add_theme_font_override("font", font)
+	heading.add_theme_font_size_override("font_size", 19)
+	heading.add_theme_color_override("font_color", Color(0.95, 0.42, 0.88))
+	list.add_child(heading)
 
-	_build_leaderboard_status(vbox, font)
+	var player := Leaderboard.pending_name.strip_edges().to_lower()
+	var player_rank := 0
+	for i in Leaderboard.entries.size():
+		var entry: Dictionary = Leaderboard.entries[i]
+		var is_player := str(entry.name).to_lower() == player and not player.is_empty()
+		if is_player:
+			player_rank = i + 1
+		list.add_child(_board_row(i + 1, entry, is_player, font))
 
-	var credits := Label.new()
-	credits.text = "ANADI — SYSTEMS & PHYSICS\nRABIB — LEVEL DESIGN & SOUND\nSAMPRITY — ART, UI & SHADERS\n\nMADE WITH GODOT 4.7 FOR THE KICKOFF GAMEJAM"
-	credits.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	credits.add_theme_font_size_override("font_size", 18)
-	credits.add_theme_color_override("font_color", Color(0.659, 0.678, 0.71))
-	vbox.add_child(credits)
-
-	var back := Button.new()
-	back.text = "BACK TO TITLE"
-	back.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	back.pressed.connect(_on_back_pressed)
-	vbox.add_child(back)
-
-## Submits the run's final total_score to the local leaderboard under the
-## name entered on the title screen's pre-Start prompt (Leaderboard.
-## pending_name). Leaderboard.gd handles dedupe (one entry per username,
-## best score kept) and the top-10 cap — no player interaction needed here.
-func _build_leaderboard_status(vbox: VBoxContainer, font: FontFile) -> void:
 	var status := Label.new()
+	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if font:
 		status.add_theme_font_override("font", font)
-	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status.add_theme_font_size_override("font_size", 16)
-	vbox.add_child(status)
-
-	var player_name := Leaderboard.pending_name
-	if player_name.is_empty():
-		status.text = "NO NAME ENTERED — SCORE NOT SAVED TO LEADERBOARD"
-		status.add_theme_color_override("font_color", Color(0.62, 0.68, 0.82))
-		return
-
-	var saved := Leaderboard.submit_score(player_name, ScoreManager.total_score)
-	# The result screens have been submitting the running total all game, so
-	# by now this run's score is usually ALREADY the saved entry — submit
-	# returns false for a tie, but "your score is on the board" is the truth
-	# the player should read.
-	if saved or Leaderboard.best_for(player_name) == ScoreManager.total_score:
-		status.text = "SAVED TO LEADERBOARD AS \"%s\"" % player_name
+	if player_rank == 1:
+		status.text = "TOP OF THE BOARD — THE FACTORY REMEMBERS YOU"
 		status.add_theme_color_override("font_color", Color(0.24, 1.0, 0.65))
-	else:
-		# A previous run under this name scored higher (or a full board's
-		# lowest entry outranks this run) — either way, not on the board.
-		status.text = "\"%s\" — DIDN'T MAKE THE LEADERBOARD THIS TIME" % player_name
+	elif player_rank > 0:
+		status.text = "YOU'RE #%d — THE TOP SPOT IS WAITING" % player_rank
+		status.add_theme_color_override("font_color", Color(0.24, 1.0, 0.65))
+	elif not player.is_empty():
+		status.text = "\"%s\" — NOT IN THE TOP %d... YET" % [Leaderboard.pending_name.strip_edges(), Leaderboard.MAX_ENTRIES]
 		status.add_theme_color_override("font_color", Color(0.62, 0.68, 0.82))
+	else:
+		return  # no run behind this screen — the board speaks for itself
+	list.add_child(status)
+
+## One board row: rank chip, name, score — inside its own rounded pill so
+## the player's row can glow green and other rows get a faint separator wash.
+func _board_row(rank: int, entry: Dictionary, is_player: bool, font: FontFile) -> Control:
+	var row := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.24, 1.0, 0.65, 0.14) if is_player else Color(1, 1, 1, 0.035)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 14.0
+	style.content_margin_right = 14.0
+	style.content_margin_top = 3.0
+	style.content_margin_bottom = 3.0
+	row.add_theme_stylebox_override("panel", style)
+
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 14)
+	row.add_child(h)
+
+	var rank_label := Label.new()
+	rank_label.text = "#%d" % rank
+	rank_label.custom_minimum_size = Vector2(42, 0)
+	if font:
+		rank_label.add_theme_font_override("font", font)
+	rank_label.add_theme_font_size_override("font_size", 18)
+	var rank_color: Color = RANK_COLORS[rank - 1] if rank <= RANK_COLORS.size() else Color(0.58, 0.63, 0.72)
+	rank_label.add_theme_color_override("font_color", rank_color)
+	h.add_child(rank_label)
+
+	var name_label := Label.new()
+	name_label.text = str(entry.name)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if font:
+		name_label.add_theme_font_override("font", font)
+	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.add_theme_color_override("font_color",
+		Color(0.24, 1.0, 0.65) if is_player else Color(0.9, 0.91, 0.94))
+	h.add_child(name_label)
+
+	var score_label := Label.new()
+	score_label.text = str(int(entry.score))
+	if font:
+		score_label.add_theme_font_override("font", font)
+	score_label.add_theme_font_size_override("font_size", 18)
+	score_label.add_theme_color_override("font_color", Color(0.961, 0.651, 0.137))
+	h.add_child(score_label)
+
+	return row
+
+## Neon cut-corner button matching the title screen's MAIN MENU/QUIT pair —
+## same script, accent, fill, font and paddings, so the two screens read as
+## one UI language.
+func _make_menu_button(label: String, font: FontFile, handler: Callable) -> Button:
+	var b := NeonCutButton.new()
+	b.text = label
+	b.accent_color = Color(0.95, 0.42, 0.88)
+	b.fill_color = Color(0.2, 0.08, 0.24)
+	b.glow_strength = 0.7
+	var pad := StyleBoxEmpty.new()
+	pad.content_margin_left = 26.0
+	pad.content_margin_right = 26.0
+	pad.content_margin_top = 10.0
+	pad.content_margin_bottom = 10.0
+	for style_name in ["normal", "hover", "pressed", "focus"]:
+		b.add_theme_stylebox_override(style_name, pad)
+	if font:
+		b.add_theme_font_override("font", font)
+	b.add_theme_font_size_override("font_size", 23)
+	for color_name in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		b.add_theme_color_override(color_name, Color.WHITE)
+	b.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	b.add_theme_constant_override("outline_size", 3)
+	b.pressed.connect(handler)
+	return b

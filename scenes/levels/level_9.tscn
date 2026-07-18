@@ -1,16 +1,13 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://scripts/ball.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/camera_director.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/win_condition_detector.gd" id="3"]
-[ext_resource type="Script" path="res://scripts/echo_kick_station.gd" id="4"]
-[ext_resource type="Script" path="res://scripts/sync_gate_lock.gd" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/ui/result_screen.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://assets/models/gear.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://assets/models/wire_panel.tscn" id="10"]
-[ext_resource type="PackedScene" path="res://assets/models/echo_ghost.tscn" id="11"]
 [ext_resource type="Material" path="res://assets/materials/concrete.tres" id="12"]
 [ext_resource type="Material" path="res://assets/materials/ball_device.tres" id="13"]
 [ext_resource type="Material" path="res://assets/materials/wire_glow.tres" id="14"]
@@ -78,7 +75,7 @@ inner_radius = 0.52
 outer_radius = 0.6
 
 [node name="Level9" type="Node3D"]
-editor_description = "Room 09 — Echo Kick. Symmetrical twin corridor past the fork at z=2: LeftFloor/RightFloor are separated by an open gap (no floor, no wall needed — straying into the middle just falls through like any other out-of-bounds drop). WireNodeA (left) and WireNodeB (right) both have to surge within SyncGateLock's sync_window of each other. Press E (EchoKickStation) to bank the Ball's current run as a replaying ghost and reset the Ball to try the other side live. GREYBOX FIRST PASS — corridor length/sync_window are unverified numbers, expect to retune once someone's actually played the timing."
+editor_description = "Room 09 — Twin Circuits. Symmetrical twin corridor past the fork at z=2: LeftFloor/RightFloor are separated by an open gap (no floor, no wall needed — straying into the middle just falls through like any other out-of-bounds drop). WireNodeA (left) and WireNodeB (right) each have to be surged — one corridor at a time, so the challenge is committing to a line down each narrow side without dropping the ball into the central gap. GREYBOX FIRST PASS — corridor length is an unverified number, expect to retune once someone's actually played it."
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_factory")
@@ -230,25 +227,13 @@ shape = SubResource("SphereShape3D_ball")
 
 [node name="KickTrail" parent="Ball" instance=ExtResource("15")]
 
-[node name="EchoKickStation" type="Node" parent="."]
-script = ExtResource("4")
-ball_path = NodePath("../Ball")
-ghost_scene = ExtResource("11")
-hud_path = NodePath("../HUD")
-
-[node name="SyncGateLock" type="Node" parent="."]
-script = ExtResource("5")
-node_a = NodePath("../WireNodeA")
-node_b = NodePath("../WireNodeB")
-sync_window = 0.6
-
 [node name="WinConditionDetector" type="Node" parent="."]
 script = ExtResource("3")
-required_objects = Array[NodePath]([NodePath("../Gear1"), NodePath("../SyncGateLock")])
+required_objects = Array[NodePath]([NodePath("../Gear1"), NodePath("../WireNodeA"), NodePath("../WireNodeB")])
 
 [node name="HUD" parent="." instance=ExtResource("6")]
-level_name = "LEVEL 9 — ECHO KICK"
-objective = "Land both hits at once"
+level_name = "LEVEL 9 — TWIN CIRCUITS"
+objective = "Power both corridors"
 ball_path = NodePath("../Ball")
 
 [node name="ResultScreen" parent="." instance=ExtResource("7")]

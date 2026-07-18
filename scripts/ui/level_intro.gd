@@ -41,8 +41,8 @@ const LEVEL_INFO := {
 	},
 	"res://scenes/levels/level_9.tscn": {
 		"eyebrow": "ENTERING — ROOM 09",
-		"title": "ECHO KICK",
-		"description": "This gate only answers to two hits landing as one. Record a run, then live one alongside it — press E to bank the echo, then kick for real.",
+		"title": "TWIN CIRCUITS",
+		"description": "The room forks into two narrow corridors with nothing but a long drop between them. Both circuits need power — pick a side, thread the needle, then come back and do it all again on the other.",
 	},
 	"res://scenes/levels/level_10.tscn": {
 		"eyebrow": "ENTERING — THE LAST ROOM",

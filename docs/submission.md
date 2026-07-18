@@ -40,6 +40,8 @@ FinalKick.exe — no installer."
 - **Hold Space** — charge the kick (power bar fills; the longer you hold, the harder the eventual kick)
 - **Release Space** — kick
 - **Hold R + Left/Right arrows** — scrub backward/forward through the last ~10 seconds (Easy/Hard widen or narrow this window — see Difficulty below)
+- **Right-drag mouse** — orbit the camera freely around the room; **scroll wheel** zooms toward your cursor
+- **1 / 2 / 3 / 4 / 5** — snap to Front / Back / Left / Right / Top camera views (also available as HUD buttons); **HOME** resets the shot
 - **P** — pause
 - Goal: wake every gear, wire node, and vial in the room to complete it
 
@@ -63,10 +65,9 @@ power, at the cost of a wobblier aim. Trades precision for reach, every time.
 while rewinding — and detonate on their own if left too long. A self-triggered
 vial does **not** count toward clearing the room, so stalling isn't free.
 
-**Echo Kick** *(Level 9)*. Press **E** to bank the ball's current run as a
-replaying "echo" ghost, then reset and take a second, live attempt — the room
-only clears if both the echo and the live kick land their hits within a
-fraction of a second of each other.
+**Twin Circuits** *(Level 9)*. The floor forks into two narrow corridors
+with nothing but a long drop between them. Both circuits need power — commit
+to a clean line down one side, then come back and thread the other.
 
 **The story.** A fully illustrated, six-shot opening cinematic (skippable via
 a single dedicated SKIP button — no key/click shortcuts, so it can't be cut
@@ -78,12 +79,21 @@ tracks your run also visibly and audibly brings each room back to life as
 its objectives are cleared — lighting, ambient dressing, and the music layer
 all respond to it.
 
+**The finale.** Clearing the last room earns a full celebration screen —
+"THE FACTORY LIVES!" — and a "Wake the Factory" button that plays the
+closing story: a slow pan through the old worker's workshop, now humming,
+narrated in the same voice as the opening. When the last line fades, the
+results dashboard opens on its own — final score, and the top-5 leaderboard
+with the player's own entry highlighted.
+
 **Difficulty.** Chosen on the title screen before Start (Easy/Medium/Hard).
 It scales two things: how much Factory Energy a lost ball costs (12/20/30
 out of 100), and the rewind window's length (~15s/~10s/~5s).
 
-**Leaderboard.** A local top-10 high-score table, entered by name on the
-title screen and saved on-device — no account or networking involved.
+**Leaderboard.** A local top-5 high-score table, entered by name on the
+title screen (a name is required to start) and saved on-device — no account
+or networking involved. Scores land on the board after every level clear,
+so even a one-level run competes for a spot.
 
 ## Team
 - Anadi — systems & physics (kick, rewind, gear/vial/grid triggers, win condition, camera)

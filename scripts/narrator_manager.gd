@@ -21,7 +21,7 @@ const LEVEL_LINES := {
 	"res://scenes/levels/level_6.tscn": ["He built this gate after the accident.", "Some power should cost something."],
 	"res://scenes/levels/level_7.tscn": ["He walked this hall every morning.", "He greeted every machine by name."],
 	"res://scenes/levels/level_8.tscn": ["His notes warn: the vials never wait.", "Chemistry keeps its own schedule."],
-	"res://scenes/levels/level_9.tscn": ["He dreamed of being two places at once.", "So he built the echo."],
+	"res://scenes/levels/level_9.tscn": ["Two circuits. One heartbeat.", "Both sides need you."],
 	"res://scenes/levels/level_10.tscn": ["His final page says only:", "'Everything, once more.'"],
 }
 
@@ -35,7 +35,7 @@ const LEVEL_COMPLETE_LINES := {
 	"res://scenes/levels/level_6.tscn": ["The gate remembers him kindly."],
 	"res://scenes/levels/level_7.tscn": ["Every machine, greeted by name."],
 	"res://scenes/levels/level_8.tscn": ["Right on schedule after all."],
-	"res://scenes/levels/level_9.tscn": ["Two kicks. One heart."],
+	"res://scenes/levels/level_9.tscn": ["Both circuits, beating as one."],
 	"res://scenes/levels/level_10.tscn": ["Listen. The whole factory is singing."],
 }
 

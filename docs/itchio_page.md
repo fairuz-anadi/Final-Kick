@@ -25,18 +25,18 @@ the chain dies halfway, rewind, adjust the angle, and try again. Push any
 kick past full for extra reach at the cost of a wobblier aim, or hold it
 even longer to arm a single huge burst — once per room — for the one gap
 nothing else can clear. Some rooms punish waiting instead of missing. One
-asks you to land two kicks — one live, one a recording of yourself — at
-exactly the same moment. Every room you clear visibly wakes the factory a
-little more, until the last one wakes all of it at once.
+splits the floor into twin corridors and dares you to thread them both.
+Every room you clear visibly wakes the factory a little more, until the
+last one wakes all of it at once.
 
 The level ends on the one kick that finally works: the **final kick**.
 
 ## How to play
 - **HOLD SPACE** — charge your kick
 - **RELEASE SPACE** — kick
-- **MOUSE** — aim
+- **MOUSE** — aim · **RIGHT-DRAG** — orbit the camera · **SCROLL** — zoom
+- **1–5** — snap camera views: front, back, left, right, top
 - **HOLD R + LEFT / RIGHT** — scrub back and forth through time
-- **E** *(Room 9 only)* — bank the current run as a replaying echo, then kick live to sync with it
 - No hearts: losing the ball drains Factory Energy — the same bar you're trying to fill — instead of costing a life. Before you've woken anything, losing the ball is free; drain it all away after real progress and the factory blacks out, restarting the room
 
 ## Features
@@ -44,10 +44,11 @@ The level ends on the one kick that finally works: the **final kick**.
 - **Momentum Transfer Matrix** — gears spin machinery, vials widen the blast, wire grids surge power along the chain
 - **Final Kick & Overcharge** — hold past full for a repeatable, wobblier-aim overcharge on any kick, or hold longer still to arm one huge burst per room for a gap nothing else reaches
 - **Leaking Vials** — some chemicals don't wait for you; stall too long and they go off on their own, and it won't count
-- **Echo Kick** — record a run, then live one alongside it, so two hits can land as one
+- **Twin Circuits** — a forked room with a long drop in the middle; both sides need a perfect line
 - **Factory Energy** — the whole room wakes up, visibly and audibly, as you clear it — and it's the same meter that takes the hit when you lose the ball
+- **A real ending** — clear all 10 rooms for a celebration screen, a narrated closing story in the workshop, and an auto-opening results dashboard with the top-5 board
 - **Adjustable Difficulty** — Easy/Medium/Hard changes both the rewind window (5–15s) and how much Factory Energy a lost ball costs
-- **Local Leaderboard** — top 10 high scores, saved locally, name entered at the title screen
+- **Local Leaderboard** — top 5 high scores, saved locally, name entered at the title screen; every level clear counts, not just full runs
 - **Spectacle Cam** — when the chain completes, the camera goes cinematic for the payoff
 
 ## Details
@@ -59,6 +60,6 @@ The level ends on the one kick that finally works: the **final kick**.
 
 ## Page setup checklist
 - [ ] Banner: FINAL KICK logo, dark bg #0A0D16, cyan→pink gradient on the title (match the plan's hero style)
-- [ ] 5-7 screenshots: the opening cinematic, a mid-chain explosion, the rewind overlay active, an Overcharge/Final-Kick moment, the Echo Kick twin corridors, the spectacle cam moment, the title screen
+- [ ] 5-7 screenshots: the opening cinematic, a mid-chain explosion, the rewind overlay active, an Overcharge/Final-Kick moment, the Twin Circuits corridors, the spectacle cam moment, the title screen
 - [ ] Upload Web build as "playable in browser" — Web-only by design (see docs/submission.md), no Windows build to list
 - [ ] Classification: Game → Puzzle · tags: physics, puzzle, rewind, chain-reaction, godot
