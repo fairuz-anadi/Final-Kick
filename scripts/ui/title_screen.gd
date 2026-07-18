@@ -8,10 +8,23 @@ extends Control
 
 @onready var _name_prompt: Control = %NamePrompt
 @onready var _name_edit: LineEdit = %NameEdit
+@onready var _go_button: Button = %GoButton
 
 func _ready() -> void:
 	_name_prompt.visible = false
-	_name_edit.text = Leaderboard.pending_name
+	# Arriving at the title (fresh boot, quitting a run mid-way, or finishing
+	# one) always releases the previous player's name — the next run must
+	# enter its own, so a new player at the same machine gets a clean slate.
+	Leaderboard.pending_name = ""
+	_name_edit.text = ""
+	_name_edit.text_changed.connect(_on_name_text_changed)
+	_on_name_text_changed(_name_edit.text)
+
+## The run can't start without a leaderboard name: START stays dead on an
+## empty/whitespace name (only BACK works), and lights up as soon as
+## there's something to play under.
+func _on_name_text_changed(new_text: String) -> void:
+	_go_button.disabled = new_text.strip_edges().is_empty()
 
 func _unhandled_input(event: InputEvent) -> void:
 	# The Space-to-start shortcut stays dead while the name prompt OR any
@@ -40,6 +53,10 @@ func _on_start_pressed() -> void:
 ## Bound to both the name field's "text_submitted" (Enter key) and the Go
 ## button's "pressed" — the latter carries no argument, hence the default.
 func _on_name_confirmed(_text: String = "") -> void:
+	# Enter on the LineEdit bypasses the disabled Go button — re-check here so
+	# neither path can start a run without a name.
+	if _name_edit.text.strip_edges().is_empty():
+		return
 	Leaderboard.pending_name = _name_edit.text.strip_edges()
 	ScoreManager.reset_run()
 	SceneTransition.go(start_scene)

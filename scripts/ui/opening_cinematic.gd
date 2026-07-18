@@ -95,8 +95,8 @@ func _shot_1() -> void:
 	_overlay.modulate.a = 1.0
 	var st := _tween()
 	st.tween_property(_overlay, "modulate:a", 0.0, 2.4)
-	_add_line(st, "There was a time when the lights never went out.", 3.0)
-	_add_line(st, "That was a long time ago.", 2.4)
+	_add_line(st, "There was a time... when the lights never went out.", 3.0)
+	_add_line(st, "That was a long time ago...", 2.4)
 	st.tween_interval(0.6)
 	st.tween_callback(_shot_2)
 
@@ -108,8 +108,8 @@ func _shot_2() -> void:
 	_add_dust(spr, Vector2(0.62, 0.4), Vector2(150, 130))
 
 	var st := _tween()
-	_add_line(st, "For decades, one worker kept the old machines company.", 3.2)
-	_add_line(st, "Now his chair sits empty.", 2.6)
+	_add_line(st, "For decades, one worker kept the old machines company...", 3.2)
+	_add_line(st, "Now — his chair sits empty.", 2.6)
 	st.tween_interval(0.6)
 	st.tween_callback(_shot_3)
 
@@ -122,7 +122,7 @@ func _shot_3() -> void:
 
 	var st := _tween()
 	st.tween_interval(1.2)
-	_add_line(st, "But someone found the workshop.", 3.0)
+	_add_line(st, "But... someone found the workshop.", 3.0)
 	st.tween_interval(1.0)
 	st.tween_callback(_shot_4)
 
@@ -134,7 +134,7 @@ func _shot_4() -> void:
 	var st := _tween()
 	st.tween_interval(0.8)
 	_add_line(st, "\"Wake them.\"", 2.8, true)
-	_add_line(st, "That was all the note said.", 2.4)
+	_add_line(st, "That was all the note said...", 2.4)
 	st.tween_interval(0.5)
 	st.tween_callback(_shot_5)
 
@@ -145,7 +145,7 @@ func _shot_5() -> void:
 
 	var st := _tween()
 	st.tween_interval(0.8)
-	_add_line(st, "The old man's final invention — still glowing.  Still waiting.", 3.4)
+	_add_line(st, "The old man's final invention — still glowing... still waiting...", 3.4)
 	st.tween_interval(0.6)
 	st.tween_callback(_shot_6)
 
@@ -196,7 +196,7 @@ func _shot_6() -> void:
 	var st := _tween()
 	st.tween_interval(1.0)
 	_add_line(st, "So the kid took the old man's seat...", 3.0)
-	_add_line(st, "...and finished what was started.", 3.0)
+	_add_line(st, "...and finished what was started!", 3.0)
 	st.tween_interval(0.8)
 	st.tween_callback(_ignite)
 
@@ -378,17 +378,17 @@ func _add_dust(spr: Sprite2D, norm: Vector2, extents: Vector2) -> void:
 
 # --- Overlay UI (unchanged from the 3D version) ------------------------
 
-## Chains one subtitle line into `tween`: set text (+ voice cue), fade in,
-## hold, fade out. worker=true styles it as the Worker speaking.
+## Chains one subtitle line into `tween`: set text, fade in, hold, fade out.
+## worker=true styles it as the Worker speaking — and that one line keeps its
+## voice cue; ordinary narration lines appear silently so the music carries
+## the scene instead of a blip stamping every sentence.
 func _add_line(tween: Tween, text: String, hold: float, worker := false) -> void:
 	tween.tween_callback(func() -> void:
 		_subtitle.text = text
 		_subtitle.add_theme_color_override("font_color",
 			Color(1.0, 0.78, 0.5) if worker else Color(0.9, 0.92, 0.95))
 		if worker:
-			PlaceholderSFX.play_worker_blip()
-		else:
-			PlaceholderSFX.play_narrator_blip())
+			PlaceholderSFX.play_worker_blip())
 	tween.tween_property(_subtitle, "modulate:a", 1.0, 0.6)
 	tween.tween_interval(hold)
 	tween.tween_property(_subtitle, "modulate:a", 0.0, 0.5)
@@ -475,36 +475,37 @@ func _build_skip_ui() -> void:
 	# ASCII only — "▸" has no glyph in the bundled fonts, and web exports have
 	# no system fonts to fall back to (it rendered as tofu boxes in Chrome).
 	_skip_button.text = "SKIP  >>"
+	# Colors, cut, font size and outline all match the title screen's
+	# MAIN MENU/QUIT buttons exactly — one button language everywhere.
 	_skip_button.accent_color = Color(0.95, 0.42, 0.88)
 	_skip_button.fill_color = Color(0.2, 0.08, 0.24)
 	_skip_button.glow_strength = 0.7
-	_skip_button.cut = 8.0
 	_skip_button.pressed.connect(_go_to_title_screen)
 	layer.add_child(_skip_button)
-	_style_skip_button(_skip_button, font, Vector2(-172, -56))
+	_style_skip_button(_skip_button, font, Vector2(-190, -62))
 
 	_skip_button.modulate.a = 0.0
 	var tween := create_tween()
 	tween.tween_property(_skip_button, "modulate:a", 1.0, 0.8).set_delay(1.0)
 
 func _style_skip_button(b: Button, font: FontFile, offset: Vector2) -> void:
-	b.custom_minimum_size = Vector2(150, 44)
+	b.custom_minimum_size = Vector2(168, 50)
 	b.anchor_left = 1.0
 	b.anchor_right = 1.0
 	b.anchor_top = 1.0
 	b.anchor_bottom = 1.0
 	b.offset_left = offset.x
-	b.offset_right = offset.x + 150.0
+	b.offset_right = offset.x + 168.0
 	b.offset_top = offset.y
-	b.offset_bottom = offset.y + 44.0
+	b.offset_bottom = offset.y + 50.0
 	if font:
 		b.add_theme_font_override("font", font)
-	b.add_theme_font_size_override("font_size", 20)
+	b.add_theme_font_size_override("font_size", 23)
 	b.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0))
 	b.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0))
 	b.add_theme_color_override("font_pressed_color", Color(1.0, 1.0, 1.0))
 	b.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-	b.add_theme_constant_override("outline_size", 2)
+	b.add_theme_constant_override("outline_size", 3)
 
 func _start_ambience() -> void:
 	# Real story track (replaces the old synthesized wind + clock ambience).
