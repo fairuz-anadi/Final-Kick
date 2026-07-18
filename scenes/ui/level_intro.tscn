@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/level_intro.gd" id="1"]
 [ext_resource type="Theme" path="res://assets/ui/theme.tres" id="2"]
-[ext_resource type="FontFile" path="res://assets/fonts/Orbitron.ttf" id="3"]
+[ext_resource type="FontFile" path="res://assets/fonts/PixelGame.otf" id="3"]
 [ext_resource type="Shader" path="res://assets/shaders/film_grain.gdshader" id="4"]
 [ext_resource type="Shader" path="res://assets/shaders/gradient_vision.gdshader" id="5"]
 
@@ -77,7 +77,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 18
 text = "ENTERING"
 horizontal_alignment = 1
 
@@ -86,7 +86,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.898, 1, 1)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 52
 text = "NEXT ROOM"
 horizontal_alignment = 1
 
@@ -95,7 +95,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(580, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 22
 text = ""
 horizontal_alignment = 1
 autowrap_mode = 2
@@ -103,7 +103,7 @@ autowrap_mode = 2
 [node name="ContinueButton" type="Button" parent="Center/VBox"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
 theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
 text = "CONTINUE"
@@ -112,7 +112,7 @@ text = "CONTINUE"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 17
 text = "PRESS SPACE OR CLICK CONTINUE"
 horizontal_alignment = 1
 

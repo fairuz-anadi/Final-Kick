@@ -14,10 +14,10 @@ extends Node2D
 ##  6  Parallax: the kid at the bench, finishing what was started.
 ##  7  The ball's glow flashes out — straight into the title screen.
 ##
-## Any input (or the SKIP button) jumps straight to the title screen.
+## The SKIP button (only) jumps straight to the title screen.
 
 const TITLE_SCREEN := "res://scenes/ui/title_screen.tscn"
-const CutCornerButtonScript := preload("res://scripts/ui/cut_corner_button.gd")
+const NeonCutButtonScript := preload("res://scripts/ui/neon_cut_button.gd")
 
 const ART := "res://assets/cinematic/"
 
@@ -81,11 +81,9 @@ func _process(delta: float) -> void:
 	if is_instance_valid(_kid):
 		_kid.scale.y = _kid.get_meta("base_scale") * (1.0 + 0.006 * sin(t * 1.5))
 
-func _unhandled_input(event: InputEvent) -> void:
-	var pressed: bool = (event is InputEventKey and event.pressed) \
-		or (event is InputEventMouseButton and event.pressed)
-	if pressed:
-		_go_to_title_screen()
+## Skipping is via the dedicated SKIP button only (see _build_skip_ui) —
+## deliberately NOT any key/click, so a stray input during the story (or
+## someone just trying to move the mouse) doesn't cut it short by accident.
 
 # --- The six shots -----------------------------------------------------
 
@@ -444,7 +442,7 @@ func _build_overlay_ui() -> void:
 	_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_flash)
 
-	var font: FontFile = load("res://assets/fonts/Orbitron.ttf")
+	var font: FontFile = load("res://assets/fonts/PixelGame.otf")
 
 	_subtitle = Label.new()
 	_subtitle.modulate.a = 0.0
@@ -455,26 +453,31 @@ func _build_overlay_ui() -> void:
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if font:
 		_subtitle.add_theme_font_override("font", font)
-	_subtitle.add_theme_font_size_override("font_size", 22)
+	_subtitle.add_theme_font_size_override("font_size", 29)
 	_subtitle.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
 	_subtitle.add_theme_constant_override("shadow_offset_y", 2)
 	_subtitle.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_subtitle)
 
-## One always-available exit from the cinematic, since "press any key"
-## alone isn't discoverable: SKIP jumps straight to the title screen (same
-## as any key press). It fades in after a beat so the opening black frame
-## isn't cluttered with UI before anything's happened.
+## The one always-available exit from the cinematic — deliberately the ONLY
+## way to skip (no "press any key"), so it's an explicit choice, not an
+## accident. Same glowing cut-corner look as every other button in the game
+## (title screen, difficulty/settings/instructions pages). Fades in after a
+## beat so the opening black frame isn't cluttered with UI before anything's
+## happened.
 func _build_skip_ui() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 51  # above the story overlay layer
 	add_child(layer)
 
-	var font: FontFile = load("res://assets/fonts/Orbitron.ttf")
+	var font: FontFile = load("res://assets/fonts/PixelGame.otf")
 
-	_skip_button = CutCornerButtonScript.new()
+	_skip_button = NeonCutButtonScript.new()
 	_skip_button.text = "SKIP  ▸▸"
-	_skip_button.accent_color = Color(0.25, 0.85, 0.9)
+	_skip_button.accent_color = Color(0.95, 0.42, 0.88)
+	_skip_button.fill_color = Color(0.2, 0.08, 0.24)
+	_skip_button.glow_strength = 0.7
+	_skip_button.cut = 8.0
 	_skip_button.pressed.connect(_go_to_title_screen)
 	layer.add_child(_skip_button)
 	_style_skip_button(_skip_button, font, Vector2(-172, -56))
@@ -484,7 +487,7 @@ func _build_skip_ui() -> void:
 	tween.tween_property(_skip_button, "modulate:a", 1.0, 0.8).set_delay(1.0)
 
 func _style_skip_button(b: Button, font: FontFile, offset: Vector2) -> void:
-	b.custom_minimum_size = Vector2(150, 40)
+	b.custom_minimum_size = Vector2(150, 44)
 	b.anchor_left = 1.0
 	b.anchor_right = 1.0
 	b.anchor_top = 1.0
@@ -492,13 +495,15 @@ func _style_skip_button(b: Button, font: FontFile, offset: Vector2) -> void:
 	b.offset_left = offset.x
 	b.offset_right = offset.x + 150.0
 	b.offset_top = offset.y
-	b.offset_bottom = offset.y + 40.0
+	b.offset_bottom = offset.y + 44.0
 	if font:
 		b.add_theme_font_override("font", font)
-	b.add_theme_font_size_override("font_size", 14)
-	b.add_theme_color_override("font_color", Color(0.9, 0.92, 0.95))
+	b.add_theme_font_size_override("font_size", 20)
+	b.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0))
 	b.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0))
-	b.add_theme_color_override("font_pressed_color", Color(0.04, 0.05, 0.09))
+	b.add_theme_color_override("font_pressed_color", Color(1.0, 1.0, 1.0))
+	b.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	b.add_theme_constant_override("outline_size", 2)
 
 func _start_ambience() -> void:
 	_wind_player = AudioStreamPlayer.new()

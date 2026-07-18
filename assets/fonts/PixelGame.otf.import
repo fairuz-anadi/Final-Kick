@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://c7di5rxxwmyat"
-path="res://.godot/imported/Rajdhani-Medium.ttf-e7603349f496e531180a2d200b37901a.fontdata"
+uid="uid://w2j6o15i8buo"
+path="res://.godot/imported/PixelGame.otf-2f224b2abf581590446f9947f47270fa.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/Rajdhani-Medium.ttf"
-dest_files=["res://.godot/imported/Rajdhani-Medium.ttf-e7603349f496e531180a2d200b37901a.fontdata"]
+source_file="res://assets/fonts/PixelGame.otf"
+dest_files=["res://.godot/imported/PixelGame.otf-2f224b2abf581590446f9947f47270fa.fontdata"]
 
 [params]
 

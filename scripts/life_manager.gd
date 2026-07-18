@@ -142,9 +142,9 @@ func _build_overlay() -> void:
 	_shutdown_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_shutdown_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_shutdown_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_shutdown_label.add_theme_font_size_override("font_size", 42)
+	_shutdown_label.add_theme_font_size_override("font_size", 55)
 	_shutdown_label.add_theme_color_override("font_color", Color(1.0, 0.239, 0.506))
-	var font: FontFile = load("res://assets/fonts/Orbitron.ttf")
+	var font: FontFile = load("res://assets/fonts/PixelGame.otf")
 	if font:
 		_shutdown_label.add_theme_font_override("font", font)
 	_overlay_layer.add_child(_shutdown_label)
