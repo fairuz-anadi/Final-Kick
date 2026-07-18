@@ -13,10 +13,15 @@ class_name NeonCutButton
 @export var fill_color := Color(0.62, 0.13, 0.48)
 @export var glow_strength := 1.0
 @export var cut := 12.0
+@export var hover_ease_speed := 12.0  ## how fast the glow eases toward idle/hover/pressed
 
 var _hovering := false
 var _pressing := false
 var _bg: Control
+
+# Eased 0..1 heat driving the glow/fill — chases _target_hot() each frame
+# instead of snapping, so hover/press reads as an animation, not a toggle.
+var _hot := 0.0
 
 func _ready() -> void:
 	flat = true
@@ -29,11 +34,24 @@ func _ready() -> void:
 	_bg.draw.connect(_draw_body)
 	add_child(_bg)
 
-	mouse_entered.connect(func() -> void: _hovering = true; _bg.queue_redraw())
-	mouse_exited.connect(func() -> void: _hovering = false; _bg.queue_redraw())
-	button_down.connect(func() -> void: _pressing = true; _bg.queue_redraw())
-	button_up.connect(func() -> void: _pressing = false; _bg.queue_redraw())
-	toggled.connect(func(_on: bool) -> void: _bg.queue_redraw())
+	mouse_entered.connect(func() -> void: _hovering = true)
+	mouse_exited.connect(func() -> void: _hovering = false)
+	button_down.connect(func() -> void: _pressing = true)
+	button_up.connect(func() -> void: _pressing = false)
+
+func _process(delta: float) -> void:
+	var target := _target_hot()
+	if is_equal_approx(_hot, target):
+		return
+	_hot = lerpf(_hot, target, clampf(hover_ease_speed * delta, 0.0, 1.0))
+	if absf(_hot - target) < 0.002:
+		_hot = target
+	_bg.queue_redraw()
+
+# 0..1 heat: idle → hover → pressed. A latched toggle (difficulty radio
+# buttons) stays at full heat while selected.
+func _target_hot() -> float:
+	return 1.0 if (_pressing or button_pressed) else (0.6 if _hovering else 0.0)
 
 func _draw_body() -> void:
 	var sz := _bg.get_size()
@@ -45,9 +63,7 @@ func _draw_body() -> void:
 	var closed := pts.duplicate()
 	closed.append(pts[0])
 
-	# 0..1 heat: idle → hover → pressed. A latched toggle (difficulty
-	# radio buttons) stays at full heat while selected.
-	var hot := 1.0 if (_pressing or button_pressed) else (0.6 if _hovering else 0.0)
+	var hot := _hot
 
 	# Soft outer glow: three rings, the widest the faintest. Drawn before
 	# the opaque fill so only the outward half of each ring survives.

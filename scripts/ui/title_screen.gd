@@ -37,7 +37,7 @@ func _on_start_pressed() -> void:
 func _on_name_confirmed(_text: String = "") -> void:
 	Leaderboard.pending_name = _name_edit.text.strip_edges()
 	ScoreManager.reset_run()
-	get_tree().change_scene_to_file(start_scene)
+	SceneTransition.go(start_scene)
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

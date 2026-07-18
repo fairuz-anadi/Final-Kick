@@ -20,4 +20,4 @@ func _on_leaked() -> void:
 	if hud and hud.has_method("notify"):
 		hud.notify("VIAL LOST — RESETTING", Color(0.851, 0.325, 0.31))
 	await get_tree().create_timer(reload_delay).timeout
-	get_tree().reload_current_scene()
+	SceneTransition.reload()

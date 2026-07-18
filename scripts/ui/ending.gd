@@ -91,7 +91,7 @@ func _reveal_credits() -> void:
 	tween.tween_property(_credits_panel, "modulate:a", 1.0, 1.0)
 
 func _on_back_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/ui/title_screen.tscn")
+	SceneTransition.go("res://scenes/ui/title_screen.tscn")
 
 # --- Construction ------------------------------------------------------
 

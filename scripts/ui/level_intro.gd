@@ -78,4 +78,4 @@ func _on_continue_pressed() -> void:
 	_continue()
 
 func _continue() -> void:
-	get_tree().change_scene_to_file(LevelFlow.next_level_path)
+	SceneTransition.go(LevelFlow.next_level_path)
