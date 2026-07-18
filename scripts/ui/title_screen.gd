@@ -14,10 +14,19 @@ func _ready() -> void:
 	_name_edit.text = Leaderboard.pending_name
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _name_prompt.visible:
+	# The Space-to-start shortcut stays dead while the name prompt OR any
+	# overlay (main menu, leaderboard, settings, …) is up — otherwise Space
+	# opens the name prompt hidden UNDER the overlay and steals keyboard
+	# focus, and the next Enter launches the game mid-menu.
+	if _name_prompt.visible or _any_overlay_open():
 		return
 	if event.is_action_pressed("kick"):
 		_on_start_pressed()
+
+func _any_overlay_open() -> bool:
+	return MainMenuPanel.is_open() or LeaderboardPanel.is_open() \
+		or SettingsPanel.is_open() or DifficultyPanel.is_open() \
+		or InstructionsPanel.is_open()
 
 func _on_start_pressed() -> void:
 	_name_prompt.visible = true

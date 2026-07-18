@@ -57,10 +57,13 @@ static func play_clink(at: Node3D) -> void:
 ## clink. Pitch-randomized so back-to-back hits never sound identical, volume
 ## scaled by contact impulse, and harder slams stack a pitched-down copy (a
 ## resonant low "body") — and at the top end a spark — so a hard hit sounds
-## genuinely heavier than a graze, not just louder.
-static func play_gear_hit(at: Node3D, strength: float) -> void:
+## genuinely heavier than a graze, not just louder. `progress` (the gear's
+## activation_progress) raises the base pitch as the gear nears waking — the
+## same rising-stakes trick the charge tick uses, so the player can HEAR
+## they're getting closer.
+static func play_gear_hit(at: Node3D, strength: float, progress: float = 0.0) -> void:
 	var t := clampf(strength / 8.0, 0.0, 1.0)
-	_play(GearClink, at, randf_range(0.95, 1.25), lerpf(-10.0, 2.0, t))
+	_play(GearClink, at, randf_range(0.95, 1.25) + progress * 0.35, lerpf(-10.0, 2.0, t))
 	if t > 0.45:
 		_play(GearClink, at, randf_range(0.55, 0.68), lerpf(-14.0, -3.0, t))
 	if t > 0.7:

@@ -16,6 +16,9 @@ func _ready() -> void:
 func open() -> void:
 	_panel.visible = true
 
+func is_open() -> bool:
+	return _panel.visible
+
 func _on_back_pressed() -> void:
 	_panel.visible = false
 

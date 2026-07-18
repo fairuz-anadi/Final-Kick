@@ -41,11 +41,32 @@ var _is_activated: bool = false
 var _pending_hit_strength: float = 0.0
 var _pending_mesh_sound: bool = false
 
+# Progress feedback: activation needs a full turn of ACCUMULATED rotation,
+# which is otherwise invisible — a gear at 70% looks identical to a cold one,
+# so the player can't tell their hits are working. The gear's own material
+# heats up with a warm emissive glow as _total_rotation approaches the
+# threshold (duplicated per-gear, same pattern as GridNode's flash, so one
+# gear glowing doesn't light up every mesh sharing the material).
+var _glow_mesh: MeshInstance3D
+var _glow_material: StandardMaterial3D
+
 func _ready() -> void:
 	freeze = true
 	freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
 	contact_monitor = true
 	max_contacts_reported = 8
+	for child in get_children():
+		if child is MeshInstance3D:
+			_glow_mesh = child
+			break
+	if _glow_mesh:
+		var mat: Material = _glow_mesh.get_active_material(0)
+		# Only StandardMaterial3D gets the glow treatment; a gear with a
+		# custom shader keeps it (and just skips this feedback).
+		if mat is StandardMaterial3D or mat == null:
+			_glow_material = (mat.duplicate() if mat else StandardMaterial3D.new()) as StandardMaterial3D
+			_glow_material.emission = Color(1.0, 0.55, 0.2)  # warm "waking up" amber
+			_glow_mesh.material_override = _glow_material
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	for i in state.get_contact_count():
@@ -57,7 +78,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 
 func _physics_process(delta: float) -> void:
 	if _pending_hit_strength > 0.0:
-		PlaceholderSFX.play_gear_hit(self, _pending_hit_strength)
+		PlaceholderSFX.play_gear_hit(self, _pending_hit_strength, activation_progress())
 		_pending_hit_strength = 0.0
 		_pending_mesh_sound = false  # the clang already covers this frame
 	elif _pending_mesh_sound:
@@ -71,6 +92,24 @@ func _physics_process(delta: float) -> void:
 			_is_activated = true
 			activated.emit()
 	_spin = lerp(_spin, 0.0, clamp(spin_damping * delta, 0.0, 1.0))
+	_update_progress_glow()
+
+## 0 = cold, 1 = the cumulative-rotation threshold reached (or passed).
+func activation_progress() -> float:
+	if _is_activated:
+		return 1.0
+	return clampf(_total_rotation / (rotations_to_activate * TAU), 0.0, 1.0)
+
+func _update_progress_glow() -> void:
+	if _glow_material == null:
+		return
+	var p := activation_progress()
+	# Base heat from accumulated progress, plus a live flicker while the gear
+	# is actually turning — so each hit visibly "feeds" the glow, and an
+	# awakened gear holds a steady warm burn.
+	var energy: float = p * 0.85 + clampf(absf(_spin) * 0.06, 0.0, 0.35)
+	_glow_material.emission_enabled = energy > 0.02
+	_glow_material.emission_energy_multiplier = energy
 
 func _apply_impact(contact_offset: Vector3, impulse: Vector3) -> void:
 	# Torque = r x J; only the component along our own spin axis matters, so

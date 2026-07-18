@@ -55,6 +55,12 @@ var _queue: Array[String] = []
 var _speaking: bool = false
 var _death_line_cooldown_left: float = 0.0
 var _rewind_taught: bool = false
+## Bumped by clear(). The pacing timers below are one-shots that can't be
+## cancelled, so an interrupt (power-critical line, level change) would
+## otherwise leave a stale timer alive that re-enters _show_next_line and
+## runs a SECOND chain in parallel — lines firing at double speed. Stale
+## timers compare their captured generation and bow out instead.
+var _generation: int = 0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -74,13 +80,18 @@ func say(lines: Array) -> void:
 func clear() -> void:
 	_queue.clear()
 	_speaking = false
+	_generation += 1
 
 func play_level_intro(scene_path: String) -> void:
 	clear()
+	var gen := _generation
 	if LEVEL_LINES.has(scene_path):
 		# Small delay so the line lands after the level fades in, not during.
 		await get_tree().create_timer(0.8).timeout
-		say(LEVEL_LINES[scene_path])
+		# Another clear()/intro happened during the delay (rapid scene change,
+		# blackout) — this intro belongs to a level the player already left.
+		if gen == _generation:
+			say(LEVEL_LINES[scene_path])
 
 func play_level_complete(scene_path: String) -> void:
 	if LEVEL_COMPLETE_LINES.has(scene_path):
@@ -92,8 +103,7 @@ func on_death() -> void:
 	# rewind — the player just wished they could undo something.
 	if not _rewind_taught:
 		_rewind_taught = true
-		_queue.clear()
-		_speaking = false
+		clear()  # also bumps _generation, killing any in-flight pacing chain
 		say(REWIND_TEACH_LINES)
 		return
 	if _death_line_cooldown_left > 0.0 or _speaking:
@@ -104,8 +114,7 @@ func on_death() -> void:
 ## Energy critically low after real progress: the stakes line always cuts
 ## through, even mid-sentence.
 func on_power_critical() -> void:
-	_queue.clear()
-	_speaking = false
+	clear()  # also bumps _generation, killing any in-flight pacing chain
 	say([POWER_CRITICAL_LINE])
 
 func play_final_completion() -> void:
@@ -124,4 +133,7 @@ func _show_next_line() -> void:
 	PlaceholderSFX.play_narrator_blip()
 
 	var hold := 1.6 + line.length() * 0.055
-	get_tree().create_timer(hold + 0.25).timeout.connect(_show_next_line)
+	var gen := _generation
+	get_tree().create_timer(hold + 0.25).timeout.connect(func() -> void:
+		if gen == _generation:
+			_show_next_line())

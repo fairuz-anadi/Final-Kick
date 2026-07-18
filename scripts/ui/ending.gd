@@ -263,5 +263,7 @@ func _build_leaderboard_status(vbox: VBoxContainer, font: FontFile) -> void:
 		status.text = "SAVED TO LEADERBOARD AS \"%s\"" % player_name
 		status.add_theme_color_override("font_color", Color(0.24, 1.0, 0.65))
 	else:
-		status.text = "\"%s\" — DOESN'T BEAT YOUR SAVED BEST" % player_name
+		# Covers both false cases: didn't beat this name's saved entry, or the
+		# board is full and this score didn't crack the top 10.
+		status.text = "\"%s\" — DIDN'T MAKE THE LEADERBOARD THIS TIME" % player_name
 		status.add_theme_color_override("font_color", Color(0.62, 0.68, 0.82))

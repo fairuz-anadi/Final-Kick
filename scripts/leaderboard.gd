@@ -46,7 +46,13 @@ func submit_score(username: String, score: int) -> bool:
 		entries.sort_custom(func(a, b): return a.score > b.score)
 		if entries.size() > MAX_ENTRIES:
 			entries.resize(MAX_ENTRIES)
-		_save()
+			# The cap may have just cut the very entry we appended (full board
+			# + a score below everyone on it) — that's a "didn't make it",
+			# not a save, and the caller's message must not claim otherwise.
+			changed = entries.any(
+				func(e): return e.name.to_lower() == clean_name.to_lower())
+		if changed:
+			_save()
 	return changed
 
 func _save() -> void:
