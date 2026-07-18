@@ -218,7 +218,7 @@ func _build_ui() -> void:
 	best_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	best_label.add_theme_font_size_override("font_size", 20)
 	if is_new_best:
-		best_label.text = "★ NEW BEST"
+		best_label.text = "NEW BEST!"  # ASCII only — "★" is tofu in web exports
 		best_label.add_theme_color_override("font_color", Color(0.24, 1.0, 0.65))
 	else:
 		best_label.text = "BEST   %d" % ScoreManager.best_score

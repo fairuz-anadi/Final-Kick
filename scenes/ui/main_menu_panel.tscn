@@ -5,15 +5,15 @@
 [ext_resource type="Shader" path="res://assets/shaders/blur_dim.gdshader" id="3"]
 [ext_resource type="Script" path="res://scripts/ui/neon_cut_button.gd" id="4"]
 [ext_resource type="FontFile" path="res://assets/fonts/BubblegumSans-Regular.ttf" id="5"]
-[ext_resource type="SystemFont" path="res://assets/ui/normal_font.tres" id="6"]
+[ext_resource type="FontFile" path="res://assets/fonts/Parkinsans-Regular.ttf" id="6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
 shader = ExtResource("3")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
-content_margin_left = 72.0
+content_margin_left = 44.0
 content_margin_top = 34.0
-content_margin_right = 72.0
+content_margin_right = 44.0
 content_margin_bottom = 30.0
 bg_color = Color(0.039, 0.051, 0.086, 0.96)
 border_width_left = 2
@@ -29,10 +29,10 @@ shadow_color = Color(0, 0.898, 1, 0.25)
 shadow_size = 14
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_item"]
-content_margin_left = 36.0
-content_margin_top = 13.0
-content_margin_right = 36.0
-content_margin_bottom = 13.0
+content_margin_left = 26.0
+content_margin_top = 10.0
+content_margin_right = 26.0
+content_margin_bottom = 10.0
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_btn"]
 content_margin_left = 30.0
@@ -90,13 +90,12 @@ theme_override_font_sizes/font_size = 32
 text = "MAIN MENU"
 horizontal_alignment = 1
 
-[node name="Items" type="VBoxContainer" parent="Panel/Center/Card/VBox"]
+[node name="Items" type="HBoxContainer" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 20
 
 [node name="DifficultyButton" type="Button" parent="Panel/Center/Card/VBox/Items"]
 layout_mode = 2
-size_flags_horizontal = 3
 script = ExtResource("4")
 accent_color = Color(0.95, 0.42, 0.88, 1)
 fill_color = Color(0.2, 0.08, 0.24, 1)
@@ -117,7 +116,6 @@ text = "DIFFICULTY"
 
 [node name="HowToPlayButton" type="Button" parent="Panel/Center/Card/VBox/Items"]
 layout_mode = 2
-size_flags_horizontal = 3
 script = ExtResource("4")
 accent_color = Color(0.95, 0.42, 0.88, 1)
 fill_color = Color(0.2, 0.08, 0.24, 1)
@@ -138,7 +136,6 @@ text = "HOW TO PLAY"
 
 [node name="SettingsButton" type="Button" parent="Panel/Center/Card/VBox/Items"]
 layout_mode = 2
-size_flags_horizontal = 3
 script = ExtResource("4")
 accent_color = Color(0.95, 0.42, 0.88, 1)
 fill_color = Color(0.2, 0.08, 0.24, 1)
@@ -159,7 +156,6 @@ text = "SETTINGS"
 
 [node name="StoryButton" type="Button" parent="Panel/Center/Card/VBox/Items"]
 layout_mode = 2
-size_flags_horizontal = 3
 script = ExtResource("4")
 accent_color = Color(0.95, 0.42, 0.88, 1)
 fill_color = Color(0.2, 0.08, 0.24, 1)
@@ -180,7 +176,6 @@ text = "STORY"
 
 [node name="LeaderboardButton" type="Button" parent="Panel/Center/Card/VBox/Items"]
 layout_mode = 2
-size_flags_horizontal = 3
 script = ExtResource("4")
 accent_color = Color(0.95, 0.42, 0.88, 1)
 fill_color = Color(0.2, 0.08, 0.24, 1)

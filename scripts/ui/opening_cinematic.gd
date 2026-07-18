@@ -472,7 +472,9 @@ func _build_skip_ui() -> void:
 	var font: FontFile = load("res://assets/fonts/BubblegumSans-Regular.ttf")
 
 	_skip_button = NeonCutButtonScript.new()
-	_skip_button.text = "SKIP  ▸▸"
+	# ASCII only — "▸" has no glyph in the bundled fonts, and web exports have
+	# no system fonts to fall back to (it rendered as tofu boxes in Chrome).
+	_skip_button.text = "SKIP  >>"
 	_skip_button.accent_color = Color(0.95, 0.42, 0.88)
 	_skip_button.fill_color = Color(0.2, 0.08, 0.24)
 	_skip_button.glow_strength = 0.7

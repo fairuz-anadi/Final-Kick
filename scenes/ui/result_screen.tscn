@@ -107,7 +107,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 0.95, 1, 1)
 theme_override_fonts/font = ExtResource("3")
 theme_override_font_sizes/font_size = 21
-text = "★ FLAWLESS"
+text = "FLAWLESS!"
 
 [node name="Spacer" type="Control" parent="Panel/Center/VBox"]
 custom_minimum_size = Vector2(0, 6)

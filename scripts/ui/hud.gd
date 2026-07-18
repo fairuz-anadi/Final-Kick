@@ -148,7 +148,7 @@ func _on_energy_drained(amount: float) -> void:
 		# Ball lost before any progress — nothing to drain, just a nudge.
 		notify("BALL LOST", COLOR_MUTED)
 		return
-	notify("POWER DRAINED  −%d%%" % roundi(amount), COLOR_WARNING, 30)
+	notify("POWER DRAINED  -%d%%" % roundi(amount), COLOR_WARNING, 30)
 	_vignette_boost = 1.0
 	_flash_energy_bar()
 

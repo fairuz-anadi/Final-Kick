@@ -18,7 +18,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	# overlay (main menu, leaderboard, settings, …) is up — otherwise Space
 	# opens the name prompt hidden UNDER the overlay and steals keyboard
 	# focus, and the next Enter launches the game mid-menu.
-	if _name_prompt.visible or _any_overlay_open():
+	if _name_prompt.visible:
+		# Escape backs out of the prompt — same as its BACK button.
+		if event.is_action_pressed("ui_cancel"):
+			_on_name_back_pressed()
+		return
+	if _any_overlay_open():
 		return
 	if event.is_action_pressed("kick"):
 		_on_start_pressed()
@@ -38,6 +43,11 @@ func _on_name_confirmed(_text: String = "") -> void:
 	Leaderboard.pending_name = _name_edit.text.strip_edges()
 	ScoreManager.reset_run()
 	get_tree().change_scene_to_file(start_scene)
+
+## Close the name prompt without starting — a mis-clicked START shouldn't
+## trap the player in the prompt.
+func _on_name_back_pressed() -> void:
+	_name_prompt.visible = false
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

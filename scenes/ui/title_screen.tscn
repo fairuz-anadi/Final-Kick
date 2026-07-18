@@ -112,7 +112,7 @@ theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.3, 0, 0.15, 0.9)
 theme_override_constants/outline_size = 4
-text = "►  START"
+text = ">>  START"
 
 [node name="QuitButton" type="Button" parent="Buttons"]
 layout_mode = 2
@@ -184,13 +184,39 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-placeholder_text = "YOUR NAME"
+placeholder_text = "What should I call you..."
 max_length = 16
 alignment = 1
 
-[node name="GoButton" type="Button" parent="NamePrompt/Center/Card/VBox"]
+[node name="PromptButtons" type="HBoxContainer" parent="NamePrompt/Center/Card/VBox"]
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_constants/separation = 16
+
+[node name="NameBackButton" type="Button" parent="NamePrompt/Center/Card/VBox/PromptButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("5")
+accent_color = Color(0.6, 0.68, 0.78, 1)
+fill_color = Color(0.1, 0.12, 0.16, 1)
+glow_strength = 0.4
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_start")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_start")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_start")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_start")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 2
+text = "BACK"
+
+[node name="GoButton" type="Button" parent="NamePrompt/Center/Card/VBox/PromptButtons"]
+unique_name_in_owner = true
+layout_mode = 2
 script = ExtResource("5")
 accent_color = Color(1, 0.45, 0.9, 1)
 fill_color = Color(0.78, 0.16, 0.58, 1)
@@ -207,7 +233,7 @@ theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.3, 0, 0.15, 0.9)
 theme_override_constants/outline_size = 3
-text = "►  START"
+text = ">>  START"
 
 [node name="Hint" type="Label" parent="."]
 layout_mode = 1
@@ -234,3 +260,4 @@ horizontal_alignment = 1
 [connection signal="pressed" from="Buttons/QuitButton" to="." method="_on_quit_pressed"]
 [connection signal="text_submitted" from="%NameEdit" to="." method="_on_name_confirmed"]
 [connection signal="pressed" from="%GoButton" to="." method="_on_name_confirmed"]
+[connection signal="pressed" from="%NameBackButton" to="." method="_on_name_back_pressed"]

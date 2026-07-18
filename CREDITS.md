@@ -13,6 +13,7 @@
 - Orbitron — Matt McInerney (via Google Fonts)
 - Rajdhani — Indian Type Foundry (via Google Fonts)
 - Bubblegum Sans — Angel Koziupa & Alejandro Paul, Sudtipos (via Google Fonts)
+- Parkinsans — via Google Fonts (body/UI text)
 
 ## Audio
 - All sound effects (kick thud, gear/grid clink, vial explosion, electric zap,
