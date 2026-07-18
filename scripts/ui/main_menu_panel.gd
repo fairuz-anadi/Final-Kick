@@ -6,8 +6,6 @@ extends CanvasLayer
 ## closing that overlay drops the player back into this menu, not straight
 ## to the title screen.
 
-const OPENING_CINEMATIC := "res://scenes/ui/opening_cinematic.tscn"
-
 @onready var _panel: Control = %Panel
 
 func _ready() -> void:
@@ -15,6 +13,9 @@ func _ready() -> void:
 
 func open() -> void:
 	_panel.visible = true
+
+func is_open() -> bool:
+	return _panel.visible
 
 func _on_back_pressed() -> void:
 	_panel.visible = false
@@ -29,7 +30,9 @@ func _on_settings_pressed() -> void:
 	SettingsPanel.open()
 
 func _on_story_pressed() -> void:
-	SceneTransition.go(OPENING_CINEMATIC)
+	# A written story page (StoryPanel overlay), NOT a replay of the opening
+	# cinematic — changing scene here yanked the player out of the menu.
+	StoryPanel.open()
 
 func _on_leaderboard_pressed() -> void:
 	LeaderboardPanel.open()

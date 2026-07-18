@@ -24,10 +24,11 @@ const UiHover := preload("res://assets/audio/sfx/ui_hover.ogg")
 const UiClick := preload("res://assets/audio/sfx/ui_click.ogg")
 const TargetDing := preload("res://assets/audio/sfx/target_ding.ogg")
 const MaxPower := preload("res://assets/audio/sfx/max_power.ogg")
-const LevelComplete := preload("res://assets/audio/sfx/level_complete.ogg")
+# Real recording (replaced the Kenney level_complete.ogg chime): the factory
+# roaring to life — a motor spin-up as the win stinger.
+const LevelComplete := preload("res://assets/audio/sfx/level_complete_motor.mp3")
 const HeartLoss := preload("res://assets/audio/sfx/heart_loss.ogg")
 const Shutdown := preload("res://assets/audio/sfx/shutdown.ogg")
-const MachineStart := preload("res://assets/audio/sfx/machine_start.ogg")
 const NarratorBlip := preload("res://assets/audio/sfx/narrator_blip.ogg")
 const Spark := preload("res://assets/audio/sfx/spark.ogg")
 const Rewind := preload("res://assets/audio/sfx/rewind.ogg")
@@ -56,10 +57,13 @@ static func play_clink(at: Node3D) -> void:
 ## clink. Pitch-randomized so back-to-back hits never sound identical, volume
 ## scaled by contact impulse, and harder slams stack a pitched-down copy (a
 ## resonant low "body") — and at the top end a spark — so a hard hit sounds
-## genuinely heavier than a graze, not just louder.
-static func play_gear_hit(at: Node3D, strength: float) -> void:
+## genuinely heavier than a graze, not just louder. `progress` (the gear's
+## activation_progress) raises the base pitch as the gear nears waking — the
+## same rising-stakes trick the charge tick uses, so the player can HEAR
+## they're getting closer.
+static func play_gear_hit(at: Node3D, strength: float, progress: float = 0.0) -> void:
 	var t := clampf(strength / 8.0, 0.0, 1.0)
-	_play(GearClink, at, randf_range(0.95, 1.25), lerpf(-10.0, 2.0, t))
+	_play(GearClink, at, randf_range(0.95, 1.25) + progress * 0.35, lerpf(-10.0, 2.0, t))
 	if t > 0.45:
 		_play(GearClink, at, randf_range(0.55, 0.68), lerpf(-14.0, -3.0, t))
 	if t > 0.7:
@@ -101,7 +105,9 @@ static func play_max_power() -> void:
 	AudioDirector.duck_music()
 
 static func play_level_complete() -> void:
-	_play_2d(LevelComplete, 1.0, 3.0)
+	# -4 dB: the motor recording runs hotter than the old Kenney chime this
+	# slot was tuned for (+3 dB back then).
+	_play_2d(LevelComplete, 1.0, -4.0)
 	AudioDirector.duck_music()
 
 static func play_heart_loss() -> void:
@@ -110,9 +116,6 @@ static func play_heart_loss() -> void:
 static func play_shutdown() -> void:
 	_play_2d(Shutdown, 1.0, 2.0)
 	AudioDirector.duck_music(8.0, 0.5, 1.2)
-
-static func play_machine_start(at: Node3D) -> void:
-	_play(MachineStart, at, 1.0, 2.0)
 
 static func play_narrator_blip() -> void:
 	_play_2d(NarratorBlip)

@@ -35,6 +35,7 @@ Leaderboard="*res://scripts/leaderboard.gd"
 LeaderboardPanel="*res://scenes/ui/leaderboard_panel.tscn"
 MainMenuPanel="*res://scenes/ui/main_menu_panel.tscn"
 SceneTransition="*res://scenes/ui/scene_transition.tscn"
+StoryPanel="*res://scenes/ui/story_panel.tscn"
 
 [display]
 

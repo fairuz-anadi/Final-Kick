@@ -52,7 +52,7 @@ func show_result() -> void:
 	_rank_label.text = _earned_title(stats)
 	_flawless_badge.visible = stats["rewinds"] == 0
 
-	var score := ScoreManager.score_level(stats)
+	var score := ScoreManager.score_level(stats, get_tree().current_scene.scene_file_path)
 	_score_label.text = "SCORE  +%d   ·   TOTAL  %d" % [score["level_score"], score["total_score"]]
 
 	_play_clear_music()

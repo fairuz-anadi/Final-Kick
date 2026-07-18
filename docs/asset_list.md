@@ -65,10 +65,9 @@ category in the project — see **Sound effects** below for the license.
 | `ui_hover.ogg` / `ui_click.ogg` | button hover/press | Kenney "Interface Sounds" |
 | `target_ding.ogg` | target-activated notification | Kenney "Interface Sounds" |
 | `max_power.ogg` | max-power kick callout | Kenney "Interface Sounds" |
-| `level_complete.ogg` | level-complete chime | Kenney "Interface Sounds" |
+| `level_complete_motor.mp3` | level-complete motor spin-up | team recording (replaced Kenney chime; old `level_complete.ogg` unused) |
 | `heart_loss.ogg` | life lost | Kenney "Interface Sounds" |
 | `shutdown.ogg` | factory shutdown | Kenney "Sci-fi Sounds" |
-| `machine_start.ogg` | machine startup | Kenney "Sci-fi Sounds" |
 | `narrator_blip.ogg` | narrator line cue (also the Worker's voice, pitched down) | Kenney "Interface Sounds" |
 | `spark.ogg` | ambient/activation spark | Kenney "Interface Sounds" |
 | `rewind.ogg` | rewind engage | Kenney "Interface Sounds" |

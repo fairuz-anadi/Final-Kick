@@ -21,6 +21,10 @@ const SAVE_PATH := "user://score.cfg"
 
 var total_score: int = 0
 var best_score: int = 0
+## What each level has already contributed to total_score (scene path -> pts),
+## so re-clearing a level via RETRY replaces its contribution instead of
+## stacking it — the run total can't be farmed by replaying an easy room.
+var _level_scores: Dictionary = {}
 
 func _ready() -> void:
 	_load_best()
@@ -29,6 +33,7 @@ func _ready() -> void:
 ## from a previous playthrough.
 func reset_run() -> void:
 	total_score = 0
+	_level_scores.clear()
 
 ## Call once the run is fully complete (ending scene). Returns true if this
 ## run's total beat the previous best — saves the new best either way isn't
@@ -51,9 +56,10 @@ func _load_best() -> void:
 		return
 	best_score = cfg.get_value("score", "best", 0)
 
-## Scores one completed level and adds it to the run total. Returns
-## {"level_score": int, "total_score": int} for display.
-func score_level(stats: Dictionary) -> Dictionary:
+## Scores one completed level and adds it to the run total (replacing this
+## level's previous contribution if it was re-cleared — see _level_scores).
+## Returns {"level_score": int, "total_score": int} for display.
+func score_level(stats: Dictionary, level_path: String = "") -> Dictionary:
 	var kicks: int = stats.get("kicks", 0)
 	var rewinds: int = stats.get("rewinds", 0)
 	var time: float = stats.get("time", 0.0)
@@ -64,6 +70,9 @@ func score_level(stats: Dictionary) -> Dictionary:
 
 	var raw := BASE_SCORE - kick_penalty - rewind_penalty + time_bonus
 	var level_score := maxi(raw, MIN_LEVEL_SCORE)
+	if level_path != "":
+		total_score -= int(_level_scores.get(level_path, 0))
+		_level_scores[level_path] = level_score
 	total_score += level_score
 
 	return {"level_score": level_score, "total_score": total_score}

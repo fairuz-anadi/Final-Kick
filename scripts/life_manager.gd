@@ -116,6 +116,9 @@ func _begin_shutdown() -> void:
 	tween.tween_callback(_restart_level)
 
 func _restart_level() -> void:
+	# If the player paused during the blackout fade, don't reload into a
+	# frozen tree — the fresh level would come up unresponsive.
+	get_tree().paused = false
 	get_tree().reload_current_scene()
 	# start_level() runs again via the fresh HUD's _ready; fade back from
 	# black here so the reloaded room is revealed rather than popping in.
