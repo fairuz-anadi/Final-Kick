@@ -34,6 +34,7 @@ DifficultyPanel="*res://scenes/ui/difficulty_panel.tscn"
 Leaderboard="*res://scripts/leaderboard.gd"
 LeaderboardPanel="*res://scenes/ui/leaderboard_panel.tscn"
 MainMenuPanel="*res://scenes/ui/main_menu_panel.tscn"
+SceneTransition="*res://scenes/ui/scene_transition.tscn"
 StoryPanel="*res://scenes/ui/story_panel.tscn"
 
 [display]
@@ -72,6 +73,7 @@ pause_game={
 [physics]
 
 3d/physics_engine="Jolt Physics"
+common/physics_interpolation=true
 
 [rendering]
 

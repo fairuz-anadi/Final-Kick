@@ -24,6 +24,6 @@ const HAS_INTRO := {
 func go_to_level(path: String) -> void:
 	if HAS_INTRO.has(path):
 		next_level_path = path
-		get_tree().change_scene_to_file("res://scenes/ui/level_intro.tscn")
+		SceneTransition.go("res://scenes/ui/level_intro.tscn")
 	else:
-		get_tree().change_scene_to_file(path)
+		SceneTransition.go(path)
