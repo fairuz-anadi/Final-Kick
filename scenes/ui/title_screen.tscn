@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="1"]
 [ext_resource type="Theme" path="res://assets/ui/theme.tres" id="2"]
-[ext_resource type="FontFile" path="res://assets/fonts/PixelGame.otf" id="3"]
+[ext_resource type="FontFile" path="res://assets/fonts/BubblegumSans-Regular.ttf" id="3"]
 [ext_resource type="Texture2D" path="res://assets/ui/title_banner.png" id="4"]
 [ext_resource type="Script" path="res://scripts/ui/neon_cut_button.gd" id="5"]
 

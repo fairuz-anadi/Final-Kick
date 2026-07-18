@@ -25,6 +25,8 @@ const LEVEL_ORDER: Array[String] = [
 	"res://scenes/levels/level_10.tscn",
 ]
 
+@export var clear_music_volume_db: float = -4.0
+
 @onready var _panel: Control = %Panel
 @onready var _stats_label: Label = %Stats
 @onready var _rank_label: Label = %Rank
@@ -53,6 +55,8 @@ func show_result() -> void:
 	var score := ScoreManager.score_level(stats)
 	_score_label.text = "SCORE  +%d   ·   TOTAL  %d" % [score["level_score"], score["total_score"]]
 
+	_play_clear_music()
+
 	_panel.visible = true
 	_panel.modulate.a = 0.0
 	_panel.pivot_offset = _panel.size / 2.0
@@ -70,6 +74,23 @@ func show_result() -> void:
 	title_tween.tween_property(_rank_label, "modulate:a", 1.0, 0.12)
 	title_tween.parallel().tween_property(_rank_label, "scale", Vector2.ONE, 0.55) \
 		.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+
+## The level-clear music track: starts the moment the result panel appears,
+## loops while the player reads their stats, and hands back to the procedural
+## groove when the scene changes (retry / next level / menu all free this
+## screen, which fires tree_exiting).
+func _play_clear_music() -> void:
+	AudioDirector.suspend_music()
+	tree_exiting.connect(AudioDirector.resume_music)
+	var stream := load("res://assets/audio/music/level_clear.mp3")
+	if stream is AudioStreamMP3:
+		stream.loop = true
+	var player := AudioStreamPlayer.new()
+	player.stream = stream
+	player.volume_db = clear_music_volume_db
+	player.bus = "Music"
+	add_child(player)
+	player.play()
 
 ## Every run earns a crown — the checks run best-first, so the most
 ## impressive thing the player did is the thing that gets named.

@@ -69,6 +69,26 @@ func _make_music_player(stream: AudioStreamWAV, db: float) -> AudioStreamPlayer:
 	player.play()
 	return player
 
+## Silence the procedural groove + hum while a scene plays a real music track
+## of its own (story cinematic, level-clear screen). Stopped, not muted, so
+## the replacement track can live on the Music bus and still respect the
+## player's music volume setting.
+func suspend_music() -> void:
+	if _hum_player:
+		_hum_player.stop()
+	for player in _music_layers.values():
+		player.stop()
+
+## Bring the groove back after a suspend. All layers restart together, which
+## is also what keeps them beat-synced (they only ever align by starting at
+## the same instant — see MUSIC_LOOP_SECONDS).
+func resume_music() -> void:
+	if _hum_player and not _hum_player.playing:
+		_hum_player.play()
+	for player in _music_layers.values():
+		if not player.playing:
+			player.play()
+
 ## Briefly pulls the Music bus down so a big SFX stinger (MAX POWER, level
 ## complete, shutdown) actually reads as loud instead of getting buried in
 ## the groove — a few uses only, not called per-hit, or it'd pump/flutter.

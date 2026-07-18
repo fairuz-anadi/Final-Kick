@@ -5,7 +5,7 @@
 [ext_resource type="Shader" path="res://assets/shaders/rewind_overlay.gdshader" id="3"]
 [ext_resource type="Script" path="res://scripts/ui/crosshair.gd" id="4"]
 [ext_resource type="Theme" path="res://assets/ui/theme.tres" id="5"]
-[ext_resource type="FontFile" path="res://assets/fonts/PixelGame.otf" id="6"]
+[ext_resource type="FontFile" path="res://assets/fonts/BubblegumSans-Regular.ttf" id="6"]
 [ext_resource type="Shader" path="res://assets/shaders/film_grain.gdshader" id="7"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rewind"]
@@ -169,113 +169,84 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("4")
 
-[node name="TopLeftPanel" type="PanelContainer" parent="."]
+[node name="TopRow" type="HBoxContainer" parent="."]
+anchor_right = 1.0
 offset_left = 20.0
 offset_top = 18.0
-offset_right = 340.0
+offset_right = -20.0
+theme_override_constants/separation = 12
+mouse_filter = 2
+
+[node name="TopLeftPanel" type="PanelContainer" parent="TopRow"]
+layout_mode = 2
+size_flags_vertical = 0
 theme = ExtResource("5")
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
-[node name="TopLeft" type="VBoxContainer" parent="TopLeftPanel"]
+[node name="TopLeft" type="VBoxContainer" parent="TopRow/TopLeftPanel"]
 layout_mode = 2
 theme_override_constants/separation = 3
 
-[node name="LevelName" type="Label" parent="TopLeftPanel/TopLeft"]
+[node name="LevelName" type="Label" parent="TopRow/TopLeftPanel/TopLeft"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 32
 text = "MACHINE HALL 01"
 
-[node name="UnitLabel" type="Label" parent="TopLeftPanel/TopLeft"]
+[node name="UnitLabel" type="Label" parent="TopRow/TopLeftPanel/TopLeft"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 20
 text = "UNIT: LAST WORKER"
 
-[node name="ObjectiveHead" type="Label" parent="TopLeftPanel/TopLeft"]
+[node name="ObjectiveHead" type="Label" parent="TopRow/TopLeftPanel/TopLeft"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 16
 text = "OBJECTIVE"
 
-[node name="Objective" type="Label" parent="TopLeftPanel/TopLeft"]
+[node name="Objective" type="Label" parent="TopRow/TopLeftPanel/TopLeft"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 text = "Wake every machine"
+autowrap_mode = 3
 
-[node name="Targets" type="Label" parent="TopLeftPanel/TopLeft"]
+[node name="Targets" type="Label" parent="TopRow/TopLeftPanel/TopLeft"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 27
+theme_override_font_sizes/font_size = 22
 text = "TARGETS   0 / 0"
 
-[node name="TopRightPanel" type="PanelContainer" parent="."]
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -255.0
-offset_top = 18.0
-offset_right = -20.0
-grow_horizontal = 0
-theme = ExtResource("5")
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel_plain")
-
-[node name="TopRight" type="VBoxContainer" parent="TopRightPanel"]
+[node name="SpacerA" type="Control" parent="TopRow"]
 layout_mode = 2
-theme_override_constants/separation = 3
+size_flags_horizontal = 3
+mouse_filter = 2
 
-[node name="TimeLabel" type="Label" parent="TopRightPanel/TopRight"]
-unique_name_in_owner = true
+[node name="TopCenterPanel" type="PanelContainer" parent="TopRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_font_sizes/font_size = 30
-text = "TIME   00:00"
-horizontal_alignment = 2
-
-[node name="KicksLabel" type="Label" parent="TopRightPanel/TopRight"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 27
-text = "KICKS   0"
-horizontal_alignment = 2
-
-[node name="RewindsLabel" type="Label" parent="TopRightPanel/TopRight"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 27
-text = "REWINDS   0"
-horizontal_alignment = 2
-
-[node name="TopCenterPanel" type="PanelContainer" parent="."]
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -160.0
-offset_top = 18.0
-offset_right = 160.0
-grow_horizontal = 2
+size_flags_vertical = 0
 theme = ExtResource("5")
 theme_override_styles/panel = SubResource("StyleBoxFlat_top_center")
 
-[node name="TopCenter" type="VBoxContainer" parent="TopCenterPanel"]
+[node name="TopCenter" type="VBoxContainer" parent="TopRow/TopCenterPanel"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="EnergyHead" type="Label" parent="TopCenterPanel/TopCenter"]
+[node name="EnergyHead" type="Label" parent="TopRow/TopCenterPanel/TopCenter"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.898, 1, 0.9)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "FACTORY ENERGY"
 horizontal_alignment = 1
 
-[node name="EnergyBar" type="ProgressBar" parent="TopCenterPanel/TopCenter"]
+[node name="EnergyBar" type="ProgressBar" parent="TopRow/TopCenterPanel/TopCenter"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(270, 14)
 layout_mode = 2
@@ -284,13 +255,52 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_energy_fill")
 max_value = 100.0
 show_percentage = false
 
-[node name="EnergyLabel" type="Label" parent="TopCenterPanel/TopCenter"]
+[node name="EnergyLabel" type="Label" parent="TopRow/TopCenterPanel/TopCenter"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 21
+theme_override_font_sizes/font_size = 18
 text = "0%  —  SILENT"
 horizontal_alignment = 1
+
+[node name="SpacerB" type="Control" parent="TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TopRightPanel" type="PanelContainer" parent="TopRow"]
+layout_mode = 2
+size_flags_vertical = 0
+theme = ExtResource("5")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_plain")
+
+[node name="TopRight" type="VBoxContainer" parent="TopRow/TopRightPanel"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="TimeLabel" type="Label" parent="TopRow/TopRightPanel/TopRight"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
+theme_override_font_sizes/font_size = 26
+text = "TIME   00:00"
+horizontal_alignment = 2
+
+[node name="KicksLabel" type="Label" parent="TopRow/TopRightPanel/TopRight"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
+theme_override_font_sizes/font_size = 22
+text = "KICKS   0"
+horizontal_alignment = 2
+
+[node name="RewindsLabel" type="Label" parent="TopRow/TopRightPanel/TopRight"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
+theme_override_font_sizes/font_size = 22
+text = "REWINDS   0"
+horizontal_alignment = 2
 
 [node name="ChargeBox" type="PanelContainer" parent="."]
 unique_name_in_owner = true

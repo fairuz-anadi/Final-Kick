@@ -48,8 +48,7 @@ var _flash: ColorRect
 var _subtitle: Label
 var _skip_button: Button
 
-var _wind_player: AudioStreamPlayer
-var _clock_player: AudioStreamPlayer
+var _music_player: AudioStreamPlayer
 
 var _pulse_glows: Array[Sprite2D] = []    # breathing machine-glow
 var _flicker_glows: Array[Sprite2D] = []  # unsteady lamp light
@@ -442,7 +441,7 @@ func _build_overlay_ui() -> void:
 	_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_flash)
 
-	var font: FontFile = load("res://assets/fonts/PixelGame.otf")
+	var font: FontFile = load("res://assets/fonts/BubblegumSans-Regular.ttf")
 
 	_subtitle = Label.new()
 	_subtitle.modulate.a = 0.0
@@ -470,7 +469,7 @@ func _build_skip_ui() -> void:
 	layer.layer = 51  # above the story overlay layer
 	add_child(layer)
 
-	var font: FontFile = load("res://assets/fonts/PixelGame.otf")
+	var font: FontFile = load("res://assets/fonts/BubblegumSans-Regular.ttf")
 
 	_skip_button = NeonCutButtonScript.new()
 	_skip_button.text = "SKIP  ▸▸"
@@ -506,14 +505,17 @@ func _style_skip_button(b: Button, font: FontFile, offset: Vector2) -> void:
 	b.add_theme_constant_override("outline_size", 2)
 
 func _start_ambience() -> void:
-	_wind_player = AudioStreamPlayer.new()
-	_wind_player.stream = PlaceholderSFX.wind_loop()
-	_wind_player.volume_db = -18.0
-	add_child(_wind_player)
-	_wind_player.play()
-
-	_clock_player = AudioStreamPlayer.new()
-	_clock_player.stream = PlaceholderSFX.clock_tick_loop()
-	_clock_player.volume_db = -24.0
-	add_child(_clock_player)
-	_clock_player.play()
+	# Real story track (replaces the old synthesized wind + clock ambience).
+	# The procedural groove is suspended for the cinematic's whole run and
+	# resumes automatically when the scene changes to the title screen.
+	AudioDirector.suspend_music()
+	tree_exiting.connect(AudioDirector.resume_music)
+	_music_player = AudioStreamPlayer.new()
+	_music_player.stream = load("res://assets/audio/music/story.wav")
+	_music_player.volume_db = -6.0
+	_music_player.bus = "Music"
+	add_child(_music_player)
+	_music_player.play()
+	# Loop by restarting on finish — works regardless of the wav's import
+	# loop settings, in case the cinematic outlasts the track.
+	_music_player.finished.connect(_music_player.play)

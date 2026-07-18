@@ -52,6 +52,25 @@ static func play_impact(at: Node3D, strength: float) -> void:
 static func play_clink(at: Node3D) -> void:
 	_play(GearClink, at)
 
+## The ball slamming into a gear: a lively metallic clang instead of one flat
+## clink. Pitch-randomized so back-to-back hits never sound identical, volume
+## scaled by contact impulse, and harder slams stack a pitched-down copy (a
+## resonant low "body") — and at the top end a spark — so a hard hit sounds
+## genuinely heavier than a graze, not just louder.
+static func play_gear_hit(at: Node3D, strength: float) -> void:
+	var t := clampf(strength / 8.0, 0.0, 1.0)
+	_play(GearClink, at, randf_range(0.95, 1.25), lerpf(-10.0, 2.0, t))
+	if t > 0.45:
+		_play(GearClink, at, randf_range(0.55, 0.68), lerpf(-14.0, -3.0, t))
+	if t > 0.7:
+		_play(Spark, at, randf_range(1.0, 1.3), -6.0)
+
+## Meshed gears passing spin down a chain: a soft, lower rattle per link so a
+## chain reaction reads as a cascade of small mechanisms catching, instead of
+## N full-volume copies of the same hit.
+static func play_gear_mesh(at: Node3D) -> void:
+	_play(GearClink, at, randf_range(0.7, 0.85), -12.0)
+
 static func play_explosion(at: Node3D) -> void:
 	_play(VialExplosion, at, 1.0, 2.0)
 

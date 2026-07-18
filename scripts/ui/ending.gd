@@ -143,7 +143,7 @@ func _build_ui() -> void:
 	vision.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(vision)
 
-	var font: FontFile = load("res://assets/fonts/PixelGame.otf")
+	var font: FontFile = load("res://assets/fonts/BubblegumSans-Regular.ttf")
 
 	_subtitle = Label.new()
 	_subtitle.modulate.a = 0.0

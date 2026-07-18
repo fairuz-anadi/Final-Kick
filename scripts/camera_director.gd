@@ -72,7 +72,7 @@ const VIEW_PRESETS := {
 # CROSS-TEAM ADDITION (UI): additive player zoom — mouse wheel or +/- keys
 # dolly the camera along its own forward axis. Applied as an offset on top of
 # _cinematic_transform, so shake and the spectacle move are unaffected.
-@export var zoom_step: float = 0.7           # meters per wheel notch
+@export var zoom_step: float = 1.5           # meters per wheel notch (before acceleration)
 @export var zoom_key_speed: float = 6.0      # meters per second while +/- held
 # Wide enough to back all the way out of the 9.7m room or push in close on
 # a single gear; not literally unbounded so the camera can't dolly through
@@ -80,6 +80,23 @@ const VIEW_PRESETS := {
 @export var zoom_min: float = -10.0          # max dolly OUT (negative = away)
 @export var zoom_max: float = 12.0           # max dolly IN (toward the room)
 @export var zoom_smoothing: float = 8.0      # lerp speed toward the target zoom
+# Shooter-style aim zoom: wheel-in dollies toward the point UNDER THE MOUSE
+# (not the screen center), so zooming reads as "closing in on my target",
+# and the FOV tightens slightly on the way in for a scoped feel.
+@export var zoom_fov_tighten: float = 14.0   # degrees of FOV narrowing at full zoom-in
+@export var zoom_dir_smoothing: float = 6.0  # lerp speed when the aim point moves mid-zoom
+# Wheel acceleration: single ticks stay precise, but flicking the wheel ramps
+# the per-notch step up so crossing the whole zoom range takes a quick spin,
+# not seventeen deliberate clicks.
+@export var zoom_accel_window: float = 0.25  # seconds — notches faster than this accelerate
+@export var zoom_accel_max: float = 3.0      # cap on the step multiplier
+# Pull-back overview: zooming OUT also climbs toward the ceiling (an RTS-style
+# rising arc) and widens the FOV — so even once the room-shell clamp stops the
+# dolly at the wall, the view keeps opening up into a full-room overview
+# instead of just going dead.
+@export var zoom_out_rise: float = 0.4       # meters climbed per meter of pull-back
+@export var zoom_out_fov_widen: float = 18.0 # extra FOV degrees at full zoom-out
+@export var zoom_out_tilt: float = 22.0      # extra downward pitch at full zoom-out
 
 # Final position safety clamp (see _process) — keeps the wide zoom/orbit
 # ranges above from pushing the camera through the walls or ceiling, which
@@ -90,6 +107,13 @@ const CEILING_CLEARANCE := 4.3
 
 var _zoom_target: float = 0.0
 var _zoom_current: float = 0.0
+# Dolly direction in VIEW-LOCAL space — (0,0,-1) is the classic straight-ahead
+# dolly; wheel-in retargets it at the mouse ray so the zoom tracks the aim.
+# Local (not world) so the offset swings along if the player orbits afterward.
+var _zoom_dir: Vector3 = Vector3(0, 0, -1)
+var _zoom_dir_target: Vector3 = Vector3(0, 0, -1)
+var _zoom_accel: float = 1.0
+var _last_wheel_ms: int = 0
 
 # CROSS-TEAM ADDITION (UI): additive presentation polish, both offset-based
 # on top of _cinematic_transform — the rest pose and spectacle tween are
@@ -172,9 +196,9 @@ func _interior_pose(t: Transform3D) -> Transform3D:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			_zoom_target = clampf(_zoom_target + zoom_step, zoom_min, zoom_max)
+			_wheel_zoom(1.0)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_zoom_target = clampf(_zoom_target - zoom_step, zoom_min, zoom_max)
+			_wheel_zoom(-1.0)
 	elif event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		# Yaw wraps freely (full 360° orbit); only pitch stays clamped, to
 		# avoid the vertical gimbal singularity.
@@ -191,6 +215,33 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_2: set_preset_view("back")
 			KEY_3: set_preset_view("top")
 			KEY_4: set_preset_view("bottom")
+
+## One wheel notch of zoom. Rapid consecutive notches ramp the step up (see
+## zoom_accel_*), a pause resets it back to a precise single step. Zooming IN
+## aims the dolly at whatever the mouse is over; zooming back out retreats
+## along the same line (no retarget), so a full in-and-out round trip returns
+## to the exact rest framing.
+func _wheel_zoom(direction: float) -> void:
+	var now := Time.get_ticks_msec()
+	if now - _last_wheel_ms < int(zoom_accel_window * 1000.0):
+		_zoom_accel = minf(_zoom_accel + 0.4, zoom_accel_max)
+	else:
+		_zoom_accel = 1.0
+	_last_wheel_ms = now
+	_zoom_target = clampf(_zoom_target + direction * zoom_step * _zoom_accel, zoom_min, zoom_max)
+	if direction > 0.0:
+		_aim_zoom_at_mouse()
+
+## Point the zoom dolly at the mouse: take the ray through the cursor and
+## store it in view-local space as the new dolly direction. Straight-ahead
+## mouse == the old (0,0,-1) center dolly, so nothing changes unless the
+## player is actually aiming off-center.
+func _aim_zoom_at_mouse() -> void:
+	var mouse_pos := get_viewport().get_mouse_position()
+	var ray := project_ray_normal(mouse_pos)
+	var local_dir := (global_transform.basis.inverse() * ray).normalized()
+	if local_dir.z < -0.1:  # sanity: must still point into the scene
+		_zoom_dir_target = local_dir
 
 ## Snap the orbit straight to a named cardinal view — see VIEW_PRESETS.
 ## Zoom is left untouched; only the angle changes.
@@ -221,15 +272,39 @@ func _process(delta: float) -> void:
 	if _cam_state == CamState.FOLLOWING:
 		_process_chase(delta)
 
+	# When the zoom fully retreats, forget the last aim point so the next
+	# zoom-in starts from a clean straight-ahead dolly.
+	if absf(_zoom_current) < 0.05 and absf(_zoom_target) < 0.01:
+		_zoom_dir_target = Vector3(0, 0, -1)
+	_zoom_dir = _zoom_dir.lerp(_zoom_dir_target, clampf(zoom_dir_smoothing * delta, 0.0, 1.0)).normalized()
+
 	_fov_extra = move_toward(_fov_extra, 0.0, fov_recover_speed * delta)
-	fov = _base_fov + _fov_extra
+	# Scope feel in, wide-angle out: the FOV tightens as the player dollies in
+	# and widens as they pull back — the widen is what keeps zoom-out alive
+	# after the wall clamp below stops the physical dolly. Impact FOV punch
+	# stacks on top unchanged.
+	var zoom_in_ratio := clampf(_zoom_current / zoom_max, 0.0, 1.0)
+	var zoom_out_ratio := clampf(-_zoom_current / absf(zoom_min), 0.0, 1.0)
+	fov = _base_fov + _fov_extra - zoom_fov_tighten * zoom_in_ratio \
+		+ zoom_out_fov_widen * zoom_out_ratio
 
 	var view := _orbited_pose(_cinematic_transform)
 	transform = view
-	# Dolly along the camera's own forward (-Z) so zoom respects any tilt the
+	# As the pull-back arc rises (below), pitch the view down with it so the
+	# overview looks AT the room, not over it at the far wall.
+	if _zoom_current < 0.0:
+		transform.basis = view.basis.rotated(
+			view.basis.x, -deg_to_rad(zoom_out_tilt) * zoom_out_ratio)
+	# Dolly along the (view-local) aim direction — straight ahead by default,
+	# toward the cursor after a wheel-in — so zoom respects any tilt the
 	# spectacle move or the player's orbit applies; offset-based, so it never
 	# mutates the rest pose.
-	position += -view.basis.z * _zoom_current + _follow_offset
+	position += view.basis * (_zoom_dir * _zoom_current) + _follow_offset
+	# Pull-back rises toward the ceiling (world-space, capped by the ceiling
+	# clamp below) so zooming out arcs up into an overview instead of just
+	# backing flat into a wall.
+	if _zoom_current < 0.0:
+		position += Vector3.UP * (-_zoom_current) * zoom_out_rise
 	# The wide zoom/orbit ranges above can otherwise push the camera straight
 	# through the room's walls/ceiling (which have no collision) — clamp the
 	# final position to stay inside the ~9.7m room shell (factory_dressing.gd's

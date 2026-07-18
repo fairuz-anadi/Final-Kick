@@ -117,7 +117,10 @@ func _ready() -> void:
 ## feel alive instead of stamped on.
 func _animate_panels_in() -> void:
 	var delay := 0.0
-	for panel_name in ["TopLeftPanel", "TopCenterPanel", "TopRightPanel", "ViewBox", "RewindBox"]:
+	# The three top panels live inside the TopRow HBoxContainer (so they can
+	# never overlap, whatever the font/window does) — the row animates as one
+	# unit, since a container would fight per-child position tweens.
+	for panel_name in ["TopRow", "ViewBox", "RewindBox"]:
 		var panel: Control = get_node_or_null(NodePath(panel_name))
 		if panel == null:
 			continue

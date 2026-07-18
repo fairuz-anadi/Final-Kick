@@ -34,6 +34,13 @@ var _spin: float = 0.0  # current signed angular speed (rad/sec) around spin_axi
 var _total_rotation: float = 0.0  # cumulative |rotation| in radians, for the activation threshold
 var _is_activated: bool = false
 
+# Hit audio is flagged here and played in _physics_process, never from inside
+# _integrate_forces (spawning audio nodes mid-physics-callback isn't safe —
+# same pattern as ball.gd). Direct ball hits get the full impulse-scaled
+# clang; spin arriving via meshed neighbors or trigger() gets a soft rattle.
+var _pending_hit_strength: float = 0.0
+var _pending_mesh_sound: bool = false
+
 func _ready() -> void:
 	freeze = true
 	freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
@@ -49,6 +56,13 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_apply_impact(contact_offset, impulse)
 
 func _physics_process(delta: float) -> void:
+	if _pending_hit_strength > 0.0:
+		PlaceholderSFX.play_gear_hit(self, _pending_hit_strength)
+		_pending_hit_strength = 0.0
+		_pending_mesh_sound = false  # the clang already covers this frame
+	elif _pending_mesh_sound:
+		PlaceholderSFX.play_gear_mesh(self)
+		_pending_mesh_sound = false
 	if absf(_spin) > 0.001:
 		var step: float = _spin * delta
 		rotate(spin_axis.normalized(), step)
@@ -65,12 +79,15 @@ func _apply_impact(contact_offset: Vector3, impulse: Vector3) -> void:
 	var angular_impulse: float = torque.dot(spin_axis.normalized())
 	if absf(angular_impulse) < 0.001:
 		return
+	_pending_hit_strength = maxf(_pending_hit_strength, impulse.length())
 	_receive_spin(angular_impulse, [self])
 
 func receive_meshed_spin(angular_impulse: float, visited: Array) -> void:
+	_pending_mesh_sound = true
 	_receive_spin(angular_impulse, visited)
 
 func apply_external_spin(angular_impulse: float) -> void:
+	_pending_mesh_sound = true
 	_receive_spin(angular_impulse, [self])
 
 # Generic hook so other trigger types (e.g. a GridNode's `surged` signal) can
@@ -82,7 +99,9 @@ func trigger(_source: Node3D = null) -> void:
 func _receive_spin(angular_impulse: float, visited: Array) -> void:
 	_spin += angular_impulse / moment_of_inertia
 	spun.emit(self)
-	PlaceholderSFX.play_clink(self)
+	# Audio is NOT played here — see the _pending_* flags. This can run inside
+	# _integrate_forces, and it also runs once per gear in a meshed chain, so
+	# playing here meant N identical full-volume clinks per chain reaction.
 	for path in connected_gears:
 		var neighbor: Node = get_node_or_null(path)
 		if neighbor == null or not (neighbor is Gear) or neighbor in visited:

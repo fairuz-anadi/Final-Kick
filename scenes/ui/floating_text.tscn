@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/floating_text.gd" id="1"]
-[ext_resource type="FontFile" path="res://assets/fonts/PixelGame.otf" id="2"]
+[ext_resource type="FontFile" path="res://assets/fonts/BubblegumSans-Regular.ttf" id="2"]
 
 [node name="FloatingText" type="Label"]
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
