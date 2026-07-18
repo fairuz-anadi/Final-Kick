@@ -54,6 +54,12 @@ func show_result() -> void:
 
 	var score := ScoreManager.score_level(stats, get_tree().current_scene.scene_file_path)
 	_score_label.text = "SCORE  +%d   ·   TOTAL  %d" % [score["level_score"], score["total_score"]]
+	# Partial runs count: the running total hits the leaderboard after EVERY
+	# clear, not just the ending — someone who plays one level and quits
+	# still shows on the board. submit_score keeps each name's highest total,
+	# so mid-run updates only ever raise the saved entry.
+	if not Leaderboard.pending_name.is_empty():
+		Leaderboard.submit_score(Leaderboard.pending_name, score["total_score"])
 
 	_play_clear_music()
 

@@ -259,11 +259,15 @@ func _build_leaderboard_status(vbox: VBoxContainer, font: FontFile) -> void:
 		return
 
 	var saved := Leaderboard.submit_score(player_name, ScoreManager.total_score)
-	if saved:
+	# The result screens have been submitting the running total all game, so
+	# by now this run's score is usually ALREADY the saved entry — submit
+	# returns false for a tie, but "your score is on the board" is the truth
+	# the player should read.
+	if saved or Leaderboard.best_for(player_name) == ScoreManager.total_score:
 		status.text = "SAVED TO LEADERBOARD AS \"%s\"" % player_name
 		status.add_theme_color_override("font_color", Color(0.24, 1.0, 0.65))
 	else:
-		# Covers both false cases: didn't beat this name's saved entry, or the
-		# board is full and this score didn't crack the top 10.
+		# A previous run under this name scored higher (or a full board's
+		# lowest entry outranks this run) — either way, not on the board.
 		status.text = "\"%s\" — DIDN'T MAKE THE LEADERBOARD THIS TIME" % player_name
 		status.add_theme_color_override("font_color", Color(0.62, 0.68, 0.82))

@@ -188,6 +188,15 @@ placeholder_text = "What should I call you..."
 max_length = 16
 alignment = 1
 
+[node name="NameWarning" type="Label" parent="NamePrompt/Center/Card/VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.24, 0.51, 1)
+theme_override_font_sizes/font_size = 15
+text = "TYPE A NAME TO CONTINUE"
+horizontal_alignment = 1
+
 [node name="PromptButtons" type="HBoxContainer" parent="NamePrompt/Center/Card/VBox"]
 layout_mode = 2
 size_flags_horizontal = 4

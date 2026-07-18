@@ -55,6 +55,14 @@ func submit_score(username: String, score: int) -> bool:
 			_save()
 	return changed
 
+## The saved score for `username` (case-insensitive), or -1 if not on the board.
+func best_for(username: String) -> int:
+	var clean := username.strip_edges().to_lower()
+	for entry in entries:
+		if entry.name.to_lower() == clean:
+			return int(entry.score)
+	return -1
+
 func _save() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("leaderboard", "entries", entries)
