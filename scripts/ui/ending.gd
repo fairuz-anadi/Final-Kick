@@ -143,7 +143,7 @@ func _build_ui() -> void:
 	vision.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(vision)
 
-	var font: FontFile = load("res://assets/fonts/Orbitron.ttf")
+	var font: FontFile = load("res://assets/fonts/PixelGame.otf")
 
 	_subtitle = Label.new()
 	_subtitle.modulate.a = 0.0
@@ -152,7 +152,7 @@ func _build_ui() -> void:
 	_subtitle.anchor_top = 0.8
 	_subtitle.anchor_bottom = 0.88
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_subtitle.add_theme_font_size_override("font_size", 26)
+	_subtitle.add_theme_font_size_override("font_size", 34)
 	_subtitle.add_theme_color_override("font_color", Color(0.9, 0.92, 0.95))
 	_subtitle.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_subtitle)
@@ -187,7 +187,7 @@ func _build_ui() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if font:
 		title.add_theme_font_override("font", font)
-	title.add_theme_font_size_override("font_size", 34)
+	title.add_theme_font_size_override("font_size", 44)
 	title.add_theme_color_override("font_color", Color(0.961, 0.651, 0.137))
 	vbox.add_child(title)
 
@@ -197,7 +197,7 @@ func _build_ui() -> void:
 	# motion") — in the Worker's voice, not a slogan lifted verbatim.
 	body.text = "He never saw it wake.\nBut every light in this factory is his.\nOne kick. And the whole factory followed."
 	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	body.add_theme_font_size_override("font_size", 17)
+	body.add_theme_font_size_override("font_size", 22)
 	body.add_theme_color_override("font_color", Color(0.82, 0.84, 0.87))
 	vbox.add_child(body)
 
@@ -208,7 +208,7 @@ func _build_ui() -> void:
 	score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if font:
 		score_label.add_theme_font_override("font", font)
-	score_label.add_theme_font_size_override("font_size", 22)
+	score_label.add_theme_font_size_override("font_size", 29)
 	score_label.add_theme_color_override("font_color", Color(0.961, 0.651, 0.137))
 	vbox.add_child(score_label)
 
@@ -216,7 +216,7 @@ func _build_ui() -> void:
 	if font:
 		best_label.add_theme_font_override("font", font)
 	best_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	best_label.add_theme_font_size_override("font_size", 15)
+	best_label.add_theme_font_size_override("font_size", 20)
 	if is_new_best:
 		best_label.text = "★ NEW BEST"
 		best_label.add_theme_color_override("font_color", Color(0.24, 1.0, 0.65))
@@ -228,7 +228,7 @@ func _build_ui() -> void:
 	var credits := Label.new()
 	credits.text = "ANADI — SYSTEMS & PHYSICS\nRABIB — LEVEL DESIGN & SOUND\nSAMPRITY — ART, UI & SHADERS\n\nMADE WITH GODOT 4.7 FOR THE KICKOFF GAMEJAM"
 	credits.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	credits.add_theme_font_size_override("font_size", 14)
+	credits.add_theme_font_size_override("font_size", 18)
 	credits.add_theme_color_override("font_color", Color(0.659, 0.678, 0.71))
 	vbox.add_child(credits)
 

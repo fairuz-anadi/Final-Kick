@@ -1,61 +1,38 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/instructions_panel.gd" id="1"]
 [ext_resource type="Theme" path="res://assets/ui/theme.tres" id="2"]
-[ext_resource type="FontFile" path="res://assets/fonts/Orbitron.ttf" id="3"]
+[ext_resource type="SystemFont" path="res://assets/ui/normal_font.tres" id="3"]
 [ext_resource type="Shader" path="res://assets/shaders/blur_dim.gdshader" id="4"]
+[ext_resource type="Script" path="res://scripts/ui/neon_cut_button.gd" id="5"]
+[ext_resource type="FontFile" path="res://assets/fonts/PixelGame.otf" id="6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
 shader = ExtResource("4")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
-content_margin_left = 40.0
-content_margin_top = 30.0
-content_margin_right = 40.0
+content_margin_left = 44.0
+content_margin_top = 34.0
+content_margin_right = 44.0
 content_margin_bottom = 30.0
-bg_color = Color(0.039, 0.051, 0.086, 0.95)
+bg_color = Color(0.039, 0.051, 0.086, 0.96)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0, 0.898, 1, 0.85)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0.898, 1, 0.2)
-shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
-content_margin_left = 30.0
-content_margin_top = 12.0
-content_margin_right = 30.0
-content_margin_bottom = 12.0
-bg_color = Color(0.039, 0.051, 0.086, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0.898, 1, 0.85)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 shadow_color = Color(0, 0.898, 1, 0.25)
-shadow_size = 6
+shadow_size = 14
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_btn"]
 content_margin_left = 30.0
 content_margin_top = 12.0
 content_margin_right = 30.0
 content_margin_bottom = 12.0
-bg_color = Color(1, 0.239, 0.506, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(1, 0.239, 0.506, 0.45)
-shadow_size = 10
 
 [node name="InstructionsPanel" type="CanvasLayer"]
 process_mode = 3
@@ -79,7 +56,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.75)
+color = Color(0, 0, 0, 0.78)
 
 [node name="Center" type="CenterContainer" parent="Panel"]
 layout_mode = 1
@@ -90,90 +67,129 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Card" type="PanelContainer" parent="Panel/Center"]
-custom_minimum_size = Vector2(620, 0)
+custom_minimum_size = Vector2(640, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_card")
 
 [node name="VBox" type="VBoxContainer" parent="Panel/Center/Card"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.898, 1, 1)
-theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(0.15, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("6")
+theme_override_font_sizes/font_size = 40
 text = "HOW TO PLAY"
 horizontal_alignment = 1
 
-[node name="ObjectiveHead" type="Label" parent="Panel/Center/Card/VBox"]
+[node name="ObjectiveSection" type="VBoxContainer" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
+theme_override_constants/separation = 4
+
+[node name="ObjectiveHead" type="Label" parent="Panel/Center/Card/VBox/ObjectiveSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.42, 0.88, 1)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 15
 text = "OBJECTIVE"
 
-[node name="Objective" type="Label" parent="Panel/Center/Card/VBox"]
+[node name="Objective" type="Label" parent="Panel/Center/Card/VBox/ObjectiveSection"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
+theme_override_colors/font_color = Color(0.95, 0.95, 0.97, 1)
+theme_override_fonts/font = ExtResource("3")
 theme_override_font_sizes/font_size = 16
 text = "Wake every machine in the room by kicking the ball into it. Clear them all to open the way to the next room."
 autowrap_mode = 2
 
-[node name="KickHead" type="Label" parent="Panel/Center/Card/VBox"]
+[node name="KickSection" type="VBoxContainer" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
+theme_override_constants/separation = 4
+
+[node name="KickHead" type="Label" parent="Panel/Center/Card/VBox/KickSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.42, 0.88, 1)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 15
 text = "KICK & AIM"
 
-[node name="Kick" type="Label" parent="Panel/Center/Card/VBox"]
+[node name="Kick" type="Label" parent="Panel/Center/Card/VBox/KickSection"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 16
+theme_override_constants/line_spacing = 3
+autowrap_mode = 2
 text = "SPACE — hold to charge, release to fire
 MOUSE — aim (the ball kicks toward your cursor)
 Hold past full charge — risk an OVERCHARGE shot: more power, less accuracy
 One FINAL KICK burst is available per level for an emergency full-power shot"
 
-[node name="RewindHead" type="Label" parent="Panel/Center/Card/VBox"]
+[node name="RewindSection" type="VBoxContainer" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
+theme_override_constants/separation = 4
+
+[node name="RewindHead" type="Label" parent="Panel/Center/Card/VBox/RewindSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.42, 0.88, 1)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 15
 text = "REWIND & SCRUB"
 
-[node name="Rewind" type="Label" parent="Panel/Center/Card/VBox"]
+[node name="Rewind" type="Label" parent="Panel/Center/Card/VBox/RewindSection"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 16
+theme_override_constants/line_spacing = 3
+autowrap_mode = 2
 text = "R + LEFT / RIGHT — rewind or fast-forward the ball's last ~10 seconds
 Release R to resume play from that point — undo a bad kick or a fall"
 
-[node name="CameraHead" type="Label" parent="Panel/Center/Card/VBox"]
+[node name="CameraSection" type="VBoxContainer" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
+theme_override_constants/separation = 4
+
+[node name="CameraHead" type="Label" parent="Panel/Center/Card/VBox/CameraSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.42, 0.88, 1)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 15
 text = "CAMERA"
 
-[node name="Camera" type="Label" parent="Panel/Center/Card/VBox"]
+[node name="Camera" type="Label" parent="Panel/Center/Card/VBox/CameraSection"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 16
+theme_override_constants/line_spacing = 3
+autowrap_mode = 2
 text = "RIGHT-DRAG — orbit freely around the room to line up any gear
 SCROLL WHEEL or + / − — zoom in and out
 HOME — reset the camera to the level's default view
-ESC — pause the game"
+P — pause the game"
 
 [node name="BackButton" type="Button" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 15
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+script = ExtResource("5")
+accent_color = Color(0.6, 0.68, 0.78, 1)
+fill_color = Color(0.1, 0.12, 0.16, 1)
+glow_strength = 0.4
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 2
 text = "BACK"
 
 [connection signal="pressed" from="Panel/Center/Card/VBox/BackButton" to="." method="_on_back_pressed"]

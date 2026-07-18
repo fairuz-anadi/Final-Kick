@@ -1,61 +1,59 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/settings_panel.gd" id="1"]
 [ext_resource type="Theme" path="res://assets/ui/theme.tres" id="2"]
-[ext_resource type="FontFile" path="res://assets/fonts/Orbitron.ttf" id="3"]
+[ext_resource type="SystemFont" path="res://assets/ui/normal_font.tres" id="3"]
 [ext_resource type="Shader" path="res://assets/shaders/blur_dim.gdshader" id="4"]
+[ext_resource type="Script" path="res://scripts/ui/neon_cut_button.gd" id="5"]
+[ext_resource type="FontFile" path="res://assets/fonts/PixelGame.otf" id="6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
 shader = ExtResource("4")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
-content_margin_left = 40.0
-content_margin_top = 30.0
-content_margin_right = 40.0
-content_margin_bottom = 30.0
-bg_color = Color(0.039, 0.051, 0.086, 0.95)
+content_margin_left = 44.0
+content_margin_top = 34.0
+content_margin_right = 44.0
+content_margin_bottom = 34.0
+bg_color = Color(0.039, 0.051, 0.086, 0.96)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0, 0.898, 1, 0.85)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0.898, 1, 0.2)
-shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
-content_margin_left = 30.0
-content_margin_top = 12.0
-content_margin_right = 30.0
-content_margin_bottom = 12.0
-bg_color = Color(0.039, 0.051, 0.086, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0.898, 1, 0.85)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 shadow_color = Color(0, 0.898, 1, 0.25)
-shadow_size = 6
+shadow_size = 14
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_bg"]
+bg_color = Color(0.02, 0.03, 0.06, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.898, 1, 0.5)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_fill"]
+bg_color = Color(0.95, 0.42, 0.88, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0.95, 0.42, 0.88, 0.5)
+shadow_size = 8
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_btn"]
 content_margin_left = 30.0
 content_margin_top = 12.0
 content_margin_right = 30.0
 content_margin_bottom = 12.0
-bg_color = Color(1, 0.239, 0.506, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(1, 0.239, 0.506, 0.45)
-shadow_size = 10
 
 [node name="SettingsPanel" type="CanvasLayer"]
 process_mode = 3
@@ -79,7 +77,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.75)
+color = Color(0, 0, 0, 0.78)
 
 [node name="Center" type="CenterContainer" parent="Panel"]
 layout_mode = 1
@@ -90,74 +88,132 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Card" type="PanelContainer" parent="Panel/Center"]
-custom_minimum_size = Vector2(420, 0)
+custom_minimum_size = Vector2(760, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_card")
 
 [node name="VBox" type="VBoxContainer" parent="Panel/Center/Card"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 24
 
 [node name="Title" type="Label" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.898, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0.898, 1, 0.4)
-theme_override_constants/shadow_offset_x = 0
-theme_override_constants/shadow_offset_y = 0
-theme_override_constants/shadow_outline_size = 14
-theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.15, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("6")
+theme_override_font_sizes/font_size = 40
 text = "SETTINGS"
 horizontal_alignment = 1
 
-[node name="MusicRow" type="VBoxContainer" parent="Panel/Center/Card/VBox"]
+[node name="Columns" type="HBoxContainer" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 36
 
-[node name="MusicLabel" type="Label" parent="Panel/Center/Card/VBox/MusicRow"]
+[node name="AudioColumn" type="VBoxContainer" parent="Panel/Center/Card/VBox/Columns"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
+size_flags_horizontal = 3
+theme_override_constants/separation = 18
+
+[node name="AudioHead" type="Label" parent="Panel/Center/Card/VBox/Columns/AudioColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.42, 0.88, 1)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 13
-text = "MUSIC VOLUME"
+theme_override_font_sizes/font_size = 18
+text = "AUDIO"
 
-[node name="MusicSlider" type="HSlider" parent="Panel/Center/Card/VBox/MusicRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 24)
+[node name="MusicRow" type="VBoxContainer" parent="Panel/Center/Card/VBox/Columns/AudioColumn"]
 layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MusicLabel" type="Label" parent="Panel/Center/Card/VBox/Columns/AudioColumn/MusicRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.87, 0.92, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 18
+text = "MUSIC"
+
+[node name="MusicSlider" type="HSlider" parent="Panel/Center/Card/VBox/Columns/AudioColumn/MusicRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_styles/slider = SubResource("StyleBoxFlat_slider_bg")
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_slider_fill")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_fill")
 max_value = 1.0
 step = 0.01
 value = 1.0
 
-[node name="SFXRow" type="VBoxContainer" parent="Panel/Center/Card/VBox"]
+[node name="SFXRow" type="VBoxContainer" parent="Panel/Center/Card/VBox/Columns/AudioColumn"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 8
 
-[node name="SFXLabel" type="Label" parent="Panel/Center/Card/VBox/SFXRow"]
+[node name="SFXLabel" type="Label" parent="Panel/Center/Card/VBox/Columns/AudioColumn/SFXRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
+theme_override_colors/font_color = Color(0.85, 0.87, 0.92, 1)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 13
-text = "SFX VOLUME"
+theme_override_font_sizes/font_size = 18
+text = "SFX"
 
-[node name="SFXSlider" type="HSlider" parent="Panel/Center/Card/VBox/SFXRow"]
+[node name="SFXSlider" type="HSlider" parent="Panel/Center/Card/VBox/Columns/AudioColumn/SFXRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
+theme_override_styles/slider = SubResource("StyleBoxFlat_slider_bg")
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_slider_fill")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_fill")
 max_value = 1.0
 step = 0.01
 value = 1.0
+
+[node name="VSeparator" type="VSeparator" parent="Panel/Center/Card/VBox/Columns"]
+layout_mode = 2
+
+[node name="ControlsColumn" type="VBoxContainer" parent="Panel/Center/Card/VBox/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 18
+
+[node name="ControlsHead" type="Label" parent="Panel/Center/Card/VBox/Columns/ControlsColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.42, 0.88, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 18
+text = "CONTROLS"
+
+[node name="Controls" type="Label" parent="Panel/Center/Card/VBox/Columns/ControlsColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.87, 0.92, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 18
+theme_override_constants/line_spacing = 8
+text = "SPACE — kick
+MOUSE — aim
+R + ←/→ — rewind
+SCROLL / +/− — zoom
+P — pause"
 
 [node name="BackButton" type="Button" parent="Panel/Center/Card/VBox"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 15
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+script = ExtResource("5")
+accent_color = Color(0.6, 0.68, 0.78, 1)
+fill_color = Color(0.1, 0.12, 0.16, 1)
+glow_strength = 0.4
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 2
 text = "BACK"
 
-[connection signal="value_changed" from="Panel/Center/Card/VBox/MusicRow/MusicSlider" to="." method="_on_music_slider_changed"]
-[connection signal="value_changed" from="Panel/Center/Card/VBox/SFXRow/SFXSlider" to="." method="_on_sfx_slider_changed"]
+[connection signal="value_changed" from="Panel/Center/Card/VBox/Columns/AudioColumn/MusicRow/MusicSlider" to="." method="_on_music_slider_changed"]
+[connection signal="value_changed" from="Panel/Center/Card/VBox/Columns/AudioColumn/SFXRow/SFXSlider" to="." method="_on_sfx_slider_changed"]
 [connection signal="pressed" from="Panel/Center/Card/VBox/BackButton" to="." method="_on_back_pressed"]

@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="1"]
 [ext_resource type="Theme" path="res://assets/ui/theme.tres" id="2"]
-[ext_resource type="FontFile" path="res://assets/fonts/Orbitron.ttf" id="3"]
+[ext_resource type="FontFile" path="res://assets/fonts/PixelGame.otf" id="3"]
 [ext_resource type="Shader" path="res://assets/shaders/blur_dim.gdshader" id="4"]
 [ext_resource type="Shader" path="res://assets/shaders/gradient_vision.gdshader" id="5"]
+[ext_resource type="Script" path="res://scripts/ui/neon_cut_button.gd" id="6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
 shader = ExtResource("4")
@@ -14,36 +15,11 @@ shader = ExtResource("5")
 shader_parameter/vignette_amount = 0.7
 shader_parameter/opacity = 0.75
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
-content_margin_left = 26.0
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_btn"]
+content_margin_left = 24.0
 content_margin_top = 11.0
-content_margin_right = 26.0
+content_margin_right = 24.0
 content_margin_bottom = 11.0
-bg_color = Color(0.039, 0.051, 0.086, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0.898, 1, 0.85)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(0, 0.898, 1, 0.25)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
-content_margin_left = 26.0
-content_margin_top = 11.0
-content_margin_right = 26.0
-content_margin_bottom = 11.0
-bg_color = Color(1, 0.239, 0.506, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(1, 0.239, 0.506, 0.45)
-shadow_size = 10
 
 [node name="PauseMenu" type="CanvasLayer"]
 process_mode = 3
@@ -93,38 +69,20 @@ theme_override_constants/separation = 18
 
 [node name="GameName" type="Label" parent="Panel/Center/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
+theme_override_colors/font_color = Color(0.95, 0.42, 0.88, 0.9)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 20
 text = "FINAL KICK"
 horizontal_alignment = 1
 
 [node name="Title" type="Label" parent="Panel/Center/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.898, 1, 1)
+theme_override_colors/font_color = Color(0.15, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 7
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 38
-text = "SYSTEM PAUSED"
-horizontal_alignment = 1
-
-[node name="ControlsHead" type="Label" parent="Panel/Center/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.659, 0.678, 0.71, 1)
-theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 14
-text = "CONTROLS"
-horizontal_alignment = 1
-
-[node name="Controls" type="Label" parent="Panel/Center/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
-theme_override_font_sizes/font_size = 17
-text = "SPACE — charge kick, release to fire
-MOUSE — aim
-R + LEFT — rewind time
-R + RIGHT — fast forward
-SCROLL WHEEL or + / - — zoom
-ESC — pause"
+theme_override_font_sizes/font_size = 78
+text = "GAME PAUSED"
 horizontal_alignment = 1
 
 [node name="Buttons" type="HBoxContainer" parent="Panel/Center/VBox"]
@@ -132,49 +90,104 @@ layout_mode = 2
 theme_override_constants/separation = 14
 alignment = 1
 
-[node name="ResumeButton" type="Button" parent="Panel/Center/VBox/Buttons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
-text = "RESUME"
-
 [node name="RestartButton" type="Button" parent="Panel/Center/VBox/Buttons"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+script = ExtResource("6")
+accent_color = Color(0.6, 0.68, 0.78, 1)
+fill_color = Color(0.1, 0.12, 0.16, 1)
+glow_strength = 0.4
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 21
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 3
 text = "RESTART"
 
 [node name="HowToPlayButton" type="Button" parent="Panel/Center/VBox/Buttons"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+script = ExtResource("6")
+accent_color = Color(0.6, 0.68, 0.78, 1)
+fill_color = Color(0.1, 0.12, 0.16, 1)
+glow_strength = 0.4
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 21
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 3
 text = "HOW TO PLAY"
+
+[node name="ResumeButton" type="Button" parent="Panel/Center/VBox/Buttons"]
+layout_mode = 2
+script = ExtResource("6")
+accent_color = Color(0.6, 0.68, 0.78, 1)
+fill_color = Color(0.1, 0.12, 0.16, 1)
+glow_strength = 0.4
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 3
+text = "RESUME"
 
 [node name="SettingsButton" type="Button" parent="Panel/Center/VBox/Buttons"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+script = ExtResource("6")
+accent_color = Color(0.6, 0.68, 0.78, 1)
+fill_color = Color(0.1, 0.12, 0.16, 1)
+glow_strength = 0.4
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 21
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 3
 text = "SETTINGS"
 
 [node name="MenuButton" type="Button" parent="Panel/Center/VBox/Buttons"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+script = ExtResource("6")
+accent_color = Color(0.6, 0.68, 0.78, 1)
+fill_color = Color(0.1, 0.12, 0.16, 1)
+glow_strength = 0.4
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 21
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 3
 text = "MAIN MENU"
 
 [connection signal="pressed" from="Panel/Center/VBox/Buttons/ResumeButton" to="." method="_on_resume_pressed"]

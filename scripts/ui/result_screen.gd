@@ -42,17 +42,16 @@ func show_result() -> void:
 	if hud and hud.has_method("get_stats"):
 		stats = hud.get_stats()
 
-	var best_chain: int = stats.get("best_chain", 0)
-	_stats_label.text = "TIME   %02d:%02d\nMACHINES   %d / %d\nKICKS   %d\nBEST CHAIN   ×%d" % [
+	_stats_label.text = "TIME   %02d:%02d\nMACHINES   %d / %d\nKICKS   %d" % [
 		int(stats["time"]) / 60, int(stats["time"]) % 60,
 		stats["targets_done"], stats["targets_total"],
-		stats["kicks"], maxi(best_chain, 1),
+		stats["kicks"],
 	]
 	_rank_label.text = _earned_title(stats)
 	_flawless_badge.visible = stats["rewinds"] == 0
 
 	var score := ScoreManager.score_level(stats)
-	_score_label.text = "SCORE  +%d   ·   RUN TOTAL  %d" % [score["level_score"], score["total_score"]]
+	_score_label.text = "SCORE  +%d   ·   TOTAL  %d" % [score["level_score"], score["total_score"]]
 
 	_panel.visible = true
 	_panel.modulate.a = 0.0

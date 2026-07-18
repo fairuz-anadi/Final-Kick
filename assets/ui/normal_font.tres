@@ -1,0 +1,4 @@
+[gd_resource type="SystemFont" load_steps=1 format=3]
+
+[resource]
+font_names = PackedStringArray("Segoe UI", "Helvetica Neue", "Arial", "sans-serif")

@@ -5,7 +5,7 @@
 [ext_resource type="Shader" path="res://assets/shaders/rewind_overlay.gdshader" id="3"]
 [ext_resource type="Script" path="res://scripts/ui/crosshair.gd" id="4"]
 [ext_resource type="Theme" path="res://assets/ui/theme.tres" id="5"]
-[ext_resource type="FontFile" path="res://assets/fonts/Orbitron.ttf" id="6"]
+[ext_resource type="FontFile" path="res://assets/fonts/PixelGame.otf" id="6"]
 [ext_resource type="Shader" path="res://assets/shaders/film_grain.gdshader" id="7"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rewind"]
@@ -185,40 +185,40 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 40
 text = "MACHINE HALL 01"
 
 [node name="UnitLabel" type="Label" parent="TopLeftPanel/TopLeft"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 25
 text = "UNIT: LAST WORKER"
 
 [node name="ObjectiveHead" type="Label" parent="TopLeftPanel/TopLeft"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 19
 text = "OBJECTIVE"
 
 [node name="Objective" type="Label" parent="TopLeftPanel/TopLeft"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 28
 text = "Wake every machine"
 
 [node name="Targets" type="Label" parent="TopLeftPanel/TopLeft"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 27
 text = "TARGETS   0 / 0"
 
 [node name="TopRightPanel" type="PanelContainer" parent="."]
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -220.0
+offset_left = -255.0
 offset_top = 18.0
 offset_right = -20.0
 grow_horizontal = 0
@@ -233,7 +233,7 @@ theme_override_constants/separation = 3
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 30
 text = "TIME   00:00"
 horizontal_alignment = 2
 
@@ -241,7 +241,7 @@ horizontal_alignment = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 27
 text = "KICKS   0"
 horizontal_alignment = 2
 
@@ -249,7 +249,7 @@ horizontal_alignment = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 27
 text = "REWINDS   0"
 horizontal_alignment = 2
 
@@ -271,7 +271,7 @@ theme_override_constants/separation = 4
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.898, 1, 0.9)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 18
 text = "FACTORY ENERGY"
 horizontal_alignment = 1
 
@@ -288,7 +288,7 @@ show_percentage = false
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 21
 text = "0%  —  SILENT"
 horizontal_alignment = 1
 
@@ -325,7 +325,7 @@ show_percentage = false
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 24
 text = "KICK POWER   0%"
 horizontal_alignment = 1
 
@@ -335,8 +335,8 @@ anchor_top = 1.0
 anchor_right = 0.0
 anchor_bottom = 1.0
 offset_left = 20.0
-offset_top = -92.0
-offset_right = 304.0
+offset_top = -96.0
+offset_right = 340.0
 offset_bottom = -28.0
 grow_horizontal = 1
 grow_vertical = 0
@@ -351,7 +351,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 19
 text = "CAMERA VIEW"
 horizontal_alignment = 1
 
@@ -363,7 +363,7 @@ alignment = 1
 [node name="FrontButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 19
 theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
 theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
@@ -373,7 +373,7 @@ text = "FRONT"
 [node name="BackButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 19
 theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
 theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
@@ -383,7 +383,7 @@ text = "BACK"
 [node name="TopButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 19
 theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
 theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
@@ -393,7 +393,7 @@ text = "TOP"
 [node name="BottomButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 19
 theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
 theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
@@ -423,7 +423,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 19
 text = "REWIND"
 horizontal_alignment = 2
 

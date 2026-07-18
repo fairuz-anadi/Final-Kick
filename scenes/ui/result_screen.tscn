@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/result_screen.gd" id="1"]
 [ext_resource type="Theme" path="res://assets/ui/theme.tres" id="2"]
-[ext_resource type="FontFile" path="res://assets/fonts/Orbitron.ttf" id="3"]
+[ext_resource type="FontFile" path="res://assets/fonts/PixelGame.otf" id="3"]
 [ext_resource type="Shader" path="res://assets/shaders/blur_dim.gdshader" id="4"]
 [ext_resource type="Shader" path="res://assets/shaders/gradient_vision.gdshader" id="5"]
+[ext_resource type="Script" path="res://scripts/ui/neon_cut_button.gd" id="6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
 shader = ExtResource("4")
@@ -14,36 +15,11 @@ shader = ExtResource("5")
 shader_parameter/vignette_amount = 0.7
 shader_parameter/opacity = 0.75
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_btn"]
 content_margin_left = 26.0
 content_margin_top = 11.0
 content_margin_right = 26.0
 content_margin_bottom = 11.0
-bg_color = Color(0.039, 0.051, 0.086, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0.898, 1, 0.85)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(0, 0.898, 1, 0.25)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
-content_margin_left = 26.0
-content_margin_top = 11.0
-content_margin_right = 26.0
-content_margin_bottom = 11.0
-bg_color = Color(1, 0.239, 0.506, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(1, 0.239, 0.506, 0.45)
-shadow_size = 10
 
 [node name="ResultScreen" type="CanvasLayer"]
 layer = 5
@@ -88,89 +64,133 @@ grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="Panel/Center"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="Panel/Center/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.898, 1, 1)
+theme_override_colors/font_color = Color(0.62, 0.67, 0.74, 1)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 34
-text = "FACTORY AWAKENED!"
+theme_override_font_sizes/font_size = 23
+text = "LEVEL CLEAR"
 horizontal_alignment = 1
 
 [node name="Rank" type="Label" parent="Panel/Center/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.714, 0.153, 1)
+theme_override_colors/font_color = Color(0.15, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 52
+theme_override_font_sizes/font_size = 70
 text = "FACTORY HERO"
 horizontal_alignment = 1
 
-[node name="ScoreLabel" type="Label" parent="Panel/Center/VBox"]
+[node name="ScoreRow" type="HBoxContainer" parent="Panel/Center/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 16
+
+[node name="ScoreLabel" type="Label" parent="Panel/Center/VBox/ScoreRow"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.898, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0.898, 1, 0.4)
-theme_override_constants/shadow_offset_x = 0
-theme_override_constants/shadow_offset_y = 0
-theme_override_constants/shadow_outline_size = 10
+theme_override_colors/font_color = Color(0.93, 0.96, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 26
-text = "SCORE  +0   ·   RUN TOTAL  0"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 29
+text = "SCORE  +0   ·   TOTAL  0"
 
-[node name="FlawlessBadge" type="Label" parent="Panel/Center/VBox"]
+[node name="FlawlessBadge" type="Label" parent="Panel/Center/VBox/ScoreRow"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(0.24, 1, 0.65, 1)
+theme_override_colors/font_color = Color(0.15, 0.95, 1, 1)
 theme_override_fonts/font = ExtResource("3")
-theme_override_font_sizes/font_size = 20
-text = "★ FLAWLESS — NO REWINDS USED"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 21
+text = "★ FLAWLESS"
+
+[node name="Spacer" type="Control" parent="Panel/Center/VBox"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
 
 [node name="Stats" type="Label" parent="Panel/Center/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
-theme_override_font_sizes/font_size = 19
+theme_override_colors/font_color = Color(0.7, 0.74, 0.82, 1)
+theme_override_font_sizes/font_size = 21
+theme_override_constants/line_spacing = 4
 text = "TIME  00:00
-TARGETS  0 / 0
-KICKS USED  0
-REWINDS USED  0"
+MACHINES  0 / 0
+KICKS  0"
 horizontal_alignment = 1
+
+[node name="Spacer2" type="Control" parent="Panel/Center/VBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
 
 [node name="Buttons" type="HBoxContainer" parent="Panel/Center/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="RetryButton" type="Button" parent="Panel/Center/VBox/Buttons"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+script = ExtResource("6")
+accent_color = Color(0.6, 0.68, 0.78, 1)
+fill_color = Color(0.1, 0.12, 0.16, 1)
+glow_strength = 0.4
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 23
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 2
 text = "RETRY"
 
 [node name="NextButton" type="Button" parent="Panel/Center/VBox/Buttons"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+script = ExtResource("6")
+accent_color = Color(0.15, 0.95, 1, 1)
+fill_color = Color(0.02, 0.32, 0.38, 1)
+glow_strength = 1.1
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0.15, 0.18, 0.9)
+theme_override_constants/outline_size = 3
 text = "NEXT LEVEL"
 
 [node name="MenuButton" type="Button" parent="Panel/Center/VBox/Buttons"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_colors/font_hover_color = Color(0.04, 0.05, 0.09, 1)
+script = ExtResource("6")
+accent_color = Color(0.6, 0.68, 0.78, 1)
+fill_color = Color(0.1, 0.12, 0.16, 1)
+glow_strength = 0.4
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 23
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 2
 text = "MAIN MENU"
 
 [connection signal="pressed" from="Panel/Center/VBox/Buttons/RetryButton" to="." method="_on_retry_pressed"]
