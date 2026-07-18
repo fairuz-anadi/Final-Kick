@@ -225,6 +225,8 @@ func _build_ui() -> void:
 		best_label.add_theme_color_override("font_color", Color(0.62, 0.68, 0.82))
 	vbox.add_child(best_label)
 
+	_build_leaderboard_status(vbox, font)
+
 	var credits := Label.new()
 	credits.text = "ANADI — SYSTEMS & PHYSICS\nRABIB — LEVEL DESIGN & SOUND\nSAMPRITY — ART, UI & SHADERS\n\nMADE WITH GODOT 4.7 FOR THE KICKOFF GAMEJAM"
 	credits.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -237,3 +239,29 @@ func _build_ui() -> void:
 	back.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(_on_back_pressed)
 	vbox.add_child(back)
+
+## Submits the run's final total_score to the local leaderboard under the
+## name entered on the title screen's pre-Start prompt (Leaderboard.
+## pending_name). Leaderboard.gd handles dedupe (one entry per username,
+## best score kept) and the top-10 cap — no player interaction needed here.
+func _build_leaderboard_status(vbox: VBoxContainer, font: FontFile) -> void:
+	var status := Label.new()
+	if font:
+		status.add_theme_font_override("font", font)
+	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status.add_theme_font_size_override("font_size", 16)
+	vbox.add_child(status)
+
+	var player_name := Leaderboard.pending_name
+	if player_name.is_empty():
+		status.text = "NO NAME ENTERED — SCORE NOT SAVED TO LEADERBOARD"
+		status.add_theme_color_override("font_color", Color(0.62, 0.68, 0.82))
+		return
+
+	var saved := Leaderboard.submit_score(player_name, ScoreManager.total_score)
+	if saved:
+		status.text = "SAVED TO LEADERBOARD AS \"%s\"" % player_name
+		status.add_theme_color_override("font_color", Color(0.24, 1.0, 0.65))
+	else:
+		status.text = "\"%s\" — DOESN'T BEAT YOUR SAVED BEST" % player_name
+		status.add_theme_color_override("font_color", Color(0.62, 0.68, 0.82))
