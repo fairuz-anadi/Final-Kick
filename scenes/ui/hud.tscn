@@ -192,27 +192,27 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 26
 text = "MACHINE HALL 01"
 
 [node name="UnitLabel" type="Label" parent="TopRow/TopLeftPanel/TopLeft"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 17
 text = "UNIT: LAST WORKER"
 
 [node name="ObjectiveHead" type="Label" parent="TopRow/TopLeftPanel/TopLeft"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.714, 0.153, 0.9)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
 text = "OBJECTIVE"
 
 [node name="Objective" type="Label" parent="TopRow/TopLeftPanel/TopLeft"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 19
 text = "Wake every machine"
 autowrap_mode = 3
 
@@ -220,7 +220,7 @@ autowrap_mode = 3
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 19
 text = "TARGETS   0 / 0"
 
 [node name="SpacerA" type="Control" parent="TopRow"]
@@ -242,7 +242,7 @@ theme_override_constants/separation = 4
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.898, 1, 0.9)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
 text = "FACTORY ENERGY"
 horizontal_alignment = 1
 
@@ -259,7 +259,7 @@ show_percentage = false
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "0%  —  SILENT"
 horizontal_alignment = 1
 
@@ -282,7 +282,7 @@ theme_override_constants/separation = 3
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.918, 0.918, 0.918, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 22
 text = "TIME   00:00"
 horizontal_alignment = 2
 
@@ -290,7 +290,7 @@ horizontal_alignment = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 19
 text = "KICKS   0"
 horizontal_alignment = 2
 
@@ -298,7 +298,7 @@ horizontal_alignment = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 19
 text = "REWINDS   0"
 horizontal_alignment = 2
 
@@ -335,7 +335,7 @@ show_percentage = false
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 20
 text = "KICK POWER   0%"
 horizontal_alignment = 1
 
@@ -361,7 +361,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 16
 text = "CAMERA VIEW"
 horizontal_alignment = 1
 
@@ -373,7 +373,7 @@ alignment = 1
 [node name="FrontButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
 theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
@@ -383,7 +383,7 @@ text = "FRONT"
 [node name="BackButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
 theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
@@ -393,7 +393,7 @@ text = "BACK"
 [node name="TopButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
 theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
@@ -403,7 +403,7 @@ text = "TOP"
 [node name="BottomButton" type="Button" parent="ViewBox/ViewVBox/ViewButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_view_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_view_btn_hover")
 theme_override_colors/font_color = Color(0.82, 0.84, 0.87, 1)
@@ -433,7 +433,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.68, 0.82, 1)
 theme_override_fonts/font = ExtResource("6")
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 16
 text = "REWIND"
 horizontal_alignment = 2
 

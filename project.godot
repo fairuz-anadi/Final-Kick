@@ -31,6 +31,9 @@ InstructionsPanel="*res://scenes/ui/instructions_panel.tscn"
 Difficulty="*res://scripts/difficulty.gd"
 SettingsPanel="*res://scenes/ui/settings_panel.tscn"
 DifficultyPanel="*res://scenes/ui/difficulty_panel.tscn"
+Leaderboard="*res://scripts/leaderboard.gd"
+LeaderboardPanel="*res://scenes/ui/leaderboard_panel.tscn"
+MainMenuPanel="*res://scenes/ui/main_menu_panel.tscn"
 
 [display]
 
