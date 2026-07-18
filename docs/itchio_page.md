@@ -21,13 +21,13 @@ almost happened.
 
 Every room is a broken system waiting for one push. Line up your kick, watch
 the dominoes fall, the gears catch, the wires spark, the vials blow — and if
-the chain dies halfway, rewind, adjust the angle, and try again. Ten rooms
-in, the kicks alone stop being enough: charge past full for one huge burst
-across a gap nothing else can clear, or risk a wobblier aim for repeatable
-extra reach. Some rooms punish waiting instead of missing. One asks you to
-land two kicks — one live, one a recording of yourself — at exactly the same
-moment. Every room you clear visibly wakes the factory a little more, until
-the last one wakes all of it at once.
+the chain dies halfway, rewind, adjust the angle, and try again. Push any
+kick past full for extra reach at the cost of a wobblier aim, or hold it
+even longer to arm a single huge burst — once per room — for the one gap
+nothing else can clear. Some rooms punish waiting instead of missing. One
+asks you to land two kicks — one live, one a recording of yourself — at
+exactly the same moment. Every room you clear visibly wakes the factory a
+little more, until the last one wakes all of it at once.
 
 The level ends on the one kick that finally works: the **final kick**.
 
@@ -37,20 +37,22 @@ The level ends on the one kick that finally works: the **final kick**.
 - **MOUSE** — aim
 - **HOLD R + LEFT / RIGHT** — scrub back and forth through time
 - **E** *(Room 9 only)* — bank the current run as a replaying echo, then kick live to sync with it
-- 5 hearts per room — hit zero and the factory shuts down, restarting the room
+- No hearts: losing the ball drains Factory Energy — the same bar you're trying to fill — instead of costing a life. Before you've woken anything, losing the ball is free; drain it all away after real progress and the factory blacks out, restarting the room
 
 ## Features
 - **Quantum Rewind** — an undo you can *scrub*, not just press
 - **Momentum Transfer Matrix** — gears spin machinery, vials widen the blast, wire grids surge power along the chain
-- **Final Kick & Overcharge** — a one-per-level supercharged kick for gaps nothing else reaches, plus a repeatable higher-risk overcharge for every other room
+- **Final Kick & Overcharge** — hold past full for a repeatable, wobblier-aim overcharge on any kick, or hold longer still to arm one huge burst per room for a gap nothing else reaches
 - **Leaking Vials** — some chemicals don't wait for you; stall too long and they go off on their own, and it won't count
 - **Echo Kick** — record a run, then live one alongside it, so two hits can land as one
-- **Factory Energy** — the whole room wakes up, visibly and audibly, as you clear it
+- **Factory Energy** — the whole room wakes up, visibly and audibly, as you clear it — and it's the same meter that takes the hit when you lose the ball
+- **Adjustable Difficulty** — Easy/Medium/Hard changes both the rewind window (5–15s) and how much Factory Energy a lost ball costs
+- **Local Leaderboard** — top 10 high scores, saved locally, name entered at the title screen
 - **Spectacle Cam** — when the chain completes, the camera goes cinematic for the payoff
 
 ## Details
 - Engine: Godot 4.7 · plays in browser, zero install
-- 10 rooms, an opening cinematic, and a full life/narrator system, all built for the IUT 12th ICT Fest GameJam 2026 — theme: **"Kickoff"**
+- 10 rooms, a fully illustrated 6-shot opening cinematic, and a Factory Energy/narrator system, all built for the IUT 12th ICT Fest GameJam 2026 — theme: **"Kickoff"**
 - Team: Systems & Physics · Levels & Sound · Art & UI
 - Source: https://github.com/fairuz-anadi/Final-Kick
 - Pitch video: [YouTube link — TeamName_GameName]

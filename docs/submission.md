@@ -39,20 +39,25 @@ FinalKick.exe — no installer."
 - **Mouse** — aim
 - **Hold Space** — charge the kick (power bar fills; the longer you hold, the harder the eventual kick)
 - **Release Space** — kick
-- **Hold R + Left/Right arrows** — scrub backward/forward through the last ~10 seconds to review what happened
+- **Hold R + Left/Right arrows** — scrub backward/forward through the last ~10 seconds (Easy/Hard widen or narrow this window — see Difficulty below)
+- **P** — pause
 - Goal: wake every gear, wire node, and vial in the room to complete it
 
-**Lives.** Each level gives 5 hearts. Falling out of bounds or touching a
-hazard costs one and respawns the ball with progress intact; hitting zero
-triggers a full "Factory Shutdown" sequence and restarts the level.
+**Factory Energy, not lives.** There are no hearts. Losing the ball (falling
+out of bounds or touching a hazard) drains Factory Energy — the same meter
+you're filling by waking machines — and respawns the ball with progress
+intact. Before any machine in the room is awake, a lost ball costs nothing;
+once you've made real progress, draining the meter to zero triggers a full
+"Power Lost" blackout and restarts the level.
 
-**Final Kick burst** *(Level 5+)*. Charge well past full and keep holding —
-a one-per-level supercharged kick arms itself, strong enough to clear gaps a
-normal kick can't reach.
+**Final Kick burst.** Available every level, once per level. Hold well past
+full charge and keep holding — a supercharged kick arms itself, strong
+enough to clear a gap a normal kick can't reach. Firing it spends it for
+that level; losing the ball doesn't — it carries over until you actually use it.
 
-**Overcharge** *(Level 6+)*. Unlike the Final Kick, this is repeatable every
-kick: hold past full charge for extra range and power, at the cost of a
-wobblier aim. Trades precision for reach, every time, not just once per level.
+**Overcharge.** Repeatable on every kick, in every room, including after a
+level's Final Kick has been spent: hold past full charge for extra range and
+power, at the cost of a wobblier aim. Trades precision for reach, every time.
 
 **Leaking Vials** *(Level 8)*. These destabilize on real elapsed time — even
 while rewinding — and detonate on their own if left too long. A self-triggered
@@ -63,12 +68,22 @@ replaying "echo" ghost, then reset and take a second, live attempt — the room
 only clears if both the echo and the live kick land their hits within a
 fraction of a second of each other.
 
-**The story.** An opening cutscene (skippable — SKIP jumps to the title card,
-MAIN MENU exits immediately) frames the run: the Last Worker's factory has
-sat dead for decades, and the ball is the one thing he left behind to wake it
-again. A narrator comments through the run, and a global "Factory Energy"
-meter visibly and audibly brings each room back to life as its objectives
-are cleared — lighting, ambient dressing, and the music layer all respond to it.
+**The story.** A fully illustrated, six-shot opening cinematic (skippable via
+a single dedicated SKIP button — no key/click shortcuts, so it can't be cut
+short by accident) frames the run: an old worker kept a dead factory company
+for decades; a kid finds his workshop and his final invention — a device
+that kicks — and picks up where he left off. During gameplay, a narrator
+comments through the run, and the same global "Factory Energy" meter that
+tracks your run also visibly and audibly brings each room back to life as
+its objectives are cleared — lighting, ambient dressing, and the music layer
+all respond to it.
+
+**Difficulty.** Chosen on the title screen before Start (Easy/Medium/Hard).
+It scales two things: how much Factory Energy a lost ball costs (12/20/30
+out of 100), and the rewind window's length (~15s/~10s/~5s).
+
+**Leaderboard.** A local top-10 high-score table, entered by name on the
+title screen and saved on-device — no account or networking involved.
 
 ## Team
 - Anadi — systems & physics (kick, rewind, gear/vial/grid triggers, win condition, camera)
