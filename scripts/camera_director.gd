@@ -42,6 +42,15 @@ class_name CameraDirector
 @export var orbit_pitch_min: float = -85.0
 @export var orbit_pitch_max: float = 85.0
 
+# Orbit pivot override: by default the pivot is derived from where the rest
+# pose's own view ray crosses the ~0.8m action plane (see _orbited_pose) —
+# a fine approximation for a single compact room. Multi-chamber levels whose
+# rest pose sits far (in room-lengths) from whatever chamber is currently in
+# frame need the pivot tied to something that actually tracks the room in
+# view instead; point this at that node (typically the Ball) to swing every
+# preset/orbit around its live position rather than the fixed rest-pose ray.
+@export var orbit_pivot_node: NodePath
+
 var _orbit_yaw: float = 0.0
 var _orbit_pitch: float = 0.0
 
@@ -53,20 +62,20 @@ var _orbit_pitch: float = 0.0
 @export var view_transition_time: float = 0.8
 var _view_tween: Tween
 
-# Named preset views (keys 1-4, or the HUD's view buttons): instant snaps to
+# Named preset views (keys 1-5, or the HUD's view buttons): instant snaps to
 # a cardinal angle around the room so every gear can be lined up without
 # hand-dragging the orbit. Yaw/pitch are offsets on the same rest pose the
 # free orbit above uses, so a preset can still be nudged further by hand
 # afterward. Front is the level's own framed shot (0, 0); Back is the
-# opposite side; the two corner presets swing 45° off Front toward either
-# side wall with a moderate downward pitch, giving an angled overview of
-# the room instead of the near-vertical (and gimbal-adjacent) Top/Bottom
-# views they replace.
+# opposite side; Left/Right are true 90° profile views off either side wall;
+# Top is a near-vertical overhead view (stops short of 90° — see
+# orbit_pitch_max — to stay clear of the gimbal singularity).
 const VIEW_PRESETS := {
 	"front": {"yaw": 0.0, "pitch": 0.0},
 	"back": {"yaw": 180.0, "pitch": 0.0},
-	"corner_left": {"yaw": -45.0, "pitch": 35.0},
-	"corner_right": {"yaw": 45.0, "pitch": 35.0},
+	"left": {"yaw": -90.0, "pitch": 0.0},
+	"right": {"yaw": 90.0, "pitch": 0.0},
+	"top": {"yaw": 0.0, "pitch": 78.0},
 }
 
 @export var shake_strength_per_impact: float = 0.15
@@ -301,8 +310,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		match event.keycode:
 			KEY_1: set_preset_view("front")
 			KEY_2: set_preset_view("back")
-			KEY_3: set_preset_view("corner_left")
-			KEY_4: set_preset_view("corner_right")
+			KEY_3: set_preset_view("left")
+			KEY_4: set_preset_view("right")
+			KEY_5: set_preset_view("top")
 
 ## One wheel notch of zoom. Rapid consecutive notches ramp the step up (see
 ## zoom_accel_*), a pause resets it back to a precise single step. Zooming IN
@@ -501,11 +511,17 @@ func _orbited_pose(rest: Transform3D) -> Transform3D:
 	if absf(_orbit_yaw) < 0.01 and absf(_orbit_pitch) < 0.01:
 		return rest
 	var forward := -rest.basis.z
-	# Pivot: where the view ray crosses ~0.8m height (the action plane).
-	var dist := 10.0
-	if absf(forward.y) > 0.01:
-		dist = clampf((0.8 - rest.origin.y) / forward.y, 6.0, 20.0)
-	var pivot := rest.origin + forward * dist
+	var pivot: Vector3
+	var pivot_node: Node3D = null if orbit_pivot_node.is_empty() else get_node_or_null(orbit_pivot_node)
+	if pivot_node:
+		pivot = pivot_node.global_position
+		pivot.y = 0.8
+	else:
+		# Pivot: where the view ray crosses ~0.8m height (the action plane).
+		var dist := 10.0
+		if absf(forward.y) > 0.01:
+			dist = clampf((0.8 - rest.origin.y) / forward.y, 6.0, 20.0)
+		pivot = rest.origin + forward * dist
 	var offset := rest.origin - pivot
 	offset = offset.rotated(Vector3.UP, deg_to_rad(_orbit_yaw))
 	var right := offset.cross(Vector3.UP)
