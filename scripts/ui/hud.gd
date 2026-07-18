@@ -45,8 +45,8 @@ const CHAIN_COLORS := [COLOR_ENERGY, COLOR_HIGHLIGHT, COLOR_WARNING, COLOR_BURST
 @onready var _energy_label: Label = %EnergyLabel
 @onready var _view_front_button: Button = %FrontButton
 @onready var _view_back_button: Button = %BackButton
-@onready var _view_top_button: Button = %TopButton
-@onready var _view_bottom_button: Button = %BottomButton
+@onready var _view_corner_left_button: Button = %CornerLeftButton
+@onready var _view_corner_right_button: Button = %CornerRightButton
 
 ## Milestone flavor under the energy bar — sells "the factory is waking up".
 const ENERGY_MOODS := [
@@ -97,8 +97,8 @@ func _ready() -> void:
 		_camera_director = cam
 	_view_front_button.pressed.connect(func() -> void: _set_view("front"))
 	_view_back_button.pressed.connect(func() -> void: _set_view("back"))
-	_view_top_button.pressed.connect(func() -> void: _set_view("top"))
-	_view_bottom_button.pressed.connect(func() -> void: _set_view("bottom"))
+	_view_corner_left_button.pressed.connect(func() -> void: _set_view("corner_left"))
+	_view_corner_right_button.pressed.connect(func() -> void: _set_view("corner_right"))
 
 	# The HUD is the one node guaranteed to exist in every level, so it's
 	# where the per-level singletons get their "a level just started" call.

@@ -45,18 +45,28 @@ class_name CameraDirector
 var _orbit_yaw: float = 0.0
 var _orbit_pitch: float = 0.0
 
+# Preset-view transition: switching views (buttons, number keys, HOME) tweens
+# yaw/pitch to the target instead of snapping, so the camera visibly swings
+# across the room rather than cutting. Free-drag orbit (right-mouse) still
+# writes _orbit_yaw/_orbit_pitch directly and kills any in-flight tween first,
+# so grabbing the view mid-transition takes over immediately with no fight.
+@export var view_transition_time: float = 0.8
+var _view_tween: Tween
+
 # Named preset views (keys 1-4, or the HUD's view buttons): instant snaps to
 # a cardinal angle around the room so every gear can be lined up without
 # hand-dragging the orbit. Yaw/pitch are offsets on the same rest pose the
 # free orbit above uses, so a preset can still be nudged further by hand
 # afterward. Front is the level's own framed shot (0, 0); Back is the
-# opposite side; Top/Bottom sit at the same near-vertical clamp the free
-# orbit stops at, for the same gimbal-singularity reason.
+# opposite side; the two corner presets swing 45° off Front toward either
+# side wall with a moderate downward pitch, giving an angled overview of
+# the room instead of the near-vertical (and gimbal-adjacent) Top/Bottom
+# views they replace.
 const VIEW_PRESETS := {
 	"front": {"yaw": 0.0, "pitch": 0.0},
 	"back": {"yaw": 180.0, "pitch": 0.0},
-	"top": {"yaw": 0.0, "pitch": 85.0},
-	"bottom": {"yaw": 0.0, "pitch": -85.0},
+	"corner_left": {"yaw": -45.0, "pitch": 35.0},
+	"corner_right": {"yaw": 45.0, "pitch": 35.0},
 }
 
 @export var shake_strength_per_impact: float = 0.15
@@ -200,21 +210,24 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_wheel_zoom(-1.0)
 	elif event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		# Manual grab always wins immediately — cancel any preset tween so it
+		# can't keep fighting the drag for control of _orbit_yaw/_orbit_pitch.
+		if _view_tween:
+			_view_tween.kill()
 		# Yaw wraps freely (full 360° orbit); only pitch stays clamped, to
 		# avoid the vertical gimbal singularity.
 		_orbit_yaw = wrapf(_orbit_yaw - event.relative.x * orbit_sensitivity, -180.0, 180.0)
 		_orbit_pitch = clampf(_orbit_pitch - event.relative.y * orbit_sensitivity,
 			orbit_pitch_min, orbit_pitch_max)
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_HOME:
-		_orbit_yaw = 0.0
-		_orbit_pitch = 0.0
+		_animate_orbit_to(0.0, 0.0)
 		_zoom_target = 0.0
 	elif event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
 			KEY_1: set_preset_view("front")
 			KEY_2: set_preset_view("back")
-			KEY_3: set_preset_view("top")
-			KEY_4: set_preset_view("bottom")
+			KEY_3: set_preset_view("corner_left")
+			KEY_4: set_preset_view("corner_right")
 
 ## One wheel notch of zoom. Rapid consecutive notches ramp the step up (see
 ## zoom_accel_*), a pause resets it back to a precise single step. Zooming IN
@@ -243,15 +256,36 @@ func _aim_zoom_at_mouse() -> void:
 	if local_dir.z < -0.1:  # sanity: must still point into the scene
 		_zoom_dir_target = local_dir
 
-## Snap the orbit straight to a named cardinal view — see VIEW_PRESETS.
+## Swing the orbit smoothly to a named cardinal view — see VIEW_PRESETS.
 ## Zoom is left untouched; only the angle changes.
 func set_preset_view(view_name: String) -> void:
 	if not VIEW_PRESETS.has(view_name):
 		push_warning("CameraDirector: unknown preset view '%s'" % view_name)
 		return
 	var preset: Dictionary = VIEW_PRESETS[view_name]
-	_orbit_yaw = preset["yaw"]
-	_orbit_pitch = clampf(preset["pitch"], orbit_pitch_min, orbit_pitch_max)
+	_animate_orbit_to(preset["yaw"], clampf(preset["pitch"], orbit_pitch_min, orbit_pitch_max))
+
+## Tween _orbit_yaw/_orbit_pitch to the given target instead of snapping.
+## Yaw takes the shortest way around (e.g. 170° -> -170° is a 20° swing, not
+## 340°), matching the free-orbit's full-wraparound feel.
+func _animate_orbit_to(target_yaw: float, target_pitch: float) -> void:
+	if _view_tween:
+		_view_tween.kill()
+	var yaw_delta := wrapf(target_yaw - _orbit_yaw, -180.0, 180.0)
+	var yaw_end := _orbit_yaw + yaw_delta
+	var pitch_start := _orbit_pitch
+	_view_tween = create_tween()
+	_view_tween.set_parallel(true)
+	_view_tween.tween_method(_set_orbit_yaw, _orbit_yaw, yaw_end, view_transition_time) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_view_tween.tween_method(_set_orbit_pitch, pitch_start, target_pitch, view_transition_time) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+
+func _set_orbit_yaw(value: float) -> void:
+	_orbit_yaw = wrapf(value, -180.0, 180.0)
+
+func _set_orbit_pitch(value: float) -> void:
+	_orbit_pitch = value
 
 func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_EQUAL) or Input.is_key_pressed(KEY_KP_ADD):
@@ -308,9 +342,18 @@ func _process(delta: float) -> void:
 	# The wide zoom/orbit ranges above can otherwise push the camera straight
 	# through the room's walls/ceiling (which have no collision) — clamp the
 	# final position to stay inside the ~9.7m room shell (factory_dressing.gd's
-	# ROOM_HALF) regardless of how far the player zoomed or orbited.
-	position.x = clampf(position.x, -ROOM_BOUND, ROOM_BOUND)
-	position.z = clampf(position.z, -ROOM_BOUND, ROOM_BOUND)
+	# ROOM_HALF) regardless of how far the player zoomed or orbited. Clamped
+	# RADIALLY (distance from the room's vertical axis), not per-axis: an
+	# independent x/z box clamp snaps each axis at a different zoom/orbit
+	# amount, which reads as a sudden corner-cut on diagonal views (e.g. the
+	# corner presets) and never settles back to the same framing on zoom-out.
+	# A radial clamp preserves direction and only trims distance, so it
+	# shrinks/grows smoothly and returns to the exact same point at zoom 0.
+	var horizontal := Vector2(position.x, position.z)
+	if horizontal.length() > ROOM_BOUND:
+		horizontal = horizontal.normalized() * ROOM_BOUND
+		position.x = horizontal.x
+		position.z = horizontal.y
 	position.y = clampf(position.y, 0.5, CEILING_CLEARANCE)
 	if _shake_trauma <= 0.0:
 		return
