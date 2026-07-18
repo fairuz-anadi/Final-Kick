@@ -63,6 +63,14 @@ func is_on_board(username: String) -> bool:
 	var clean_name := username.strip_edges().to_lower()
 	return entries.any(func(e): return e.name.to_lower() == clean_name)
 
+## The saved score for `username` (case-insensitive), or -1 if not on the board.
+func best_for(username: String) -> int:
+	var clean := username.strip_edges().to_lower()
+	for entry in entries:
+		if entry.name.to_lower() == clean:
+			return int(entry.score)
+	return -1
+
 func _save() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("leaderboard", "entries", entries)
