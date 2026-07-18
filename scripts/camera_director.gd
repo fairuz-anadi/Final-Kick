@@ -127,6 +127,23 @@ var _last_wheel_ms: int = 0
 @export var fov_punch_max: float = 8.0
 @export var fov_recover_speed: float = 10.0   # degrees per second back to rest
 
+# Keep-in-frame leash: if the ball (follow_target) heads for the edge of the
+# frame — a hard kick, or the player orbiting/zooming away — the camera turns
+# just enough to keep it inside `frame_margin` of the view cone. Additive and
+# smoothed on top of everything else; identity while the ball is well framed.
+@export var keep_ball_framed: bool = true
+@export var frame_margin: float = 0.8        # ball stays within this fraction of the half-FOV
+@export var frame_correct_speed: float = 4.0 # how quickly the view turns to recover it
+# A ball sitting near the camera's feet (its spawn point in several levels)
+# is NOT an escape — correcting for it would pitch the whole shot floor-ward
+# and turn a front view into a top-down view. The leash only engages beyond
+# frame_min_distance (ramping in over ~2m so it never pops), and is capped at
+# frame_max_correction so the composed shot always stays recognizable.
+@export var frame_min_distance: float = 5.0
+@export var frame_max_correction: float = 35.0  # degrees
+
+var _frame_quat := Quaternion.IDENTITY
+
 var _follow_node: Node3D
 var _follow_offset := Vector3.ZERO
 var _base_fov: float = 75.0
@@ -177,6 +194,10 @@ func _ready() -> void:
 	_rng.randomize()
 	_base_fov = fov
 	_follow_node = get_node_or_null(follow_target)
+	# Deferred a beat so the ball has settled onto the floor first — spawns
+	# can be mid-air, and the framing check should judge where it actually
+	# comes to rest, not where it was on frame zero.
+	get_tree().create_timer(0.35).timeout.connect(_ensure_ball_in_rest_frame)
 
 ## Rebuild a camera pose for the inside-the-room view: clamp height to
 ## just under the ceiling, keep the original yaw, and flatten the pitch to
@@ -192,6 +213,60 @@ func _interior_pose(t: Transform3D) -> Transform3D:
 	forward = forward.normalized()
 	var dir := (forward + Vector3.DOWN * tan(deg_to_rad(interior_pitch_degrees))).normalized()
 	return Transform3D(Basis.looking_at(dir, Vector3.UP), origin)
+
+# How the rebuilt shot frames the ball when the level's own pose fails the
+# check below: camera this far behind the ball, aiming at a point this far
+# past it into the room (which lands the ball in the lower third of frame).
+const REST_FRAME_PULLBACK := 5.5
+const REST_FRAME_LOOK_AHEAD := 5.0
+
+## Some levels' authored camera poses don't actually contain the ball's spawn
+## (it sits at the camera's feet, under the frame) — the player starts a level
+## unable to see their own ball. Rotating down to find it would wreck the
+## front view (tried; it reads as top-down), so instead: if the rest pose
+## fails to frame the ball, rebuild it as a third-person shot from behind the
+## ball looking into the room, keeping the level's authored yaw. Levels whose
+## framing already contains the ball are left completely untouched.
+func _ensure_ball_in_rest_frame() -> void:
+	if _follow_node == null or not is_inside_tree() or _cam_state != CamState.FIXED:
+		return
+	var ball_pos: Vector3 = _follow_node.global_position
+	if _is_point_well_framed(ball_pos):
+		return  # the authored shot already shows the ball — hands off
+
+	var forward: Vector3 = -_cinematic_transform.basis.z
+	forward.y = 0.0
+	if forward.length() < 0.01:
+		forward = Vector3.FORWARD
+	forward = forward.normalized()
+	# Deliberately NOT clamped to ROOM_BOUND: several levels spawn the ball at
+	# the room's open front edge (z 8..13) — the pull-back has to go out
+	# through that opening or the camera ends up in front of its own ball.
+	# The per-frame clamp in _process widens to include the rest pose, so
+	# this never fights it.
+	var origin := ball_pos - forward * REST_FRAME_PULLBACK
+	origin.y = maxf(interior_camera_height, ball_pos.y + 1.75)
+	var look_target := ball_pos + forward * REST_FRAME_LOOK_AHEAD
+	look_target.y = ball_pos.y + 0.2
+	var dir := (look_target - origin).normalized()
+	var fixed := Transform3D(Basis.looking_at(dir, Vector3.UP), origin)
+	# Glide into the corrected shot rather than snapping — it reads as a
+	# deliberate opening camera move, not a glitch.
+	var tween := create_tween()
+	tween.tween_method(_set_cinematic_transform, _cinematic_transform, fixed, 0.6) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+## True when `point` projects comfortably inside the current view — the real
+## screen rect with an 8% edge margin, not an approximation — and is in front
+## of the camera.
+func _is_point_well_framed(point: Vector3) -> bool:
+	if is_position_behind(point):
+		return false
+	var vp: Vector2 = get_viewport().get_visible_rect().size
+	var sp: Vector2 = unproject_position(point)
+	var margin: Vector2 = vp * 0.08
+	return sp.x > margin.x and sp.x < vp.x - margin.x \
+		and sp.y > margin.y and sp.y < vp.y - margin.y
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
@@ -308,15 +383,45 @@ func _process(delta: float) -> void:
 	# The wide zoom/orbit ranges above can otherwise push the camera straight
 	# through the room's walls/ceiling (which have no collision) — clamp the
 	# final position to stay inside the ~9.7m room shell (factory_dressing.gd's
-	# ROOM_HALF) regardless of how far the player zoomed or orbited.
-	position.x = clampf(position.x, -ROOM_BOUND, ROOM_BOUND)
-	position.z = clampf(position.z, -ROOM_BOUND, ROOM_BOUND)
-	position.y = clampf(position.y, 0.5, CEILING_CLEARANCE)
+	# ROOM_HALF) regardless of how far the player zoomed or orbited. The box
+	# always widens to include the rest pose itself: a rest shot rebuilt
+	# behind a front-edge ball legitimately sits outside the shell (the rooms
+	# are open-fronted), and the clamp must never crush it.
+	var rest_o: Vector3 = _cinematic_transform.origin
+	position.x = clampf(position.x, minf(-ROOM_BOUND, rest_o.x), maxf(ROOM_BOUND, rest_o.x))
+	position.z = clampf(position.z, minf(-ROOM_BOUND, rest_o.z), maxf(ROOM_BOUND, rest_o.z))
+	position.y = clampf(position.y, 0.5, maxf(CEILING_CLEARANCE, rest_o.y))
+	_apply_ball_framing(delta)
 	if _shake_trauma <= 0.0:
 		return
 	var amount: float = _shake_trauma * _shake_trauma  # ease-out: big hits punch harder, fade fast
 	position += Vector3(_rng.randf_range(-1.0, 1.0), _rng.randf_range(-1.0, 1.0), 0.0) * amount * 0.3
 	_shake_trauma = move_toward(_shake_trauma, 0.0, delta / shake_duration)
+
+## Rotate the final view just enough that the ball can never leave the frame.
+## The vertical FOV is the cone limit (the horizontal FOV is wider, so staying
+## inside the vertical cone keeps the ball on screen on both axes). Rotation
+## only — the camera's position, and everything that computed it, is untouched.
+func _apply_ball_framing(delta: float) -> void:
+	var target := Quaternion.IDENTITY
+	if keep_ball_framed and _follow_node:
+		var to_ball: Vector3 = _follow_node.global_position - position
+		var dist: float = to_ball.length()
+		# Soft distance gate: 0 at frame_min_distance, full 2m beyond it.
+		var weight: float = clampf((dist - frame_min_distance) / 2.0, 0.0, 1.0)
+		if weight > 0.0:
+			var forward: Vector3 = -transform.basis.z
+			var dir: Vector3 = to_ball.normalized()
+			var angle: float = forward.angle_to(dir)
+			var limit: float = deg_to_rad(fov) * 0.5 * frame_margin
+			if angle > limit:
+				var correction: float = minf(angle - limit, deg_to_rad(frame_max_correction))
+				var axis: Vector3 = forward.cross(dir)
+				if axis.length() > 0.001:
+					target = Quaternion(axis.normalized(), correction * weight)
+	_frame_quat = _frame_quat.slerp(target, clampf(frame_correct_speed * delta, 0.0, 1.0))
+	if not _frame_quat.is_equal_approx(Quaternion.IDENTITY):
+		transform.basis = Basis(_frame_quat) * transform.basis
 
 func _on_big_impact(strength: float, _impact_position: Vector3) -> void:
 	_shake_trauma = clamp(_shake_trauma + strength * shake_strength_per_impact, 0.0, 1.0)

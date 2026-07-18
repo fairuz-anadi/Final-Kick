@@ -37,6 +37,10 @@ func _ready() -> void:
 			continue
 		target.connect("activated", _on_required_object_activated.bind(i))
 
+	# A blackout in progress must not race a still-spinning gear into a win —
+	# once the shutdown fade starts, this level can no longer complete.
+	LifeManager.factory_shutdown.connect(func() -> void: _completed = true)
+
 	# Deferred so a HUD connecting to progress_changed in its own _ready still
 	# receives the initial 0-of-N state regardless of scene-tree order.
 	_emit_progress.call_deferred()

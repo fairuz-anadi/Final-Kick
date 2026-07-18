@@ -357,6 +357,14 @@ func on_progress(done: int, total: int) -> void:
 	FactoryManager.register_progress(done, total)
 	if total > 0 and done == total:
 		_timer_running = false
+		# Seal the round at the true moment of victory: stats freeze here (a
+		# kick during the spectacle cam must not cost ONE-KICK WONDER or
+		# score), the ball stops taking input, and LifeManager stands down so
+		# a post-win ball loss can't drain energy or blackout a won level.
+		_final_stats = get_stats()
+		LifeManager.leave_level()
+		if _ball:
+			_ball.set("input_locked", true)
 		if owner and owner.scene_file_path:
 			NarratorManager.play_level_complete(owner.scene_file_path)
 
@@ -385,8 +393,13 @@ func _set_view(view_name: String) -> void:
 	if _camera_director:
 		_camera_director.set_preset_view(view_name)
 
-## Real run stats for the result screen.
+var _final_stats: Dictionary = {}
+
+## Real run stats for the result screen. Once the level completes this
+## returns the snapshot taken at that moment, not the live counters.
 func get_stats() -> Dictionary:
+	if not _final_stats.is_empty():
+		return _final_stats
 	return {
 		"time": _elapsed,
 		"kicks": kicks_used,

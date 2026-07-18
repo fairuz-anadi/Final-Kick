@@ -24,10 +24,11 @@ const UiHover := preload("res://assets/audio/sfx/ui_hover.ogg")
 const UiClick := preload("res://assets/audio/sfx/ui_click.ogg")
 const TargetDing := preload("res://assets/audio/sfx/target_ding.ogg")
 const MaxPower := preload("res://assets/audio/sfx/max_power.ogg")
-const LevelComplete := preload("res://assets/audio/sfx/level_complete.ogg")
+# Real recording (replaced the Kenney level_complete.ogg chime): the factory
+# roaring to life — a motor spin-up as the win stinger.
+const LevelComplete := preload("res://assets/audio/sfx/level_complete_motor.mp3")
 const HeartLoss := preload("res://assets/audio/sfx/heart_loss.ogg")
 const Shutdown := preload("res://assets/audio/sfx/shutdown.ogg")
-const MachineStart := preload("res://assets/audio/sfx/machine_start.ogg")
 const NarratorBlip := preload("res://assets/audio/sfx/narrator_blip.ogg")
 const Spark := preload("res://assets/audio/sfx/spark.ogg")
 const Rewind := preload("res://assets/audio/sfx/rewind.ogg")
@@ -101,7 +102,9 @@ static func play_max_power() -> void:
 	AudioDirector.duck_music()
 
 static func play_level_complete() -> void:
-	_play_2d(LevelComplete, 1.0, 3.0)
+	# -4 dB: the motor recording runs hotter than the old Kenney chime this
+	# slot was tuned for (+3 dB back then).
+	_play_2d(LevelComplete, 1.0, -4.0)
 	AudioDirector.duck_music()
 
 static func play_heart_loss() -> void:
@@ -110,9 +113,6 @@ static func play_heart_loss() -> void:
 static func play_shutdown() -> void:
 	_play_2d(Shutdown, 1.0, 2.0)
 	AudioDirector.duck_music(8.0, 0.5, 1.2)
-
-static func play_machine_start(at: Node3D) -> void:
-	_play(MachineStart, at, 1.0, 2.0)
 
 static func play_narrator_blip() -> void:
 	_play_2d(NarratorBlip)

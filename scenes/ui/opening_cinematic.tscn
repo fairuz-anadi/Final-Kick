@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://c74464qul3d02"]
 
-[ext_resource type="Script" path="res://scripts/ui/opening_cinematic.gd" id="1"]
+[ext_resource type="Script" uid="uid://cblyvvy4gh7rt" path="res://scripts/ui/opening_cinematic.gd" id="1"]
 
-[node name="OpeningCinematic" type="Node2D"]
+[node name="OpeningCinematic" type="Node2D" unique_id=1971069810]
 script = ExtResource("1")

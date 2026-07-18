@@ -36,6 +36,11 @@ var overcharge_ratio: float = 0.0  # 0 = normal charge, 1 = fully overcharged (a
 @export var ghost_trail_marker_radius: float = 0.5  # matches the ball's default SphereMesh radius
 @export var ghost_trail_fade_duration: float = 1.5
 
+## Set by the HUD the moment the level completes: the ball keeps simulating
+## (the win moment shouldn't freeze it mid-air) but accepts no more kicks or
+## rewinds, and a post-win roll off the edge just quietly respawns it.
+var input_locked: bool = false
+
 var charging: bool = false
 var charge_time: float = 0.0
 var charge_ratio: float = 0.0
@@ -178,6 +183,13 @@ func _physics_process(delta: float) -> void:
 		PlaceholderSFX.play_impact(self, _pending_impact_sound)
 		_squash = maxf(_squash, clampf(_pending_impact_sound / 8.0, 0.35, 1.0))
 		_pending_impact_sound = 0.0
+
+	if input_locked:
+		if is_scrubbing:
+			_exit_scrub()
+		if global_position.y < out_of_bounds_y:
+			_reset_to_start()  # silent — the round is over, no drain/popup
+		return
 
 	if Input.is_key_pressed(KEY_R):
 		_scrub(delta)

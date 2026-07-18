@@ -43,6 +43,11 @@ const LEVEL_BASE_BRIGHTNESS := {
 	"res://scenes/levels/level_3.tscn": 0.12,
 	"res://scenes/levels/level_4.tscn": 0.18,
 	"res://scenes/levels/level_5.tscn": 0.24,
+	"res://scenes/levels/level_6.tscn": 0.30,
+	"res://scenes/levels/level_7.tscn": 0.36,
+	"res://scenes/levels/level_8.tscn": 0.42,
+	"res://scenes/levels/level_9.tscn": 0.48,
+	"res://scenes/levels/level_10.tscn": 0.54,
 }
 
 ## What the player has earned: 100 * machines awakened / total machines.
@@ -118,12 +123,13 @@ func _recompute_energy() -> void:
 	if rising:
 		LifeManager.on_energy_recovered()
 
-## Per-machine wake-up flourish: warm light bloom + rising spark burst +
-## startup rumble at the machine that just came back to life.
+## Per-machine wake-up flourish: warm light bloom + rising spark burst at the
+## machine that just came back to life. (No startup-rumble SFX by design —
+## Samprity cut machine_start.ogg on 2026-07-18; the machine's own hit sound
+## already covers the moment.)
 func on_machine_activated(machine: Node3D) -> void:
 	if machine == null or not machine.is_inside_tree():
 		return
-	PlaceholderSFX.play_machine_start(machine)
 	_spawn_activation_light(machine)
 	_spawn_activation_particles(machine)
 
