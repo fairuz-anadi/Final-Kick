@@ -112,10 +112,24 @@ func _ready() -> void:
 		if child is MeshInstance3D and child.mesh is SphereMesh:
 			_visual_mesh = child
 			break
+	_apply_level_skin()
 	_glow_light = OmniLight3D.new()
 	_glow_light.omni_range = 3.0
 	_glow_light.light_energy = 0.0
 	add_child(_glow_light)
+
+## Cosmetic-only: swaps the ball's material to that level's skin. Reads the
+## level number from the current scene's file path, so no per-level wiring
+## is needed — dropping the ball scene into level_N.tscn is enough.
+func _apply_level_skin() -> void:
+	if _visual_mesh == null:
+		return
+	var scene_path := get_tree().current_scene.scene_file_path
+	var level_number: int = BallSkins.level_number_from_path(scene_path)
+	_visual_mesh.set_surface_override_material(0, BallSkins.material_for_level(level_number))
+	BallSkins.decorate(_visual_mesh, level_number)
+	BallSkins.apply_strap(get_node_or_null("Strap") as MeshInstance3D, level_number)
+	BallSkins.apply_trail(get_node_or_null("KickTrail") as GPUParticles3D, level_number)
 
 func _process(delta: float) -> void:
 	_update_personality(delta)
