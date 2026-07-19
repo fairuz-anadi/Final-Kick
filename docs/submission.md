@@ -69,6 +69,13 @@ vial does **not** count toward clearing the room, so stalling isn't free.
 with nothing but a long drop between them. Both circuits need power — commit
 to a clean line down one side, then come back and thread the other.
 
+**Ball evolution.** The ball itself levels up with you — every room gives it
+a new look, from stock chrome-and-amber through cyan, molten orange, gold and
+white-hot, to the final room's dark chrome with a burning red core. Later
+skins add glowing rings, spikes and a hotter kick trail, and the finish
+polishes toward a near-mirror shine. Purely cosmetic — physics, mass, and
+collision never change.
+
 **The story.** A fully illustrated, six-shot opening cinematic (skippable via
 a single dedicated SKIP button — no key/click shortcuts, so it can't be cut
 short by accident) frames the run: an old worker kept a dead factory company
