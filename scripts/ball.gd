@@ -17,6 +17,16 @@ const GhostMaterial := preload("res://assets/materials/ghost_material.tres")
 var burst_available: bool = true
 var burst_armed: bool = false
 
+# --- Kick limit: Difficulty scales how many kicks (regular or Final Kick)
+# a level allows before extras start draining Factory Energy instead of
+# being free (see LifeManager.on_kick_overuse). Kicking is never hard-blocked
+# — running dry just gets expensive. ---
+var kicks_remaining: int = 0
+
+## Fires after every kick with the post-kick remaining count, so the HUD can
+## show it without polling.
+signal kicks_changed(remaining: int)
+
 # --- Overcharge: unlike the one-shot burst above, this is a repeatable
 # risk/reward every regular kick gets access to. Holding past max_charge_time
 # (the same extra window the burst uses to arm) scales impulse up further and
@@ -102,6 +112,8 @@ func _ready() -> void:
 	# overrides the exported default rather than replacing it, so the
 	# inspector value still applies as the Medium/fallback baseline.
 	max_history_frames = Difficulty.rewind_frames()
+	var scene_path: String = get_tree().current_scene.scene_file_path if get_tree().current_scene else ""
+	kicks_remaining = Difficulty.kicks_per_level(scene_path)
 	contact_monitor = true
 	max_contacts_reported = 4
 	# High kick speeds (up to ~30 m/s) can tunnel a small fast body through thin
@@ -352,6 +364,15 @@ func _process_kick(delta: float) -> void:
 		# works after the one-per-level burst has been spent.
 		overcharge_ratio = clamp((charge_time - max_charge_time) / burst_hold_window, 0.0, 1.0)
 	elif charging and Input.is_action_just_released("kick"):
+		# Every kick (regular or burst) draws from the level's kick limit;
+		# once it's spent, further kicks still fire but drain Factory Energy
+		# instead of being free. Decremented before the kicked/burst_kicked
+		# signals below so HUD listeners see the up-to-date count.
+		if kicks_remaining > 0:
+			kicks_remaining -= 1
+		else:
+			LifeManager.on_kick_overuse()
+		kicks_changed.emit(kicks_remaining)
 		if burst_armed:
 			apply_central_impulse(_get_aim_direction() * burst_impulse)
 			burst_available = false
