@@ -26,6 +26,11 @@ var best_score: int = 0
 ## stacking it — the run total can't be farmed by replaying an easy room.
 var _level_scores: Dictionary = {}
 
+## Global kick tally across the whole run — same replace-on-retry shape as
+## _level_scores, so a RETRY updates the total instead of double-counting.
+var total_kicks: int = 0
+var _level_kicks: Dictionary = {}
+
 func _ready() -> void:
 	_load_best()
 
@@ -33,7 +38,9 @@ func _ready() -> void:
 ## from a previous playthrough.
 func reset_run() -> void:
 	total_score = 0
+	total_kicks = 0
 	_level_scores.clear()
+	_level_kicks.clear()
 
 ## Call once the run is fully complete (ending scene). Returns true if this
 ## run's total beat the previous best — saves the new best either way isn't
@@ -73,6 +80,9 @@ func score_level(stats: Dictionary, level_path: String = "") -> Dictionary:
 	if level_path != "":
 		total_score -= int(_level_scores.get(level_path, 0))
 		_level_scores[level_path] = level_score
+		total_kicks -= int(_level_kicks.get(level_path, 0))
+		_level_kicks[level_path] = kicks
 	total_score += level_score
+	total_kicks += kicks
 
 	return {"level_score": level_score, "total_score": total_score}

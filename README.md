@@ -61,8 +61,13 @@ complete it. Ten rooms total; each one adds a new twist.
   wobblier aim. Repeatable on any kick.
 - **Final Kick burst:** hold *well* past full — once per room — for a huge
   burst that clears gaps nothing else can.
+- **Kick limit.** Each room has a kick budget, sized to how many targets
+  and how hard that room is (bigger on later, longer rooms). It's not a
+  hard cutoff — every kick past the limit still fires, but drains Factory
+  Energy instead of being free.
 - **Difficulty** (Easy/Medium/Hard, on the title screen) scales the rewind
-  window (~15s/~10s/~5s) and how much a lost ball costs.
+  window (~15s/~10s/~5s), how much a lost ball costs, and each room's kick
+  limit (Hard is tightest; Medium and Easy give noticeably more room).
 - **Leaderboard:** local top-5 by name (entered at the title screen). Every
   level clear counts toward the board — not just full runs.
 - The ball earns a new look every room, from stock chrome to a white-hot
@@ -75,6 +80,7 @@ complete it. Ten rooms total; each one adds a new twist.
 - **Leaking Vials** — some chemicals detonate on their own schedule, and a self-triggered blast doesn't count
 - **Twin Circuits** — a forked room with a long drop in the middle; both sides need a perfect line
 - **Factory Energy** — each room visibly and audibly wakes up as you clear it
+- **Kick budget** — a per-room, difficulty-scaled kick limit; running dry doesn't lock you out, it just starts costing Factory Energy
 - **A real ending** — a celebration screen, a narrated closing story, and an auto-opening results dashboard
 - **Spectacle Cam** — the camera goes cinematic when the chain completes
 - **Fully illustrated opening cinematic** with a skippable six-shot story

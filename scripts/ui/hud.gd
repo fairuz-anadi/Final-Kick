@@ -92,6 +92,8 @@ func _ready() -> void:
 		_ball.kicked.connect(_on_kicked)
 	if _ball.has_signal("burst_kicked"):
 		_ball.burst_kicked.connect(_on_burst_kicked)
+	var starting_limit: int = _ball.get("kicks_remaining") if _ball.get("kicks_remaining") != null else 0
+	_kicks_label.text = "KICKS   0 / %d" % starting_limit
 
 	var cam := get_viewport().get_camera_3d()
 	if cam is CameraDirector:
@@ -328,7 +330,9 @@ func _update_rewind_gauge(scrubbing: bool) -> void:
 func _on_kicked(power_ratio: float) -> void:
 	kicks_used += 1
 	_chain_count = 0  # every kick starts a fresh chain
-	_kicks_label.text = "KICKS   %d" % kicks_used
+	var remaining: int = _ball.get("kicks_remaining") if _ball else 0
+	_kicks_label.text = "KICKS   %d / %d" % [kicks_used, kicks_used + remaining]
+	_kicks_label.modulate = Color(COLOR_WARNING, 1.0) if remaining <= 0 else Color(COLOR_TEXT, 1.0)
 	if _burst_notified_this_kick:
 		# The burst callout already covered the notify/vignette for this kick —
 		# skip the generic MAX POWER reaction so they don't double up.

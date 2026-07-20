@@ -79,6 +79,27 @@ func on_ball_lost(ball: Node3D) -> void:
 	else:
 		NarratorManager.on_death()
 
+## Called by ball.gd once a kick is spent past the level's Difficulty-scaled
+## kick limit (see Difficulty.kicks_per_level()). Same escalation as a ball
+## loss — critical warning, or a full blackout restart if it drains the
+## last of the energy — but no camera shake/respawn, since the ball never
+## actually left play.
+func on_kick_overuse() -> void:
+	if not _in_level or _shutting_down:
+		return
+	# Before any machine is awake there's no earned energy to lose — mirrors
+	# on_ball_lost so early experimenting stays free either way.
+	if FactoryManager.progress_pct <= 0.0:
+		return
+	var drain := Difficulty.kick_overage_drain()
+	FactoryManager.drain_energy(drain)
+	energy_drained.emit(drain)
+	if FactoryManager.energy <= 0.0:
+		_begin_shutdown()
+	elif FactoryManager.energy <= CRITICAL_ENERGY:
+		_set_critical(true)
+		NarratorManager.on_power_critical()
+
 ## Waking a machine can lift the factory back out of the critical state —
 ## FactoryManager calls this whenever energy changes upward.
 func on_energy_recovered() -> void:
