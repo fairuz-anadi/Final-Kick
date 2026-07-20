@@ -3,5 +3,5 @@
 /android/
 /web-export/
 
-# Claude Code local settings (personal, not shared)
-.claude/settings.local.json
+# Deployment (local tooling state)
+.vercel/
