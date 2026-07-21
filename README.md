@@ -12,7 +12,7 @@ better angle.
 
 **No install needed — play in your browser:**
 
-### 🎮 [final-kick.vercel.app](https://final-kick.vercel.app)
+### 🎮 [finalkick.vercel.app](https://finalkick.vercel.app)
 
 Works in any modern desktop browser (Chrome, Firefox, Edge). Keyboard +
 mouse required — not a mobile game.
@@ -88,7 +88,7 @@ complete it. Ten rooms total; each one adds a new twist.
 ## Deployment (CI/CD)
 
 Every push to `master` automatically exports the web build and deploys it to
-[final-kick.vercel.app](https://final-kick.vercel.app) via GitHub Actions —
+[finalkick.vercel.app](https://finalkick.vercel.app) via GitHub Actions —
 see [`.github/workflows/deploy-web.yml`](.github/workflows/deploy-web.yml).
 
 Manual deploy (from a machine with the Vercel CLI logged in):
